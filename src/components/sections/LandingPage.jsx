@@ -113,7 +113,7 @@ const LandingPage = () => {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 20,
           }}>A</div>
-          <span style={{ fontWeight: 700, fontSize: 18, color: '#3e2723', letterSpacing: '-0.5px' }}>The Migration</span>
+          <span style={{ fontWeight: 700, fontSize: 18, color: '#3e2723', letterSpacing: '-0.5px' }}>Migration</span>
         </div>
 
         <div style={{ flex: 1, padding: '20px 0' }}>
@@ -147,7 +147,7 @@ const LandingPage = () => {
       <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <header style={{ marginBottom: 40 }}>
-            <h1 style={{ fontSize: 32, fontWeight: 800, color: '#1a1f36', marginBottom: 12 }}>The Migration PTE Mock Test</h1>
+            <h1 style={{ fontSize: 32, fontWeight: 800, color: '#1a1f36', marginBottom: 12 }}>Migration PTE Mock Test</h1>
             <p style={{ fontSize: 16, color: '#5a6270', lineHeight: 1.6 }}>
               Experience the real PTE Academic exam with our AI-powered mock test.
               Get instant scoring and detailed feedback.

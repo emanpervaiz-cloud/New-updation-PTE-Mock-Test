@@ -15,7 +15,7 @@ const ExamIntroduction = () => {
     if (state && state.user) {
       const updated = { ...state.user, lastTestTaken: new Date().toISOString() };
       setUser(updated);
-      try { localStorage.setItem('pte_user', JSON.stringify(updated)); } catch {}
+      try { localStorage.setItem('pte_user', JSON.stringify(updated)); } catch { }
     }
     navigate('/exam/speaking');
   };
@@ -45,7 +45,7 @@ const ExamIntroduction = () => {
         boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
       }}>
         <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#3e2723', letterSpacing: '-0.5px' }}>
-          The Migration PTE Mock test
+          Migration PTE Mock test
         </h1>
       </header>
 
@@ -130,7 +130,7 @@ const ExamIntroduction = () => {
       </main>
 
       <footer style={{ padding: '24px', textAlign: 'center', color: '#999', fontSize: 12 }}>
-        © {new Date().getFullYear()} The Migration PTE Mock test. All rights reserved.
+        © {new Date().getFullYear()} Migration PTE Mock test. All rights reserved.
       </footer>
     </div>
   );

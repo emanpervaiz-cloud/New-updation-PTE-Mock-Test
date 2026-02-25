@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ExamProvider } from './context/ExamContext';
 import LandingPage from './components/sections/LandingPage';
+import PracticePage from './components/sections/PracticePage';
 import ExamIntroduction from './components/common/ExamIntroduction';
 import SpeakingSection from './components/sections/SpeakingSection';
 import WritingSection from './components/sections/WritingSection';
@@ -22,7 +23,7 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/landing" element={<PracticePage />} />
             <Route path="/intro" element={<ExamIntroduction />} />
             <Route path="/exam/introduction" element={<ExamIntroduction />} />
             <Route path="/exam/speaking" element={<SpeakingSection />} />

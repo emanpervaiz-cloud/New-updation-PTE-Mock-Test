@@ -80,7 +80,7 @@ const Dashboard = () => {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 18, flexShrink: 0,
           }}>A</div>
-          {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 16, color: '#3e2723', letterSpacing: '-0.5px' }}>The Migration</span>}
+          {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 16, color: '#3e2723', letterSpacing: '-0.5px' }}>Migration</span>}
         </div>
 
         {/* Nav */}
@@ -143,7 +143,7 @@ const Dashboard = () => {
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
         }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span style={{ background: '#fff3e0', color: '#bf360c', borderRadius: 6, padding: '4px 12px', fontSize: 13, fontWeight: 600 }}>The Migration</span>
+            <span style={{ background: '#fff3e0', color: '#bf360c', borderRadius: 6, padding: '4px 12px', fontSize: 13, fontWeight: 600 }}>Migration</span>
             <button
               onClick={handleStartPractice}
               style={{ background: 'none', border: 'none', color: '#666', fontSize: 14, cursor: 'pointer', padding: '4px 12px', borderRadius: 6 }}

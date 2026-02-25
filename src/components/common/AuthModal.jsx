@@ -23,7 +23,7 @@ const AuthModal = ({ onClose, open }) => {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: '#fff', padding: 24, borderRadius: 12, width: 360, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-        <h3 style={{ marginTop: 0 }}>Sign In to The Migration PTE Mock test</h3>
+        <h3 style={{ marginTop: 0 }}>Sign In to Migration PTE Mock test</h3>
         {state.user ? (
           <div>
             <p>Signed in as <strong>{state.user.name || state.user.email}</strong></p>
