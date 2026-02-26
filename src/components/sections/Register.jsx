@@ -11,18 +11,25 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const navigate = useNavigate();
 
-    // Email validation
+    // Validation
     useEffect(() => {
-        if (email && !/\S+@\S+\.\S+/.test(email)) {
+        if (email && !/\S+@\S+\.\S/.test(email)) {
             setEmailError('Please enter a valid email address');
         } else {
             setEmailError('');
         }
-    }, [email]);
 
-    const isFormValid = name && email && password && !emailError && !loading;
+        if (password && password.length < 8) {
+            setPasswordError('Password must be at least 8 characters');
+        } else {
+            setPasswordError('');
+        }
+    }, [email, password]);
+
+    const isFormValid = name && email && password && !emailError && !passwordError && !loading;
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -32,15 +39,15 @@ const Register = () => {
         setLoading(true);
 
         try {
-            const success = await AuthService.register(name, email, password);
-            if (success) {
+            const result = await AuthService.register(name, email, password);
+            if (result.success) {
                 // Sync to GHL (Background task, non-blocking for user)
                 ghlService.syncUserRegistration({ name, email })
                     .catch(err => console.error('GHL Background Sync Error:', err));
 
                 navigate('/');
             } else {
-                setError('Registration failed. Please try again.');
+                setError(result.message || 'Registration failed. Please try again.');
             }
         } catch (err) {
             setError('An error occurred during registration. Please try again.');
@@ -190,7 +197,7 @@ const Register = () => {
                                     width: '100%',
                                     padding: '14px 16px',
                                     borderRadius: '12px',
-                                    border: '1.5px solid #e2e8f0',
+                                    border: passwordError ? '1.5px solid #fb7185' : '1.5px solid #e2e8f0',
                                     fontSize: '15px',
                                     outline: 'none',
                                     boxSizing: 'border-box',
@@ -234,6 +241,11 @@ const Register = () => {
                                 )}
                             </button>
                         </div>
+                        {passwordError && (
+                            <span style={{ color: '#e11d48', fontSize: '12px', marginTop: '6px', display: 'block' }}>
+                                {passwordError}
+                            </span>
+                        )}
                     </div>
 
                     <button
@@ -283,8 +295,8 @@ const Register = () => {
                         Sign in instead
                     </span>
                 </p>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

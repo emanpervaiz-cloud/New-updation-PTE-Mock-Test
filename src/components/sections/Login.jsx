@@ -9,18 +9,25 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const navigate = useNavigate();
 
-    // Email validation
+    // Validation
     useEffect(() => {
-        if (email && !/\S+@\S+\.\S+/.test(email)) {
+        if (email && !/\S+@\S+\.\S/.test(email)) {
             setEmailError('Please enter a valid email address');
         } else {
             setEmailError('');
         }
-    }, [email]);
 
-    const isFormValid = email && password && !emailError && !loading;
+        if (password && password.length < 8) {
+            setPasswordError('Password must be at least 8 characters');
+        } else {
+            setPasswordError('');
+        }
+    }, [email, password]);
+
+    const isFormValid = email && password && !emailError && !passwordError && !loading;
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -30,11 +37,11 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const success = await AuthService.login(email, password);
-            if (success) {
+            const result = await AuthService.login(email, password);
+            if (result.success) {
                 navigate('/');
             } else {
-                setError('Invalid credentials. Please try again.');
+                setError(result.message || 'Invalid credentials. Please try again.');
             }
         } catch (err) {
             setError('An error occurred during sign in. Please try again.');
@@ -154,7 +161,7 @@ const Login = () => {
                                     width: '100%',
                                     padding: '14px 16px',
                                     borderRadius: '12px',
-                                    border: '1.5px solid #e2e8f0',
+                                    border: passwordError ? '1.5px solid #fb7185' : '1.5px solid #e2e8f0',
                                     fontSize: '15px',
                                     outline: 'none',
                                     boxSizing: 'border-box',
@@ -198,6 +205,11 @@ const Login = () => {
                                 )}
                             </button>
                         </div>
+                        {passwordError && (
+                            <span style={{ color: '#e11d48', fontSize: '12px', marginTop: '6px', display: 'block' }}>
+                                {passwordError}
+                            </span>
+                        )}
                     </div>
 
                     <button
@@ -247,8 +259,8 @@ const Login = () => {
                         Create an account
                     </span>
                 </p>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

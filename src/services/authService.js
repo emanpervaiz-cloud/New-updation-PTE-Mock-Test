@@ -4,64 +4,89 @@
  */
 export const AuthService = {
     /**
-     * Simulates a login request.
+     * Authenticates a user against the local storage 'database'.
      * @param {string} email 
      * @param {string} password 
-     * @returns {Promise<boolean>}
+     * @returns {Promise<{success: boolean, message?: string}>}
      */
     login: async (email, password) => {
         return new Promise((resolve) => {
-            // Simulate network request delay
             setTimeout(() => {
-                // Mock validation: accept any email that is not empty
-                if (email && password) {
-                    const mockToken = `token_${Math.random().toString(36).substring(2)}`;
-                    const mockUser = {
-                        user_id: 'usr_' + Math.floor(Math.random() * 1000000000),
-                        name: email.split('@')[0] || 'Student',
-                        email: email,
-                        target_score: 79,
-                        overall_average: 68
-                    };
-
-                    // Store session data persistently
-                    localStorage.setItem('pte_auth_token', mockToken);
-                    localStorage.setItem('pte_user', JSON.stringify(mockUser));
-                    resolve(true);
-                } else {
-                    resolve(false);
+                if (!email || !password) {
+                    return resolve({ success: false, message: 'Email and password are required' });
                 }
-            }, 500);
+
+                if (password.length < 8) {
+                    return resolve({ success: false, message: 'Password must be at least 8 characters long' });
+                }
+
+                // Get registered users
+                const users = JSON.parse(localStorage.getItem('pte_users') || '[]');
+                const user = users.find(u => u.email === email && u.password === password);
+
+                if (user) {
+                    const mockToken = `token_${Math.random().toString(36).substring(2)}`;
+                    const sessionUser = { ...user };
+                    delete sessionUser.password; // Don't store password in session
+
+                    localStorage.setItem('pte_auth_token', mockToken);
+                    localStorage.setItem('pte_user', JSON.stringify(sessionUser));
+                    resolve({ success: true });
+                } else {
+                    resolve({ success: false, message: 'Invalid email or password. Please create an account first.' });
+                }
+            }, 600);
         });
     },
 
     /**
-     * Simulates a registration request.
+     * Registers a new user and stores them in localStorage.
      * @param {string} name 
      * @param {string} email 
      * @param {string} password 
-     * @returns {Promise<boolean>}
+     * @returns {Promise<{success: boolean, message?: string}>}
      */
     register: async (name, email, password) => {
         return new Promise((resolve) => {
             setTimeout(() => {
-                if (name && email && password) {
-                    const mockToken = `token_${Math.random().toString(36).substring(2)}`;
-                    const mockUser = {
-                        user_id: 'usr_' + Math.floor(Math.random() * 1000000000),
-                        name: name,
-                        email: email,
-                        target_score: 79,
-                        overall_average: 0
-                    };
-
-                    localStorage.setItem('pte_auth_token', mockToken);
-                    localStorage.setItem('pte_user', JSON.stringify(mockUser));
-                    resolve(true);
-                } else {
-                    resolve(false);
+                if (!name || !email || !password) {
+                    return resolve({ success: false, message: 'All fields are required' });
                 }
-            }, 500);
+
+                if (password.length < 8) {
+                    return resolve({ success: false, message: 'Password must be at least 8 characters' });
+                }
+
+                const users = JSON.parse(localStorage.getItem('pte_users') || '[]');
+
+                // Check if user already exists
+                if (users.some(u => u.email === email)) {
+                    return resolve({ success: false, message: 'This email is already registered' });
+                }
+
+                const newUser = {
+                    user_id: 'usr_' + Math.floor(Math.random() * 1000000000),
+                    name,
+                    email,
+                    password, // Storing in plain text for this local-only simulation
+                    target_score: 79,
+                    overall_average: 0,
+                    registeredAt: new Date().toISOString()
+                };
+
+                users.push(newUser);
+                localStorage.setItem('pte_users', JSON.stringify(users));
+
+                // Auto login after registration
+                const mockToken = `token_${Math.random().toString(36).substring(2)}`;
+                const sessionUser = { ...newUser };
+                delete sessionUser.password;
+
+                localStorage.setItem('pte_auth_token', mockToken);
+                localStorage.setItem('pte_user', JSON.stringify(sessionUser));
+
+                resolve({ success: true });
+            }, 800);
         });
     },
 
