@@ -44,7 +44,7 @@ class AIEvaluationService {
     this.webhookUrl = import.meta.env.VITE_WEBHOOK_URL || 'https://n8n.srv826531.hstgr.cloud/webhook-test/b225b16c-c602-450e-b858-f9bbe4ba5dd6';
   }
 
-  // Evaluate speaking responses with professional examiner rubric
+  // Evaluate speaking responses with hybrid scoring engine (Backend)
   async evaluateSpeaking(prompt, audioBlobOrText, questionType) {
     let transcript = audioBlobOrText;
 
@@ -53,110 +53,34 @@ class AIEvaluationService {
       transcript = await this.transcribeAudio(audioBlobOrText);
     }
 
-    const messages = [
-      {
-        role: "system",
-        content: EXAMINER_SYSTEM_PROMPT
-      },
-      {
-        role: "user",
-        content: `
-          Question Type: ${questionType}
-          Prompt/Task: ${prompt}
-          Student's Spoken Response (transcribed): ${transcript}
-          
-          Evaluate this speaking response using the 5-dimension rubric. Return your evaluation as valid JSON only (no markdown, no explanation outside JSON):
-          {
-            "fluency_coherence": { "score": 0-10, "feedback": "2-3 sentence analytical comment with specific reference to the response" },
-            "pronunciation_intonation": { "score": 0-10, "feedback": "2-3 sentence analytical comment" },
-            "grammar_range_accuracy": { "score": 0-10, "feedback": "2-3 sentence analytical comment" },
-            "vocabulary_lexical_resource": { "score": 0-10, "feedback": "2-3 sentence analytical comment" },
-            "task_achievement": { "score": 0-10, "feedback": "2-3 sentence analytical comment" },
-            "total_score": [sum of all 5 scores out of 50],
-            "scaled_score": [total_score / 5, rounded to 1 decimal],
-            "band_descriptor": "one of: Expert Communicator | Strong Communicator | Competent Communicator | Developing Communicator | Needs Improvement",
-            "top_strength": "One specific thing the student did well",
-            "priority_improvement": "One precise, actionable tip to raise their score",
-            "overall_pte_score": [mapped to PTE 10-90 scale],
-            "cefr_level": "A1/A2/B1/B2/C1/C2"
-          }
-        `
-      }
-    ];
-
     try {
+      const backendUrl = 'http://localhost:5000/api/scoring/evaluate-speaking';
       const requestBody = {
         action: "evaluate_speaking",
         questionType: questionType,
         prompt: prompt,
-        transcript: transcript,
-        // Passing the system instructions so the n8n LLM node has context
-        system_instruction: EXAMINER_SYSTEM_PROMPT,
-        format_instruction: `
-          Evaluate this speaking response using the 5-dimension rubric. Return your evaluation as valid JSON only:
-          {
-            "fluency_coherence": { "score": 0-10, "feedback": "..." },
-            "pronunciation_intonation": { "score": 0-10, "feedback": "..." },
-            "grammar_range_accuracy": { "score": 0-10, "feedback": "..." },
-            "vocabulary_lexical_resource": { "score": 0-10, "feedback": "..." },
-            "task_achievement": { "score": 0-10, "feedback": "..." },
-            "total_score": 0-50,
-            "scaled_score": 0-10.0,
-            "band_descriptor": "Expert Communicator...",
-            "top_strength": "...",
-            "priority_improvement": "...",
-            "overall_pte_score": 10-90,
-            "cefr_level": "A1-C2"
-          }`
+        transcript: transcript
       };
 
-      const headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      };
-
-      // If an n8n API key is required and exists in .env, append it
-      const n8nKey = import.meta.env.VITE_N8N_API_KEY;
-      if (n8nKey) {
-        headers['Authorization'] = `Bearer ${n8nKey}`;
-      }
-
-      const apiResponse = await fetch(this.webhookUrl, {
+      const apiResponse = await fetch(backendUrl, {
         method: 'POST',
-        headers: headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       });
 
-      const textResponse = await apiResponse.text();
-      let evaluationResult;
-
-      try {
-        // Attempt to parse the direct n8n response as JSON
-        evaluationResult = JSON.parse(textResponse);
-
-        // n8n sometimes wraps the response in a 'data' object depending on the node configuration
-        if (evaluationResult.output || evaluationResult.data || evaluationResult.text) {
-          const nestedJSONstr = evaluationResult.output || evaluationResult.data || evaluationResult.text;
-          const jsonMatch = nestedJSONstr.match(/\{[\s\S]*\}/);
-          if (jsonMatch) evaluationResult = JSON.parse(jsonMatch[0]);
-        }
-      } catch (parseError) {
-        // Fallback robust json extraction if n8n returns markdown text wrapping the json
-        const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          evaluationResult = JSON.parse(jsonMatch[0]);
-        } else {
-          console.error("Failed to parse JSON from n8n webhook:", textResponse);
-          evaluationResult = this.getFallbackSpeakingEvaluation();
-        }
+      if (!apiResponse.ok) {
+        throw new Error(`Backend responded with status ${apiResponse.status}`);
       }
+
+      const evaluationResult = await apiResponse.json();
 
       return {
         ...evaluationResult,
         transcript: transcript
       };
     } catch (error) {
-      console.error('Error evaluating speaking:', error);
+      console.error('Error evaluating speaking via backend:', error);
+      // Fallback to local logic if backend fails
       return {
         ...this.getFallbackSpeakingEvaluation(),
         transcript: transcript

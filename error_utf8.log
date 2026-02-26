@@ -1,0 +1,81 @@
+﻿[dotenv@17.3.1] injecting env (2) from .env -- tip: ΓÜÖ∩╕Å  specify custom .env file path with { path: '/custom/path/.env' }
+node : C:\Users\Dell\D
+esktop\Ai Pte mock tes
+t\server\node_modules\
+openai\client.js:94
+At line:1 char:1
++ node 
+server/index.js > 
+error.log 2>&1
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (C:\Users\D   
+ ell\D...ai\client    
+.js:94:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+            throw new 
+Errors.OpenAIError('Mi
+ssing credentials. 
+Please pass an 
+`apiKey`, or set the 
+`OPENAI_API_KEY` 
+environment 
+variable.');
+            ^
+
+OpenAIError: Missing 
+credentials. Please 
+pass an `apiKey`, or 
+set the 
+`OPENAI_API_KEY` 
+environment variable.
+    at new OpenAI (C:\
+Users\Dell\Desktop\Ai 
+Pte mock test\server\n
+ode_modules\openai\cli
+ent.js:94:19)
+    at new 
+module.exports (C:\Use
+rs\Dell\Desktop\Ai 
+Pte mock test\server\n
+ode_modules\openai\ind
+ex.js:4:10)
+    at new 
+BackendScoringEngine (
+C:\Users\Dell\Desktop\
+Ai Pte mock test\serve
+r\services\scoringEngi
+ne.js:7:23)
+    at 
+Object.<anonymous> (C:
+\Users\Dell\Desktop\Ai
+ Pte mock test\server\
+services\scoringEngine
+.js:103:18)
+    at 
+Module._compile (node:
+internal/modules/cjs/l
+oader:1688:14)
+    at Object..js (nod
+e:internal/modules/cjs
+/loader:1820:10)
+    at Module.load (no
+de:internal/modules/cj
+s/loader:1423:32)
+    at Function._load 
+(node:internal/modules
+/cjs/loader:1246:12)
+    at TracingChannel.
+traceSync (node:diagno
+stics_channel:322:14)
+    at wrapModuleLoad 
+(node:internal/modules
+/cjs/loader:235:24)
+
+Node.js v22.18.0
