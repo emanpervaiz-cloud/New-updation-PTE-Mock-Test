@@ -58,8 +58,8 @@ const ListeningMultipleChoice = ({ question, onNext }) => {
           <div
             key={option.id}
             className={`option-item ${(question.multiple && selectedOption?.includes(option.id)) ||
-                (!question.multiple && selectedOption === option.id)
-                ? 'selected' : ''
+              (!question.multiple && selectedOption === option.id)
+              ? 'selected' : ''
               }`}
             onClick={() => handleOptionSelect(option.id)}
           >
@@ -88,7 +88,7 @@ const ListeningMultipleChoice = ({ question, onNext }) => {
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          disabled={selectedOption === null || selectedOption.length === 0 || !audioPlayed}
+          disabled={selectedOption === null || (Array.isArray(selectedOption) && selectedOption.length === 0)}
         >
           Submit Answer
         </button>

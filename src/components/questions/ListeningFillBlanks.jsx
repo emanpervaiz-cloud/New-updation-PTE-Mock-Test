@@ -120,7 +120,7 @@ const ListeningFillBlanks = ({ question, onNext }) => {
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          disabled={!audioPlayed}
+          disabled={Object.keys(answers).length === 0}
         >
           Submit Answers
         </button>

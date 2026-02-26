@@ -114,7 +114,7 @@ const SummarizeSpokenText = ({ question, onNext }) => {
         <button
           style={{ padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', background: '#3b82f6', color: '#fff', border: 'none', fontWeight: 600 }}
           onClick={handleSubmit}
-          disabled={wordCount < question.minWords || wordCount > question.maxWords || !audioPlayed}
+          disabled={wordCount > question.maxWords || wordCount === 0}
         >
           Submit Summary →
         </button>

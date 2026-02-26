@@ -80,7 +80,7 @@ const SelectMissingWord = ({ question, onNext }) => {
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          disabled={selectedOption === null || !audioPlayed}
+          disabled={selectedOption === null}
         >
           Submit Answer
         </button>

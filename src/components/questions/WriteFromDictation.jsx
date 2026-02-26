@@ -59,7 +59,7 @@ const WriteFromDictation = ({ question, onNext }) => {
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          disabled={sentence.trim() === '' || !audioPlayed}
+          disabled={sentence.trim() === ''}
         >
           Submit Sentence
         </button>

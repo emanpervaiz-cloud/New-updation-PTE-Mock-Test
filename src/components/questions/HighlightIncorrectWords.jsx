@@ -79,7 +79,7 @@ const HighlightIncorrectWords = ({ question, onNext }) => {
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          disabled={incorrectWords.length === 0 || !audioPlayed}
+          disabled={incorrectWords.length === 0}
         >
           Submit Answer
         </button>
