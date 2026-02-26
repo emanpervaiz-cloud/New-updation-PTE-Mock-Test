@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useExam } from '../../context/ExamContext';
 import { useNavigate } from 'react-router-dom';
 import scoringEngine from '../../services/scoringEngine';
+import { AuthService } from '../../services/authService';
+import { ghlService } from '../../services/ghlService';
 
 const ResultsPage = () => {
   const { state, setScores, completeExam, resetExam } = useExam();
@@ -33,6 +35,21 @@ const ResultsPage = () => {
         history.push(result);
         localStorage.setItem('pteTestHistory', JSON.stringify(history));
       } catch (e) { /* storage full or unavailable */ }
+
+      // Sync to GHL (Background task)
+      const user = AuthService.getUser();
+      if (user) {
+        const scoresForGhl = {
+          overall: calculatedScores.overall?.overallScore || 10,
+          speaking: calculatedScores.speaking?.scaledScore || 10,
+          writing: calculatedScores.writing?.scaledScore || 10,
+          reading: calculatedScores.reading?.scaledScore || 10,
+          listening: calculatedScores.listening?.scaledScore || 10,
+          cefr: calculatedScores.overall?.cefrLevel || 'A1'
+        };
+        ghlService.syncTestResults(user, scoresForGhl)
+          .catch(err => console.error('GHL Results Sync Error:', err));
+      }
 
     } catch (error) {
       console.error('Error calculating scores:', error);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../../services/authService';
+import { ghlService } from '../../services/ghlService';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -33,6 +34,10 @@ const Register = () => {
         try {
             const success = await AuthService.register(name, email, password);
             if (success) {
+                // Sync to GHL (Background task, non-blocking for user)
+                ghlService.syncUserRegistration({ name, email })
+                    .catch(err => console.error('GHL Background Sync Error:', err));
+
                 navigate('/');
             } else {
                 setError('Registration failed. Please try again.');
