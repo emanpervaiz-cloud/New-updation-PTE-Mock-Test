@@ -63,8 +63,12 @@ const SummarizeSpokenText = ({ question, onNext }) => {
   };
 
   const handleSubmit = () => {
+    if (isSubmitted) {
+      onNext();
+      return;
+    }
     if (!isSaved) handleSave();
-    onNext();
+    setIsSubmitted(true);
   };
 
   return (
@@ -116,9 +120,47 @@ const SummarizeSpokenText = ({ question, onNext }) => {
           onClick={handleSubmit}
           disabled={wordCount > question.maxWords || wordCount === 0}
         >
-          Submit Summary →
+          {isSubmitted ? 'Next Question →' : 'Submit Summary →'}
         </button>
       </div>
+
+      {isSubmitted && (
+        <div style={{
+          marginTop: 24,
+          padding: '24px',
+          background: '#f8fafc',
+          borderRadius: '16px',
+          border: '1px solid #e2e8f0',
+          animation: 'fadeIn 0.5s ease-out'
+        }}>
+          <h4 style={{ color: '#1e293b', margin: '0 0 16px 0', fontSize: '18px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 24 }}>💡</span> Suggested Model Answer / Key Points
+          </h4>
+
+          {question.keyPoints ? (
+            <ul style={{ margin: 0, paddingLeft: '20px', color: '#475569', fontSize: '15px', lineHeight: '1.6' }}>
+              {question.keyPoints.map((point, idx) => (
+                <li key={idx} style={{ marginBottom: 8 }}>{point}</li>
+              ))}
+            </ul>
+          ) : question.modelAnswer ? (
+            <p style={{ margin: 0, color: '#475569', fontSize: '15px', lineHeight: '1.6', fontStyle: 'italic' }}>
+              {question.modelAnswer}
+            </p>
+          ) : (
+            <p style={{ margin: 0, color: '#475569', fontSize: '15px' }}>
+              Refer to the transcript above for self-review.
+            </p>
+          )}
+
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 };

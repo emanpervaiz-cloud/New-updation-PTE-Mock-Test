@@ -6,8 +6,10 @@ const HighlightIncorrectWords = ({ question, onNext }) => {
   const { saveAnswer } = useExam();
   const [incorrectWords, setIncorrectWords] = useState([]);
   const [audioPlayed, setAudioPlayed] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleWordClick = (index) => {
+    if (isSubmitted) return; // Prevent changes after submission
     if (incorrectWords.includes(index)) {
       setIncorrectWords(incorrectWords.filter(i => i !== index));
     } else {
@@ -81,9 +83,33 @@ const HighlightIncorrectWords = ({ question, onNext }) => {
           onClick={handleSubmit}
           disabled={incorrectWords.length === 0}
         >
-          Submit Answer
+          {isSubmitted ? 'Next Question' : 'Submit Answer'}
         </button>
       </div>
+
+      {isSubmitted && (
+        <div style={{
+          marginTop: 24,
+          padding: '20px',
+          background: '#f0fdf4',
+          borderRadius: '12px',
+          border: '1px solid #bbf7d0',
+          animation: 'fadeIn 0.5s ease-out'
+        }}>
+          <h4 style={{ color: '#166534', margin: '0 0 12px 0', fontSize: '18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 20 }}>✅</span> Self-Review Feedback
+          </h4>
+          <p style={{ color: '#15803d', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
+            Compare your highlighted words with the recording. In a real test, points are deducted for incorrect selections.
+          </p>
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 };

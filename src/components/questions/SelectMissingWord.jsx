@@ -6,8 +6,10 @@ const SelectMissingWord = ({ question, onNext }) => {
   const { saveAnswer } = useExam();
   const [selectedOption, setSelectedOption] = useState(null);
   const [audioPlayed, setAudioPlayed] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleOptionSelect = (option) => {
+    if (isSubmitted) return;
     setSelectedOption(option);
   };
 
@@ -16,6 +18,11 @@ const SelectMissingWord = ({ question, onNext }) => {
   };
 
   const handleSubmit = () => {
+    if (isSubmitted) {
+      onNext();
+      return;
+    }
+
     // Save the answer
     saveAnswer(question.id, {
       questionId: question.id,
@@ -82,9 +89,33 @@ const SelectMissingWord = ({ question, onNext }) => {
           onClick={handleSubmit}
           disabled={selectedOption === null}
         >
-          Submit Answer
+          {isSubmitted ? 'Next Question' : 'Submit Answer'}
         </button>
       </div>
+
+      {isSubmitted && (
+        <div style={{
+          marginTop: 24,
+          padding: '20px',
+          background: '#f0fdf4',
+          borderRadius: '12px',
+          border: '1px solid #bbf7d0',
+          animation: 'fadeIn 0.5s ease-out'
+        }}>
+          <h4 style={{ color: '#166534', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 20 }}>✅</span> Correct Answer
+          </h4>
+          <p style={{ color: '#15803d', fontWeight: 600, margin: 0, fontSize: 16 }}>
+            {`The correct word is: ${question.correct}`}
+          </p>
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 };

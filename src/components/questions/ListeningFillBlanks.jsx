@@ -120,11 +120,47 @@ const ListeningFillBlanks = ({ question, onNext }) => {
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          disabled={Object.keys(answers).length === 0}
+          disabled={Object.keys(answers).length === 0 && !isSubmitted}
         >
-          Submit Answers
+          {isSubmitted ? 'Next Question' : 'Submit Answers'}
         </button>
       </div>
+
+      {isSubmitted && (
+        <div style={{
+          marginTop: 24,
+          padding: '20px',
+          background: '#f0fdf4',
+          borderRadius: '12px',
+          border: '1px solid #bbf7d0',
+          animation: 'fadeIn 0.5s ease-out'
+        }}>
+          <h4 style={{ color: '#166534', margin: '0 0 12px 0', fontSize: '18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 20 }}>✅</span> Correct Solutions
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px' }}>
+            {question.answers.map((ans, idx) => (
+              <div key={idx} style={{
+                padding: '8px 12px',
+                background: '#fff',
+                borderRadius: '8px',
+                border: '1px solid #dcfce7',
+                fontSize: '14px',
+                color: '#166534',
+                fontWeight: 500
+              }}>
+                Blank {ans.blank}: <strong style={{ color: '#15803d' }}>{ans.correct}</strong>
+              </div>
+            ))}
+          </div>
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 };

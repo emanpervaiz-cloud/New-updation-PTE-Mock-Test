@@ -32,6 +32,7 @@ const ListeningSection = () => {
           minWords: q.word_count_limit ? q.word_count_limit[0] : 50,
           maxWords: q.word_count_limit ? q.word_count_limit[1] : 70,
           transcript: passage.transcript,
+          keyPoints: q.key_points,
           title
         };
       } else if (q.type.includes('Multiple Choice')) {
@@ -99,6 +100,7 @@ const ListeningSection = () => {
           minWords: 1,
           maxWords: 15,
           transcript: passage.transcript,
+          modelAnswer: q.model_answer,
           title
         };
       }
