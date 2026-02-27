@@ -88,10 +88,10 @@ const WritingSection = () => {
 
               {/* Render the appropriate question component based on type */}
               {currentQuestionData.type === 'summarize_written_text' && (
-                <SummarizeWrittenText question={currentQuestionData} onNext={handleNextQuestion} />
+                <SummarizeWrittenText key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'write_essay' && (
-                <WriteEssay question={currentQuestionData} onNext={handleNextQuestion} />
+                <WriteEssay key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
 

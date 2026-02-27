@@ -167,19 +167,19 @@ const SpeakingSection = () => {
             <div style={{ flex: 1 }}>
               {/* Question components render here */}
               {currentQuestionData.type === 'read_aloud' && (
-                <ReadAloud question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadAloud key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'repeat_sentence' && (
-                <RepeatSentence question={currentQuestionData} onNext={handleNextQuestion} />
+                <RepeatSentence key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'describe_image' && (
-                <DescribeImage question={currentQuestionData} onNext={handleNextQuestion} />
+                <DescribeImage key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'retell_lecture' && (
-                <RetellLecture question={currentQuestionData} onNext={handleNextQuestion} />
+                <RetellLecture key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'answer_short_question' && (
-                <AnswerShortQuestion question={currentQuestionData} onNext={handleNextQuestion} />
+                <AnswerShortQuestion key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
           </div>

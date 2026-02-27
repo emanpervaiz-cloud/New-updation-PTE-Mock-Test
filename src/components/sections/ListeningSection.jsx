@@ -245,25 +245,25 @@ const ListeningSection = () => {
 
               {/* Render the appropriate question component based on type */}
               {currentQuestionData.type === 'summarize_spoken_text' && (
-                <SummarizeSpokenText question={currentQuestionData} onNext={handleNextQuestion} />
+                <SummarizeSpokenText key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'listening_multiple_choice' && (
-                <ListeningMultipleChoice question={currentQuestionData} onNext={handleNextQuestion} />
+                <ListeningMultipleChoice key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'listening_fill_blanks' && (
-                <ListeningFillBlanks question={currentQuestionData} onNext={handleNextQuestion} />
+                <ListeningFillBlanks key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'highlight_correct_summary' && (
-                <HighlightCorrectSummary question={currentQuestionData} onNext={handleNextQuestion} />
+                <HighlightCorrectSummary key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'select_missing_word' && (
-                <SelectMissingWord question={currentQuestionData} onNext={handleNextQuestion} />
+                <SelectMissingWord key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'highlight_incorrect_words' && (
-                <HighlightIncorrectWords question={currentQuestionData} onNext={handleNextQuestion} />
+                <HighlightIncorrectWords key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'write_from_dictation' && (
-                <WriteFromDictation question={currentQuestionData} onNext={handleNextQuestion} />
+                <WriteFromDictation key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
 

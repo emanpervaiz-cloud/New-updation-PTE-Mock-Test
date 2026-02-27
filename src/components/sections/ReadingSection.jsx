@@ -151,19 +151,19 @@ const ReadingSection = () => {
 
               {/* Render the appropriate question component based on type */}
               {currentQuestionData.type === 'reading_writing_fill_blanks' && (
-                <ReadingWritingFillBlanks question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingWritingFillBlanks key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'multiple_choice' && (
-                <MultipleChoice question={currentQuestionData} onNext={handleNextQuestion} />
+                <MultipleChoice key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reorder_paragraph' && (
-                <ReorderParagraph question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReorderParagraph key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reading_fill_blanks' && (
-                <ReadingFillBlanks question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingFillBlanks key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reading_multiple_choice_audio' && (
-                <ReadingMultipleChoiceAudio question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingMultipleChoiceAudio key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
 
