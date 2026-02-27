@@ -155,13 +155,23 @@ const SelectMissingWord = ({ question, onNext }) => {
         <p><strong>Note:</strong> You will only be able to play the audio once.</p>
       </div>
 
-      <div className="action-buttons">
+      <div className="action-buttons" style={{ marginTop: '24px' }}>
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          disabled={selectedOption === null}
+          disabled={!isSubmitted && selectedOption === null}
+          style={{
+            padding: '12px 32px',
+            background: (!isSubmitted && selectedOption === null) ? '#9ca3af' : 'linear-gradient(135deg, #673ab7, #5e35b1)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '12px',
+            fontWeight: 700,
+            cursor: (!isSubmitted && selectedOption === null) ? 'not-allowed' : 'pointer',
+            fontSize: '16px'
+          }}
         >
-          {isSubmitted ? 'Next Question' : 'Submit Answer'}
+          {isSubmitted ? 'Next Question →' : 'Submit Answer'}
         </button>
       </div>
 
