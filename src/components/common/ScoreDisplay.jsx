@@ -147,7 +147,7 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
                     <span style={{ fontSize: 24 }}>🏆</span>
                     <div>
                         <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>AI Examiner Score</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>Professional evaluation with 30+ years experience</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>AI-Powered Evaluation</div>
                     </div>
                 </div>
                 <div style={{
