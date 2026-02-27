@@ -183,15 +183,17 @@ const ListeningSection = () => {
   }
 
   const handleNextQuestion = () => {
-    if (currentQuestion < listeningQuestions.length - 1) {
+    const isLastQuestion = currentQuestion >= listeningQuestions.length - 1;
+    
+    if (isLastQuestion) {
+      // Move to results section
+      setCurrentQuestionIndex(0);
+      navigate('/exam/results');
+    } else {
       const nextIndex = currentQuestion + 1;
       setCurrentQuestion(nextIndex);
       setCurrentQuestionIndex(nextIndex);
       window.scrollTo(0, 0);
-    } else {
-      // Move to results section
-      setCurrentQuestionIndex(0);
-      navigate('/exam/results');
     }
   };
 

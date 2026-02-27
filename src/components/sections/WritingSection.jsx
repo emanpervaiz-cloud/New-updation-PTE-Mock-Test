@@ -31,16 +31,18 @@ const WritingSection = () => {
   const currentQuestionData = writingQuestions[currentQuestion];
 
   const handleNextQuestion = () => {
-    if (currentQuestion < writingQuestions.length - 1) {
-      const nextIndex = currentQuestion + 1;
-      setCurrentQuestion(nextIndex);
-      setCurrentQuestionIndex(nextIndex);
-      window.scrollTo(0, 0);
-    } else {
+    const isLastQuestion = currentQuestion >= writingQuestions.length - 1;
+    
+    if (isLastQuestion) {
       // Move to reading section
       setCurrentSection('reading');
       setCurrentQuestionIndex(0);
       navigate('/exam/reading');
+    } else {
+      const nextIndex = currentQuestion + 1;
+      setCurrentQuestion(nextIndex);
+      setCurrentQuestionIndex(nextIndex);
+      window.scrollTo(0, 0);
     }
   };
 
