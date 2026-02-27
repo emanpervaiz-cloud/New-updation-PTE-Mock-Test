@@ -15,11 +15,19 @@ import { useNavigate } from 'react-router-dom';
 const ListeningSection = () => {
   const { state, setCurrentQuestionIndex, setCurrentSection } = useExam();
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   // Map the structured JSON listening passages into individual test questions
-  const listeningQuestions = LISTENING_PASSAGES.flatMap((passage, pIdx) => {
-    return passage.questions.flatMap((q, qIdx) => {
+  let listeningQuestions = [];
+  try {
+    listeningQuestions = LISTENING_PASSAGES.flatMap((passage, pIdx) => {
+      if (!passage.questions || !Array.isArray(passage.questions)) {
+        console.warn(`No questions found for passage: ${passage.passage_id}`);
+        return [];
+      }
+      return passage.questions.flatMap((q, qIdx) => {
+        try {
       const audioUrl = passage.audioUrl || `/assets/listening/listening_audio_${(pIdx % 3) + 1}.wav`;
       const title = passage.title;
 
@@ -105,10 +113,67 @@ const ListeningSection = () => {
         };
       }
       return [];
+        } catch (err) {
+          console.error(`Error processing question ${qIdx} in passage ${passage.passage_id}:`, err);
+          return [];
+        }
+      });
     });
-  });
+  } catch (err) {
+    console.error('Error processing listening passages:', err);
+    setError(err.message);
+  }
 
   const currentQuestionData = listeningQuestions[currentQuestion];
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="exam-container exam-theme">
+        <header className="exam-header">
+          <div className="container">
+            <h1 className="exam-title">PTE Academic Mock Test</h1>
+          </div>
+        </header>
+        <main className="main-content">
+          <div className="container">
+            <div className="exam-section">
+              <h2>Listening Section</h2>
+              <div className="exam-question" style={{ textAlign: 'center', padding: '40px', color: 'red' }}>
+                <p>Error loading listening questions: {error}</p>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Handle case when no questions are available
+  if (!currentQuestionData || listeningQuestions.length === 0) {
+    return (
+      <div className="exam-container exam-theme">
+        <header className="exam-header">
+          <div className="container">
+            <h1 className="exam-title">PTE Academic Mock Test</h1>
+          </div>
+        </header>
+        <main className="main-content">
+          <div className="container">
+            <div className="exam-section">
+              <h2>Listening Section</h2>
+              <div className="exam-question" style={{ textAlign: 'center', padding: '40px' }}>
+                <p>No listening questions available. Please check the data configuration.</p>
+                <p style={{ fontSize: '12px', color: '#666', marginTop: '10px' }}>
+                  Debug: LISTENING_PASSAGES length = {LISTENING_PASSAGES?.length || 0}
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const handleNextQuestion = () => {
     if (currentQuestion < listeningQuestions.length - 1) {

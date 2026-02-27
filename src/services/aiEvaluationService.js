@@ -155,76 +155,44 @@ class AIEvaluationService {
     }
   }
 
-  // Evaluate reading responses
-  async evaluateReading(correctAnswers, studentAnswers) {
+  // Evaluate reading responses with hybrid scoring engine (Backend)
+  async evaluateReading(questionsWithAnswers) {
     try {
-      let score = 0;
-      const feedback = [];
+      const backendUrl = 'http://localhost:5000/api/scoring/evaluate-reading';
+      const apiResponse = await fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questions: questionsWithAnswers })
+      });
 
-      for (let i = 0; i < correctAnswers.length; i++) {
-        const isCorrect = this.compareAnswers(correctAnswers[i], studentAnswers[i]);
-        if (isCorrect) {
-          score += 1;
-        }
-
-        feedback.push({
-          questionIndex: i,
-          isCorrect: isCorrect,
-          correctAnswer: correctAnswers[i],
-          studentAnswer: studentAnswers[i],
-          feedback: isCorrect ? "Correct!" : "Incorrect. Consider reviewing this concept."
-        });
+      if (!apiResponse.ok) {
+        throw new Error(`Backend responded with status ${apiResponse.status}`);
       }
 
-      const percentage = (score / correctAnswers.length) * 100;
-      const cefrLevel = this.calculateCEFRLevel(percentage);
-
-      return {
-        score: score,
-        total: correctAnswers.length,
-        percentage: percentage,
-        cefrLevel: cefrLevel,
-        feedback: feedback
-      };
+      return await apiResponse.json();
     } catch (error) {
-      console.error('Error evaluating reading:', error);
+      console.error('Error evaluating reading via backend:', error);
       return this.getFallbackReadingEvaluation();
     }
   }
 
-  // Evaluate listening responses
-  async evaluateListening(correctAnswers, studentAnswers) {
+  // Evaluate listening responses with hybrid scoring engine (Backend)
+  async evaluateListening(questionsWithAnswers) {
     try {
-      let score = 0;
-      const feedback = [];
+      const backendUrl = 'http://localhost:5000/api/scoring/evaluate-listening';
+      const apiResponse = await fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questions: questionsWithAnswers })
+      });
 
-      for (let i = 0; i < correctAnswers.length; i++) {
-        const isCorrect = this.compareAnswers(correctAnswers[i], studentAnswers[i]);
-        if (isCorrect) {
-          score += 1;
-        }
-
-        feedback.push({
-          questionIndex: i,
-          isCorrect: isCorrect,
-          correctAnswer: correctAnswers[i],
-          studentAnswer: studentAnswers[i],
-          feedback: isCorrect ? "Correct!" : "Incorrect. Consider reviewing this concept."
-        });
+      if (!apiResponse.ok) {
+        throw new Error(`Backend responded with status ${apiResponse.status}`);
       }
 
-      const percentage = (score / correctAnswers.length) * 100;
-      const cefrLevel = this.calculateCEFRLevel(percentage);
-
-      return {
-        score: score,
-        total: correctAnswers.length,
-        percentage: percentage,
-        cefrLevel: cefrLevel,
-        feedback: feedback
-      };
+      return await apiResponse.json();
     } catch (error) {
-      console.error('Error evaluating listening:', error);
+      console.error('Error evaluating listening via backend:', error);
       return this.getFallbackListeningEvaluation();
     }
   }

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import scoringEngine from '../../services/scoringEngine';
 import { AuthService } from '../../services/authService';
 import { ghlService } from '../../services/ghlService';
+import AIEvaluationService from '../../services/aiEvaluationService';
 
 const ResultsPage = () => {
   const { state, setScores, completeExam, resetExam } = useExam();
@@ -12,57 +13,120 @@ const ResultsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Calculate scores from answers in context
-    try {
-      const calculatedScores = scoringEngine.calculateAllScores(state.answers);
-      setLocalScores(calculatedScores);
-      setScores(calculatedScores);
-      completeExam();
-
-      // Save test result to localStorage for Dashboard history
-      const result = {
-        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-        overall: calculatedScores.overall?.overallScore || 10,
-        speaking: calculatedScores.speaking?.scaledScore || 10,
-        writing: calculatedScores.writing?.scaledScore || 10,
-        reading: calculatedScores.reading?.scaledScore || 10,
-        listening: calculatedScores.listening?.scaledScore || 10,
-        cefrLevel: calculatedScores.overall?.cefrLevel || 'A1',
-        totalAnswered: Object.keys(state.answers).length,
-      };
+    // Calculate accurate scores using AI Backend
+    const fetchDetailedScores = async () => {
       try {
-        const history = JSON.parse(localStorage.getItem('pteTestHistory') || '[]');
-        history.push(result);
-        localStorage.setItem('pteTestHistory', JSON.stringify(history));
-      } catch (e) { /* storage full or unavailable */ }
+        setLoading(true);
+        const answers = state.answers;
+        const aiEvaluations = {};
 
-      // Sync to GHL (Background task)
-      const user = AuthService.getUser();
-      if (user) {
-        const scoresForGhl = {
+        // 1. Evaluate Speaking & Writing if not already done
+        const speakingAnswers = Object.values(answers).filter(a => a.section === 'speaking');
+        const writingAnswers = Object.values(answers).filter(a => a.section === 'writing');
+
+        // (Note: Per-question AI evaluations might already be in state.aiEvaluations)
+        const currentAiEvals = state.aiEvaluations || {};
+
+        // 2. Prepare Reading & Listening for Backend
+        const readingQuestions = Object.values(answers)
+          .filter(a => a.section === 'reading')
+          .map(a => ({
+            id: a.questionId,
+            type: a.type,
+            response: a.responses || a.response,
+            correct: a.meta?.correct_answer || a.meta?.correct_answers // Augmented by components
+          }));
+
+        const listeningQuestions = Object.values(answers)
+          .filter(a => a.section === 'listening')
+          .map(a => ({
+            id: a.questionId,
+            type: a.type,
+            response: a.response || a.responses,
+            prompt: a.meta?.prompt || a.meta?.question,
+            correct: a.meta?.correct_answer || a.meta?.correct_answers || a.meta?.answers
+          }));
+
+        // 3. Call Backend Evaluations
+        const [readingEval, listeningEval] = await Promise.all([
+          AIEvaluationService.evaluateReading(readingQuestions),
+          AIEvaluationService.evaluateListening(listeningQuestions)
+        ]);
+
+        const finalAiEvals = { ...currentAiEvals };
+        // We could merge reading/listening results into a shared evaluation pool
+        // But for simplicity, we pass them to the refined scoring engine
+
+        const calculatedScores = scoringEngine.calculateAllScores(answers, finalAiEvals);
+
+        // Override with specific backend-calculated aggregate scores for Reading/Listening
+        if (readingEval && !readingEval.error) {
+          calculatedScores.reading = {
+            scaledScore: readingEval.overall_pte_score,
+            cefrLevel: readingEval.cefr_level,
+            feedback: scoringEngine.getReadingFeedback(readingEval.overall_pte_score),
+            breakdown: readingEval.results
+          };
+        }
+
+        if (listeningEval && !listeningEval.error) {
+          calculatedScores.listening = {
+            scaledScore: listeningEval.overall_pte_score,
+            cefrLevel: listeningEval.cefr_level,
+            feedback: scoringEngine.getListeningFeedback(listeningEval.overall_pte_score),
+            breakdown: listeningEval.results
+          };
+        }
+
+        // Re-calculate overall with the refined section scores
+        calculatedScores.overall = scoringEngine.calculateOverallScore(calculatedScores);
+
+        setLocalScores(calculatedScores);
+        setScores(calculatedScores);
+        completeExam();
+
+        // Save result history
+        const result = {
+          date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           overall: calculatedScores.overall?.overallScore || 10,
           speaking: calculatedScores.speaking?.scaledScore || 10,
           writing: calculatedScores.writing?.scaledScore || 10,
           reading: calculatedScores.reading?.scaledScore || 10,
           listening: calculatedScores.listening?.scaledScore || 10,
-          cefr: calculatedScores.overall?.cefrLevel || 'A1'
+          cefrLevel: calculatedScores.overall?.cefrLevel || 'A1',
+          totalAnswered: Object.keys(answers).length,
         };
-        ghlService.syncTestResults(user, scoresForGhl)
-          .catch(err => console.error('GHL Results Sync Error:', err));
-      }
 
-    } catch (error) {
-      console.error('Error calculating scores:', error);
-      // Fallback scores if calculation fails
-      setLocalScores({
-        speaking: { scaledScore: 10, cefrLevel: 'A1', feedback: 'Unable to calculate score.' },
-        writing: { scaledScore: 10, cefrLevel: 'A1', feedback: 'Unable to calculate score.' },
-        reading: { scaledScore: 10, cefrLevel: 'A1', feedback: 'Unable to calculate score.' },
-        listening: { scaledScore: 10, cefrLevel: 'A1', feedback: 'Unable to calculate score.' },
-        overall: { overallScore: 10, cefrLevel: 'A1', classification: 'Unable to calculate.', feedback: '' }
-      });
-    }
-    setLoading(false);
+        try {
+          const history = JSON.parse(localStorage.getItem('pteTestHistory') || '[]');
+          history.push(result);
+          localStorage.setItem('pteTestHistory', JSON.stringify(history));
+        } catch (e) { }
+
+        // Sync to GHL
+        const user = AuthService.getUser();
+        if (user) {
+          ghlService.syncTestResults(user, {
+            overall: calculatedScores.overall?.overallScore,
+            speaking: calculatedScores.speaking?.scaledScore,
+            writing: calculatedScores.writing?.scaledScore,
+            reading: calculatedScores.reading?.scaledScore,
+            listening: calculatedScores.listening?.scaledScore,
+            cefr: calculatedScores.overall?.cefrLevel
+          }).catch(err => console.error('GHL sync error:', err));
+        }
+
+      } catch (error) {
+        console.error('Error fetching accurate scores:', error);
+        // Fallback to heuristic scoring
+        const heuristicScores = scoringEngine.calculateAllScores(state.answers);
+        setLocalScores(heuristicScores);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetailedScores();
   }, []);
 
   const handleRetakeExam = () => {

@@ -153,6 +153,123 @@ class BackendScoringEngine {
         }
     }
 
+    /**
+   * Evaluate listening tasks (Objective + Subjective)
+   */
+    async evaluateListening(questions) {
+        const results = [];
+        let totalPTE = 0;
+
+        for (const q of questions) {
+            let score = 0;
+            let feedback = "";
+
+            if (q.type === 'summarize_spoken_text') {
+                const evalResult = await this.evaluateWriting(q.prompt, q.response, 'summarize_spoken_text');
+                results.push({ ...evalResult, questionId: q.id, type: q.type });
+                totalPTE += (evalResult.overall_pte_score || 10);
+                continue;
+            }
+
+            const correct = q.correct_answer || q.correct_answers || q.correct;
+            const response = q.response;
+
+            if (q.type === 'write_from_dictation') {
+                const accuracy = this.calculateContentScore(correct, response);
+                score = accuracy; // out of 10
+                feedback = accuracy > 8 ? "Excellent transcription." : "Focus on spelling and exact word order.";
+            } else if (q.type === 'listening_fill_blanks') {
+                // Multi-blank objective check
+                let correctCount = 0;
+                const studentResponses = q.responses || {};
+                const blankSolutions = q.answers || []; // [{blank: 1, correct: 'word'}]
+
+                blankSolutions.forEach(sol => {
+                    if (studentResponses[sol.blank]?.toLowerCase().trim() === sol.correct.toLowerCase().trim()) {
+                        correctCount++;
+                    }
+                });
+
+                const ratio = blankSolutions.length > 0 ? correctCount / blankSolutions.length : 0;
+                score = Math.round(ratio * 10);
+                feedback = `Correctly filled ${correctCount} out of ${blankSolutions.length} blanks.`;
+            } else {
+                // Generic objective check
+                const isCorrect = this._compareObjective(correct, response);
+                score = isCorrect ? 10 : 0;
+                feedback = isCorrect ? "Correct answer." : "Incorrect selection.";
+            }
+
+            const pte = Math.round((score / 10) * 80 + 10);
+            totalPTE += pte;
+
+            results.push({
+                questionId: q.id,
+                type: q.type,
+                overall_pte_score: pte,
+                score: score,
+                feedback: feedback
+            });
+        }
+
+        const avgPTE = questions.length > 0 ? Math.round(totalPTE / questions.length) : 10;
+
+        return {
+            results,
+            overall_pte_score: Math.min(90, Math.max(10, avgPTE)),
+            cefr_level: this.mapPTEtoCEFR(avgPTE)
+        };
+    }
+
+    /**
+     * Evaluate reading tasks (Objective)
+     */
+    async evaluateReading(questions) {
+        const results = [];
+        let totalPTE = 0;
+
+        for (const q of questions) {
+            const correct = q.correct_answer || q.correct_answers || q.correct;
+            const response = q.response || q.responses;
+
+            const isCorrect = this._compareObjective(correct, response);
+            const score = isCorrect ? 10 : 0;
+            const pte = isCorrect ? 90 : 10;
+            totalPTE += pte;
+
+            results.push({
+                questionId: q.id,
+                type: q.type,
+                overall_pte_score: pte,
+                isCorrect,
+                feedback: isCorrect ? "Correct!" : "Incorrect selection."
+            });
+        }
+
+        const avgPTE = questions.length > 0 ? Math.round(totalPTE / questions.length) : 10;
+
+        return {
+            results,
+            overall_pte_score: Math.min(90, Math.max(10, avgPTE)),
+            cefr_level: this.mapPTEtoCEFR(avgPTE)
+        };
+    }
+
+    _compareObjective(correct, student) {
+        if (!correct || !student) return false;
+
+        if (Array.isArray(correct)) {
+            const s = Array.isArray(student) ? student : [student];
+            return JSON.stringify(correct.sort()) === JSON.stringify(s.sort());
+        }
+
+        if (typeof correct === 'string') {
+            return correct.toLowerCase().trim() === String(student).toLowerCase().trim();
+        }
+
+        return correct == student;
+    }
+
     mapPTEtoCEFR(score) {
         if (score >= 85) return 'C2';
         if (score >= 76) return 'C1';
