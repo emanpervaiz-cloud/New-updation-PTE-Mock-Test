@@ -37,21 +37,38 @@ const SelectMissingWord = ({ question, onNext }) => {
   };
 
   const renderTranscriptWithBlank = () => {
-    // Split the transcript by blank markers like ___1___
-    const parts = question.transcript.split(/(___1___)/);
+    // Use context if available, otherwise use transcript
+    const text = question.context || question.transcript || '';
+    
+    // Replace ... or ___ with a blank marker
+    const blankPattern = /(\.\.\.|___+|\[blank\])/i;
+    const parts = text.split(blankPattern);
 
     return parts.map((part, index) => {
-      if (part === '___1___') {
+      if (part && (part === '...' || part === '___' || part.match(/^___+$/))) {
         return (
           <select
-            key={`blank-1`}
+            key={`blank-${index}`}
             value={selectedOption || ''}
             onChange={(e) => handleOptionSelect(e.target.value)}
             className="blank-select"
+            disabled={isSubmitted}
+            style={{
+              padding: '8px 16px',
+              fontSize: '16px',
+              borderRadius: '8px',
+              border: '2px solid #673ab7',
+              backgroundColor: '#fff',
+              color: selectedOption ? '#1e293b' : '#64748b',
+              cursor: isSubmitted ? 'not-allowed' : 'pointer',
+              margin: '0 4px'
+            }}
           >
-            <option value="">Select option</option>
-            {question.options.map(option => (
-              <option key={option} value={option}>{option}</option>
+            <option value="">Select...</option>
+            {question.options && question.options.map(option => (
+              <option key={option.id || option} value={option.id || option}>
+                {option.id ? `${option.id}) ${option.text}` : option}
+              </option>
             ))}
           </select>
         );
