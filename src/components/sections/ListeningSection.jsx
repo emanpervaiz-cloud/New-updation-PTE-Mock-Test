@@ -115,6 +115,22 @@ const ListeningSection = () => {
           modelAnswer: q.model_answer,
           title
         };
+      } else if (q.type === 'Select Missing Word') {
+        const options = q.options ? q.options.map((opt, idx) => {
+          const match = opt.match(/^([A-Z])\)\s*(.*)/);
+          return match ? { id: match[1], text: match[2] } : { id: `opt_${idx}`, text: opt };
+        }) : [];
+        
+        return {
+          id: `${passage.passage_id}_${qIdx}`,
+          type: 'select_missing_word',
+          audioUrl,
+          instruction: q.question,
+          context: q.context,
+          options,
+          correct: q.correct_answer,
+          title
+        };
       }
       return [];
         } catch (err) {
