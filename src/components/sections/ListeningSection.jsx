@@ -18,6 +18,10 @@ const ListeningSection = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  // Debug logging
+  console.log('ListeningSection rendering...');
+  console.log('LISTENING_PASSAGES:', LISTENING_PASSAGES);
+
   // Map the structured JSON listening passages into individual test questions
   let listeningQuestions = [];
   try {
@@ -125,6 +129,9 @@ const ListeningSection = () => {
   }
 
   const currentQuestionData = listeningQuestions[currentQuestion];
+
+  console.log('listeningQuestions count:', listeningQuestions.length);
+  console.log('currentQuestionData:', currentQuestionData);
 
   // Handle error state
   if (error) {
