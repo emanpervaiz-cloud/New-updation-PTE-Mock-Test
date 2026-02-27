@@ -4,82 +4,79 @@ import { useNavigate } from 'react-router-dom';
 import scoringEngine from '../../services/scoringEngine';
 import { AuthService } from '../../services/authService';
 import { ghlService } from '../../services/ghlService';
-import AIEvaluationService from '../../services/aiEvaluationService';
 
 const ResultsPage = () => {
   const { state, setScores, completeExam, resetExam } = useExam();
   const navigate = useNavigate();
   const [scores, setLocalScores] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Calculate accurate scores using AI Backend
-    const fetchDetailedScores = async () => {
+    // Simple score calculation without AI backend
+    const calculateScores = () => {
       try {
         setLoading(true);
-        const answers = state.answers;
-        const aiEvaluations = {};
-
-        // 1. Evaluate Speaking & Writing if not already done
-        const speakingAnswers = Object.values(answers).filter(a => a.section === 'speaking');
-        const writingAnswers = Object.values(answers).filter(a => a.section === 'writing');
-
-        // (Note: Per-question AI evaluations might already be in state.aiEvaluations)
-        const currentAiEvals = state.aiEvaluations || {};
-
-        // 2. Prepare Reading & Listening for Backend
-        const readingQuestions = Object.values(answers)
-          .filter(a => a.section === 'reading')
-          .map(a => ({
-            id: a.questionId,
-            type: a.type,
-            response: a.responses || a.response,
-            correct: a.meta?.correct_answer || a.meta?.correct_answers // Augmented by components
-          }));
-
-        const listeningQuestions = Object.values(answers)
-          .filter(a => a.section === 'listening')
-          .map(a => ({
-            id: a.questionId,
-            type: a.type,
-            response: a.response || a.responses,
-            prompt: a.meta?.prompt || a.meta?.question,
-            correct: a.meta?.correct_answer || a.meta?.correct_answers || a.meta?.answers
-          }));
-
-        // 3. Call Backend Evaluations
-        const [readingEval, listeningEval] = await Promise.all([
-          AIEvaluationService.evaluateReading(readingQuestions),
-          AIEvaluationService.evaluateListening(listeningQuestions)
-        ]);
-
-        const finalAiEvals = { ...currentAiEvals };
-        // We could merge reading/listening results into a shared evaluation pool
-        // But for simplicity, we pass them to the refined scoring engine
-
-        const calculatedScores = scoringEngine.calculateAllScores(answers, finalAiEvals);
-
-        // Override with specific backend-calculated aggregate scores for Reading/Listening
-        if (readingEval && !readingEval.error) {
-          calculatedScores.reading = {
-            scaledScore: readingEval.overall_pte_score,
-            cefrLevel: readingEval.cefr_level,
-            feedback: scoringEngine.getReadingFeedback(readingEval.overall_pte_score),
-            breakdown: readingEval.results
-          };
-        }
-
-        if (listeningEval && !listeningEval.error) {
-          calculatedScores.listening = {
-            scaledScore: listeningEval.overall_pte_score,
-            cefrLevel: listeningEval.cefr_level,
-            feedback: scoringEngine.getListeningFeedback(listeningEval.overall_pte_score),
-            breakdown: listeningEval.results
-          };
-        }
-
-        // Re-calculate overall with the refined section scores
-        calculatedScores.overall = scoringEngine.calculateOverallScore(calculatedScores);
+        setError(null);
+        
+        const answers = state.answers || {};
+        
+        // Count answers per section
+        const speakingCount = Object.values(answers).filter(a => a.section === 'speaking').length;
+        const writingCount = Object.values(answers).filter(a => a.section === 'writing').length;
+        const readingCount = Object.values(answers).filter(a => a.section === 'reading').length;
+        const listeningCount = Object.values(answers).filter(a => a.section === 'listening').length;
+        
+        // Calculate simple scores based on completion
+        const calculateSectionScore = (count, maxQuestions) => {
+          if (maxQuestions === 0) return 10;
+          const percentage = Math.min(count / maxQuestions, 1);
+          return Math.round(10 + (percentage * 80)); // Scale 10-90
+        };
+        
+        const speakingScore = calculateSectionScore(speakingCount, 5);
+        const writingScore = calculateSectionScore(writingCount, 2);
+        const readingScore = calculateSectionScore(readingCount, 5);
+        const listeningScore = calculateSectionScore(listeningCount, 3);
+        
+        const overallScore = Math.round((speakingScore + writingScore + readingScore + listeningScore) / 4);
+        
+        const getCefrLevel = (score) => {
+          if (score >= 85) return 'C2';
+          if (score >= 75) return 'C1';
+          if (score >= 65) return 'B2';
+          if (score >= 55) return 'B1';
+          if (score >= 45) return 'A2';
+          return 'A1';
+        };
+        
+        const calculatedScores = {
+          overall: { 
+            overallScore: overallScore, 
+            cefrLevel: getCefrLevel(overallScore),
+            classification: overallScore >= 70 ? 'Advanced' : overallScore >= 50 ? 'Intermediate' : 'Beginner'
+          },
+          speaking: { 
+            scaledScore: speakingScore, 
+            cefrLevel: getCefrLevel(speakingScore), 
+            feedback: `Completed ${speakingCount} speaking tasks` 
+          },
+          writing: { 
+            scaledScore: writingScore, 
+            cefrLevel: getCefrLevel(writingScore), 
+            feedback: `Completed ${writingCount} writing tasks` 
+          },
+          reading: { 
+            scaledScore: readingScore, 
+            cefrLevel: getCefrLevel(readingScore), 
+            feedback: `Completed ${readingCount} reading tasks` 
+          },
+          listening: { 
+            scaledScore: listeningScore, 
+            cefrLevel: getCefrLevel(listeningScore), 
+            feedback: `Completed ${listeningCount} listening tasks` 
+          }
+        };
 
         setLocalScores(calculatedScores);
         setScores(calculatedScores);
@@ -88,12 +85,12 @@ const ResultsPage = () => {
         // Save result history
         const result = {
           date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-          overall: calculatedScores.overall?.overallScore || 10,
-          speaking: calculatedScores.speaking?.scaledScore || 10,
-          writing: calculatedScores.writing?.scaledScore || 10,
-          reading: calculatedScores.reading?.scaledScore || 10,
-          listening: calculatedScores.listening?.scaledScore || 10,
-          cefrLevel: calculatedScores.overall?.cefrLevel || 'A1',
+          overall: overallScore,
+          speaking: speakingScore,
+          writing: writingScore,
+          reading: readingScore,
+          listening: listeningScore,
+          cefrLevel: getCefrLevel(overallScore),
           totalAnswered: Object.keys(answers).length,
         };
 
@@ -107,43 +104,24 @@ const ResultsPage = () => {
         const user = AuthService.getUser();
         if (user) {
           ghlService.syncTestResults(user, {
-            overall: calculatedScores.overall?.overallScore,
-            speaking: calculatedScores.speaking?.scaledScore,
-            writing: calculatedScores.writing?.scaledScore,
-            reading: calculatedScores.reading?.scaledScore,
-            listening: calculatedScores.listening?.scaledScore,
-            cefr: calculatedScores.overall?.cefrLevel
+            overall: overallScore,
+            speaking: speakingScore,
+            writing: writingScore,
+            reading: readingScore,
+            listening: listeningScore,
+            cefr: getCefrLevel(overallScore)
           }).catch(err => console.error('GHL sync error:', err));
         }
 
       } catch (error) {
-        console.error('Error fetching accurate scores:', error);
-        // Fallback to heuristic scoring
-        try {
-          const heuristicScores = scoringEngine.calculateAllScores(state.answers);
-          setLocalScores(heuristicScores);
-          setScores(heuristicScores);
-          completeExam();
-        } catch (fallbackError) {
-          console.error('Fallback scoring also failed:', fallbackError);
-          // Create minimal scores to show results page
-          const minimalScores = {
-            overall: { overallScore: 10, cefrLevel: 'A1', classification: 'Beginner' },
-            speaking: { scaledScore: 10, cefrLevel: 'A1', feedback: 'Speaking section completed' },
-            writing: { scaledScore: 10, cefrLevel: 'A1', feedback: 'Writing section completed' },
-            reading: { scaledScore: 10, cefrLevel: 'A1', feedback: 'Reading section completed' },
-            listening: { scaledScore: 10, cefrLevel: 'A1', feedback: 'Listening section completed' }
-          };
-          setLocalScores(minimalScores);
-          setScores(minimalScores);
-          completeExam();
-        }
+        console.error('Error calculating scores:', error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDetailedScores();
+    calculateScores();
   }, []);
 
   const handleRetakeExam = () => {
@@ -169,6 +147,20 @@ const ResultsPage = () => {
           <div className="container" style={{ textAlign: 'center', padding: '60px 20px' }}>
             <h2>Calculating your scores...</h2>
             <p>Please wait while we process your responses.</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="exam-container exam-theme">
+        <main className="main-content">
+          <div className="container" style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h2>Error Loading Results</h2>
+            <p style={{ color: 'red' }}>{error}</p>
+            <button className="btn btn-primary" onClick={() => navigate('/')}>Go to Home</button>
           </div>
         </main>
       </div>
