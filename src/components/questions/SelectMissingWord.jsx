@@ -179,17 +179,46 @@ const SelectMissingWord = ({ question, onNext }) => {
         <div style={{
           marginTop: 24,
           padding: '20px',
-          background: '#f0fdf4',
+          background: selectedOption === question.correct ? '#f0fdf4' : '#fee2e2',
           borderRadius: '12px',
-          border: '1px solid #bbf7d0',
+          border: '1px solid',
+          borderColor: selectedOption === question.correct ? '#bbf7d0' : '#fecaca',
           animation: 'fadeIn 0.5s ease-out'
         }}>
-          <h4 style={{ color: '#166534', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 20 }}>✅</span> Correct Answer
+          <h4 style={{ 
+            color: selectedOption === question.correct ? '#166534' : '#991b1b', 
+            margin: '0 0 12px 0', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 8 
+          }}>
+            <span style={{ fontSize: 20 }}>
+              {selectedOption === question.correct ? '✅' : '❌'}
+            </span> 
+            {selectedOption === question.correct ? 'Correct Answer!' : 'Incorrect Answer'}
           </h4>
-          <p style={{ color: '#15803d', fontWeight: 600, margin: 0, fontSize: 16 }}>
-            {`The correct word is: ${question.correct}`}
-          </p>
+          
+          <div style={{ marginBottom: '8px' }}>
+            <p style={{ color: '#64748b', fontSize: '14px', margin: '0 0 4px 0' }}>Your Answer:</p>
+            <p style={{ 
+              color: selectedOption === question.correct ? '#15803d' : '#dc2626', 
+              fontWeight: 600, 
+              margin: 0, 
+              fontSize: 16 
+            }}>
+              {selectedOption}) {question.options.find(opt => (opt.id || opt.charAt(0)) === selectedOption)?.text || question.options.find(opt => opt.charAt(0) === selectedOption)?.substring(3)}
+            </p>
+          </div>
+          
+          {selectedOption !== question.correct && (
+            <div>
+              <p style={{ color: '#64748b', fontSize: '14px', margin: '0 0 4px 0' }}>Correct Answer:</p>
+              <p style={{ color: '#15803d', fontWeight: 600, margin: 0, fontSize: 16 }}>
+                {question.correct}) {question.options.find(opt => (opt.id || opt.charAt(0)) === question.correct)?.text || question.options.find(opt => opt.charAt(0) === question.correct)?.substring(3)}
+              </p>
+            </div>
+          )}
+          
           <style>{`
             @keyframes fadeIn {
               from { opacity: 0; transform: translateY(10px); }
