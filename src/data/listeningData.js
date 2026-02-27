@@ -19,6 +19,64 @@ export const LISTENING_PASSAGES = [
                     "Goal is to prevent urban fatigue and support psychological health."
                 ],
                 "difficulty": "Hard"
+            },
+            {
+                "type": "Multiple Choice (Single Answer)",
+                "question": "According to the lecture, what do 'fractal' patterns primarily help with?",
+                "options": [
+                    "A. Increasing property values in urban areas",
+                    "B. Lowering cortisol levels and reducing stress",
+                    "C. Improving traffic flow and navigation",
+                    "D. Encouraging more physical activity outdoors"
+                ],
+                "correct_answer": "B",
+                "difficulty": "Medium"
+            },
+            {
+                "type": "True / False / Not Given",
+                "question": "Based on the lecture, decide whether each statement is True, False, or Not Given.",
+                "statements": [
+                    {
+                        "statement": "Skin conductance and heart rate were used to measure stress levels.",
+                        "answer": "True"
+                    },
+                    {
+                        "statement": "Fractal patterns are only found in modern architecture.",
+                        "answer": "False"
+                    },
+                    {
+                        "statement": "Green spaces in cities have been proven to eliminate depression.",
+                        "answer": "Not Given"
+                    },
+                    {
+                        "statement": "Evidence-based design is a growing trend in urban planning.",
+                        "answer": "True"
+                    }
+                ],
+                "difficulty": "Medium"
+            }
+        ]
+    },
+    {
+        "passage_id": "listening_2",
+        "title": "The Importance of Sleep",
+        "audioUrl": "/assets/listening/listening_2.wav",
+        "transcript": "Sleep is essential for human health, with adults requiring seven to nine hours nightly. Chronic lack of sleep is associated with serious conditions including obesity, diabetes, heart disease, and depression. However, many people prioritize work and entertainment over rest. Experts recommend maintaining a consistent sleep routine and limiting screen exposure before bedtime to enhance sleep quality.",
+        "questions": [
+            {
+                "type": "Summarize Spoken Text",
+                "question": "You will hear a short lecture. Write a summary for a fellow student who was not present at the lecture. You should write 50–70 words.",
+                "word_count_limit": [
+                    50,
+                    70
+                ],
+                "key_points": [
+                    "Adults need 7-9 hours of sleep nightly for good health.",
+                    "Lack of sleep is linked to obesity, diabetes, heart disease, and depression.",
+                    "Many people prioritize work and entertainment over sleep.",
+                    "Experts recommend consistent sleep routine and limiting screen time before bed."
+                ],
+                "difficulty": "Medium"
             }
         ]
     }

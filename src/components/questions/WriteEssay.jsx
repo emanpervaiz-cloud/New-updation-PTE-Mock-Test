@@ -12,16 +12,6 @@ const WriteEssay = ({ question, onNext }) => {
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState(null);
 
-  // Reset state when question changes
-  useEffect(() => {
-    setEssay('');
-    setWordCount(0);
-    setIsSaved(false);
-    setEvaluation(null);
-    setEvalLoading(false);
-    setEvalError(null);
-  }, [question.id]);
-
   useEffect(() => {
     const words = essay.trim().split(/\s+/).filter(word => word.length > 0);
     setWordCount(words.length);

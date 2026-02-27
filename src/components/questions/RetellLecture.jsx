@@ -20,17 +20,7 @@ const RetellLecture = ({ question, onNext }) => {
   const recordingInterval = useRef(null);
   const timeoutRef = useRef(null);
 
-  // Reset state when question changes
   useEffect(() => {
-    setIsRecording(false);
-    setRecordingTime(0);
-    setLecturePlayed(false);
-    setHasRecorded(false);
-    setAudioBlob(null);
-    setEvaluation(null);
-    setEvalLoading(false);
-    setEvalError(null);
-    
     const initMic = async () => {
       const ok = await audioService.initRecording();
       setMicReady(ok);
@@ -43,7 +33,7 @@ const RetellLecture = ({ question, onNext }) => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       audioService.cancelRecording();
     };
-  }, [question.id]); // Reset when question ID changes
+  }, []);
 
   const handleLectureEnd = () => {
     setLecturePlayed(true);

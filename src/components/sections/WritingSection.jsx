@@ -31,18 +31,16 @@ const WritingSection = () => {
   const currentQuestionData = writingQuestions[currentQuestion];
 
   const handleNextQuestion = () => {
-    const isLastQuestion = currentQuestion >= writingQuestions.length - 1;
-    
-    if (isLastQuestion) {
-      // Move to reading section
-      setCurrentSection('reading');
-      setCurrentQuestionIndex(0);
-      navigate('/exam/reading', { replace: true });
-    } else {
+    if (currentQuestion < writingQuestions.length - 1) {
       const nextIndex = currentQuestion + 1;
       setCurrentQuestion(nextIndex);
       setCurrentQuestionIndex(nextIndex);
       window.scrollTo(0, 0);
+    } else {
+      // Move to reading section
+      setCurrentSection('reading');
+      setCurrentQuestionIndex(0);
+      navigate('/exam/reading');
     }
   };
 
@@ -90,10 +88,10 @@ const WritingSection = () => {
 
               {/* Render the appropriate question component based on type */}
               {currentQuestionData.type === 'summarize_written_text' && (
-                <SummarizeWrittenText key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
+                <SummarizeWrittenText question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'write_essay' && (
-                <WriteEssay key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
+                <WriteEssay question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
 

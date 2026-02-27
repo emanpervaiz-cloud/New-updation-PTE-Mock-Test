@@ -7,7 +7,6 @@ const ListeningFillBlanks = ({ question, onNext }) => {
   const [answers, setAnswers] = useState({});
   const [availableOptions, setAvailableOptions] = useState([...question.options]);
   const [audioPlayed, setAudioPlayed] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleOptionSelect = (blankNumber, selectedOption) => {
     const prevSelection = answers[blankNumber];
@@ -39,10 +38,6 @@ const ListeningFillBlanks = ({ question, onNext }) => {
   };
 
   const handleSubmit = () => {
-    if (isSubmitted) {
-      onNext();
-      return;
-    }
     // Save the answers
     saveAnswer(question.id, {
       questionId: question.id,
@@ -51,7 +46,9 @@ const ListeningFillBlanks = ({ question, onNext }) => {
       responses: answers,
       meta: { audioPlayed: audioPlayed }
     });
-    setIsSubmitted(true);
+
+    // Move to next question
+    onNext();
   };
 
   const renderPassageWithBlanks = () => {

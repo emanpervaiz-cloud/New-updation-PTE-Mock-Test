@@ -17,18 +17,6 @@ const SummarizeSpokenText = ({ question, onNext }) => {
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState(null);
 
-  // Reset state when question changes
-  useEffect(() => {
-    setSummary('');
-    setWordCount(0);
-    setAudioPlayed(false);
-    setIsSaved(false);
-    setIsSubmitted(false);
-    setEvaluation(null);
-    setEvalLoading(false);
-    setEvalError(null);
-  }, [question.id]);
-
   // Calculate word count whenever summary changes
   useEffect(() => {
     const words = summary.trim().split(/\s+/).filter(word => word.length > 0);

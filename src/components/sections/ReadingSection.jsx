@@ -87,18 +87,16 @@ const ReadingSection = () => {
   const currentQuestionData = readingQuestions[currentQuestion];
 
   const handleNextQuestion = () => {
-    const isLastQuestion = currentQuestion >= readingQuestions.length - 1;
-    
-    if (isLastQuestion) {
-      // Move to listening section
-      setCurrentSection('listening');
-      setCurrentQuestionIndex(0);
-      navigate('/exam/listening', { replace: true });
-    } else {
+    if (currentQuestion < readingQuestions.length - 1) {
       const nextIndex = currentQuestion + 1;
       setCurrentQuestion(nextIndex);
       setCurrentQuestionIndex(nextIndex);
       window.scrollTo(0, 0);
+    } else {
+      // Move to listening section
+      setCurrentSection('listening');
+      setCurrentQuestionIndex(0);
+      navigate('/exam/listening');
     }
   };
 
@@ -113,12 +111,6 @@ const ReadingSection = () => {
   useEffect(() => {
     setCurrentSection('reading');
   }, [setCurrentSection]);
-  
-  // Reset current question when component mounts
-  useEffect(() => {
-    setCurrentQuestion(0);
-    setCurrentQuestionIndex(0);
-  }, []);
 
   return (
     <div className="exam-container exam-theme">
@@ -159,19 +151,19 @@ const ReadingSection = () => {
 
               {/* Render the appropriate question component based on type */}
               {currentQuestionData.type === 'reading_writing_fill_blanks' && (
-                <ReadingWritingFillBlanks key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingWritingFillBlanks question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'multiple_choice' && (
-                <MultipleChoice key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
+                <MultipleChoice question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reorder_paragraph' && (
-                <ReorderParagraph key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReorderParagraph question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reading_fill_blanks' && (
-                <ReadingFillBlanks key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingFillBlanks question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reading_multiple_choice_audio' && (
-                <ReadingMultipleChoiceAudio key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingMultipleChoiceAudio question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
 
