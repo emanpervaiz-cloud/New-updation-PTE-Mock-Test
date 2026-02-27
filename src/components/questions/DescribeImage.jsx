@@ -21,7 +21,17 @@ const DescribeImage = ({ question, onNext }) => {
   const timeoutRef = useRef(null);
   const isRecordingRef = useRef(false);
 
+  // Reset state when question changes
   useEffect(() => {
+    setIsRecording(false);
+    setRecordingTime(0);
+    setPrepTime(25);
+    setHasRecorded(false);
+    setAudioBlob(null);
+    setEvaluation(null);
+    setEvalLoading(false);
+    setEvalError(null);
+    
     const initMic = async () => {
       const ok = await audioService.initRecording();
       setMicReady(ok);
@@ -45,7 +55,7 @@ const DescribeImage = ({ question, onNext }) => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       audioService.cancelRecording();
     };
-  }, []);
+  }, [question.id]); // Reset when question ID changes
 
   const startRecording = async () => {
     if (!micReady) {

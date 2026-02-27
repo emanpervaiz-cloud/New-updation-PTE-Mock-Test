@@ -12,6 +12,16 @@ const SummarizeWrittenText = ({ question, onNext }) => {
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState(null);
 
+  // Reset state when question changes
+  useEffect(() => {
+    setSummary('');
+    setWordCount(0);
+    setIsSaved(false);
+    setEvaluation(null);
+    setEvalLoading(false);
+    setEvalError(null);
+  }, [question.id]);
+
   useEffect(() => {
     const words = summary.trim().split(/\s+/).filter(word => word.length > 0);
     setWordCount(words.length);
