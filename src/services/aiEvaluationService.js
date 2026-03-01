@@ -225,6 +225,7 @@ Return JSON format:
         return "[Audio response recorded]";
       }
 
+      // Use OpenRouter's OpenAI-compatible audio transcriptions endpoint
       const formData = new FormData();
       const extension = audioBlob.type.includes('mp4') ? 'm4a' : 'webm';
       formData.append('file', audioBlob, `audio.${extension}`);
@@ -240,6 +241,12 @@ Return JSON format:
         body: formData
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('OpenRouter Transcription HTTP Error:', response.status, errorText);
+        return `[Transcription failed: HTTP ${response.status}]`;
+      }
+
       const data = await response.json();
 
       if (data.error) {
@@ -254,6 +261,19 @@ Return JSON format:
     }
   }
   
+  // Helper method to convert blob to base64
+  blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result.split(',')[1];
+        resolve(base64String);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   // Transcribe using OpenAI Whisper directly
   async transcribeWithWhisper(audioBlob, openAiKey) {
     const formData = new FormData();
