@@ -234,6 +234,15 @@ Return JSON format:
         }
       }
       
+      // Priority 3: Try n8n webhook for transcription
+      if (this.webhookUrl) {
+        try {
+          return await this.transcribeWithN8n(audioBlob);
+        } catch (n8nError) {
+          console.error('n8n transcription failed:', n8nError);
+        }
+      }
+      
       // No transcription service available
       console.warn('No transcription service available. Please add VITE_GEMINI_API_KEY or VITE_OPENAI_API_KEY');
       return "[Audio transcription unavailable - please configure API keys]";
@@ -243,6 +252,34 @@ Return JSON format:
     }
   }
   
+  // Transcribe using n8n webhook
+  async transcribeWithN8n(audioBlob) {
+    console.log('Using n8n webhook for transcription');
+    const base64Audio = await this.blobToBase64(audioBlob);
+    
+    const response = await fetch(this.webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'transcribe_audio',
+        audio: base64Audio,
+        mimeType: audioBlob.type || 'audio/webm'
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`n8n webhook error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('n8n transcription response:', data);
+    
+    // Handle different response formats from n8n
+    return data.transcript || data.text || data.output || '[No transcript received from n8n]';
+  }
+
   // Helper method to convert blob to base64
   blobToBase64(blob) {
     return new Promise((resolve, reject) => {
