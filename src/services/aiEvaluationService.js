@@ -45,6 +45,7 @@ class AIEvaluationService {
     this.geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
     this.useGemini = !!this.geminiApiKey;
     this.openRouterKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+    this.openAiKey = import.meta.env.VITE_OPENAI_API_KEY;
   }
   
   // Helper method to call Gemini API
@@ -255,6 +256,7 @@ Return JSON format:
   
   // Transcribe using Gemini API
   async transcribeWithGemini(audioBlob) {
+    console.log('Using Gemini for transcription, API key exists:', !!this.geminiApiKey);
     const base64Audio = await this.blobToBase64(audioBlob);
     
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`, {
@@ -268,7 +270,7 @@ Return JSON format:
             { text: 'Transcribe this audio accurately with proper punctuation. Return only the transcript text.' },
             { 
               inline_data: {
-                mime_type: audioBlob.type || 'audio/webm',
+                mime_type: 'audio/webm',
                 data: base64Audio
               }
             }
@@ -282,10 +284,13 @@ Return JSON format:
     });
     
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Gemini API Error:', response.status, errorData);
+      throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
     }
     
     const data = await response.json();
+    console.log('Gemini transcription successful');
     return data.candidates?.[0]?.content?.parts?.[0]?.text || '[No speech detected]';
   }
 
