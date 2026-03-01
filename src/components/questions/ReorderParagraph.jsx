@@ -79,7 +79,43 @@ const ReorderParagraph = ({ question, onNext }) => {
         <p><strong>Instructions:</strong> Drag and drop the sentences to restore the original order.</p>
       </div>
 
-      <div className="action-buttons">
+      {isSubmitted && (
+        <div className="answer-feedback" style={{ 
+          marginTop: '20px', 
+          padding: '15px', 
+          backgroundColor: '#f0f9ff', 
+          borderRadius: '8px',
+          border: '1px solid #0ea5e9'
+        }}>
+          <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>Correct Order:</h4>
+          {question.sentences?.map((sentence, idx) => {
+            const userIndex = orderedSentences.findIndex(s => s.id === sentence.id);
+            const isCorrectPosition = userIndex === idx;
+            return (
+              <div key={sentence.id} style={{ 
+                marginBottom: '8px',
+                padding: '8px',
+                backgroundColor: isCorrectPosition ? '#dcfce7' : '#fee2e2',
+                borderRadius: '4px',
+                borderLeft: `4px solid ${isCorrectPosition ? '#22c55e' : '#ef4444'}`
+              }}>
+                <strong>{idx + 1}.</strong>{' '}
+                <span style={{ color: isCorrectPosition ? '#22c55e' : '#ef4444' }}>
+                  {sentence.text}
+                </span>
+                {!isCorrectPosition && (
+                  <span style={{ color: '#ef4444', marginLeft: '10px', fontSize: '0.9em' }}>
+                    (Your position: {userIndex + 1})
+                  </span>
+                )}
+                {isCorrectPosition && <span style={{ color: '#22c55e', marginLeft: '10px' }}>✓</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="action-buttons" style={{ marginTop: '20px' }}>
         <button
           className="btn btn-primary"
           onClick={handleSubmit}

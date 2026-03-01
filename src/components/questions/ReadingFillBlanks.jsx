@@ -113,7 +113,38 @@ const ReadingFillBlanks = ({ question, onNext }) => {
         <p><strong>Instructions:</strong> Complete the text with the most appropriate words from the options bank. Each word can only be used once.</p>
       </div>
 
-      <div className="action-buttons">
+      {isSubmitted && (
+        <div className="answer-feedback" style={{ 
+          marginTop: '20px', 
+          padding: '15px', 
+          backgroundColor: '#f0f9ff', 
+          borderRadius: '8px',
+          border: '1px solid #0ea5e9'
+        }}>
+          <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>Correct Answers:</h4>
+          {question.answers?.map((answer, idx) => {
+            const userAnswer = answers[answer.blank];
+            const isCorrect = userAnswer === answer.correct;
+            return (
+              <div key={idx} style={{ 
+                marginBottom: '8px',
+                padding: '8px',
+                backgroundColor: isCorrect ? '#dcfce7' : '#fee2e2',
+                borderRadius: '4px',
+                borderLeft: `4px solid ${isCorrect ? '#22c55e' : '#ef4444'}`
+              }}>
+                <strong>Blank {answer.blank}:</strong>{' '}
+                <span style={{ textDecoration: 'line-through', color: '#ef4444' }}>{userAnswer || 'No answer'}</span>{' '}
+                <span style={{ color: '#22c55e', fontWeight: 'bold' }}>→ {answer.correct}</span>
+                {isCorrect && <span style={{ color: '#22c55e', marginLeft: '10px' }}>✓</span>}
+                {!isCorrect && <span style={{ color: '#ef4444', marginLeft: '10px' }}>✗</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="action-buttons" style={{ marginTop: '20px' }}>
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
