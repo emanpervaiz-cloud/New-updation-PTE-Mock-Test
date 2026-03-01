@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useExam } from '../../context/ExamContext';
 
 const ReadingFillBlanks = ({ question, onNext }) => {
   const { saveAnswer } = useExam();
   const [answers, setAnswers] = useState({});
-  const [availableOptions, setAvailableOptions] = useState([...question.options]);
+  const [availableOptions, setAvailableOptions] = useState([]);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  useEffect(() => {
+    if (question) {
+      setAnswers({});
+      setAvailableOptions(question.options ? [...question.options] : []);
+      setIsSubmitted(false);
+    }
+  }, [question?.id]);
 
   const handleOptionSelect = (blankNumber, selectedOption) => {
     const prevSelection = answers[blankNumber];
@@ -32,6 +41,11 @@ const ReadingFillBlanks = ({ question, onNext }) => {
   };
 
   const handleSubmit = () => {
+    if (isSubmitted) {
+      onNext();
+      return;
+    }
+    
     // Save the answers
     saveAnswer(question.id, {
       questionId: question.id,
@@ -39,9 +53,8 @@ const ReadingFillBlanks = ({ question, onNext }) => {
       type: 'reading_fill_blanks',
       responses: answers
     });
-
-    // Move to next question
-    onNext();
+    
+    setIsSubmitted(true);
   };
 
   const renderPassageWithBlanks = () => {
@@ -105,7 +118,7 @@ const ReadingFillBlanks = ({ question, onNext }) => {
           className="btn btn-primary"
           onClick={handleSubmit}
         >
-          Submit Answers
+          {isSubmitted ? 'Next Question' : 'Submit Answers'}
         </button>
       </div>
     </div>

@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useExam } from '../../context/ExamContext';
 
 const ReadingWritingFillBlanks = ({ question, onNext }) => {
   const { saveAnswer } = useExam();
   const [answers, setAnswers] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  useEffect(() => {
+    if (question) {
+      setAnswers({});
+      setIsSubmitted(false);
+    }
+  }, [question?.id]);
 
   const handleOptionChange = (blankId, value) => {
     setAnswers(prev => ({
@@ -13,6 +21,11 @@ const ReadingWritingFillBlanks = ({ question, onNext }) => {
   };
 
   const handleSubmit = () => {
+    if (isSubmitted) {
+      onNext();
+      return;
+    }
+    
     // Save the answers
     saveAnswer(question.id, {
       questionId: question.id,
@@ -20,27 +33,29 @@ const ReadingWritingFillBlanks = ({ question, onNext }) => {
       type: 'reading_writing_fill_blanks',
       responses: answers
     });
-
-    // Move to next question
-    onNext();
+    
+    setIsSubmitted(true);
   };
 
   const renderPassageWithBlanks = () => {
-    const parts = question.passage.split(/(\{\{|\}\})/);
-    let blankCounter = 0;
+    // Split by blank markers like ___1___, ___2___, etc.
+    const parts = question.passage.split(/(___\d+___)/);
 
     return parts.map((part, index) => {
-      if (part === '{{') {
-        blankCounter++;
-        const blankId = question.questions.find(q => q.position === blankCounter)?.id;
-        const options = question.questions.find(q => q.position === blankCounter)?.options || [];
+      const blankMatch = part.match(/___(\d+)___/);
+      if (blankMatch) {
+        const blankNum = parseInt(blankMatch[1]);
+        const blankData = question.options?.[blankNum - 1];
+        const options = blankData?.options || [];
+        const blankId = `blank_${blankNum}`;
 
         return (
           <select
-            key={`blank-${blankCounter}`}
+            key={`blank-${blankNum}`}
             value={answers[blankId] || ''}
             onChange={(e) => handleOptionChange(blankId, e.target.value)}
             className="blank-select"
+            disabled={isSubmitted}
           >
             <option value="">Select option</option>
             {options.map(option => (
@@ -48,10 +63,8 @@ const ReadingWritingFillBlanks = ({ question, onNext }) => {
             ))}
           </select>
         );
-      } else if (part !== '{{' && part !== '}}') {
-        return <span key={index}>{part}</span>;
       }
-      return null;
+      return <span key={index}>{part}</span>;
     });
   };
 
@@ -71,9 +84,9 @@ const ReadingWritingFillBlanks = ({ question, onNext }) => {
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          disabled={Object.keys(answers).length !== question.questions.length}
+          disabled={!isSubmitted && Object.keys(answers).length !== (question.options?.length || question.answers?.length || 0)}
         >
-          Submit Answers
+          {isSubmitted ? 'Next Question' : 'Submit Answers'}
         </button>
       </div>
     </div>
