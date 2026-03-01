@@ -18,7 +18,10 @@ const SelectMissingWord = ({ question, onNext }) => {
   };
 
   const handleSubmit = () => {
+    console.log('SelectMissingWord handleSubmit called, isSubmitted:', isSubmitted);
+    
     if (isSubmitted) {
+      console.log('Already submitted, calling onNext...');
       onNext();
       return;
     }
@@ -33,6 +36,7 @@ const SelectMissingWord = ({ question, onNext }) => {
     });
 
     // Show answer first, then user clicks Next to proceed
+    console.log('Setting isSubmitted to true');
     setIsSubmitted(true);
   };
 

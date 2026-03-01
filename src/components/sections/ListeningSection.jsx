@@ -199,13 +199,20 @@ const ListeningSection = () => {
   }
 
   const handleNextQuestion = () => {
+    console.log('handleNextQuestion called');
+    console.log('currentQuestion:', currentQuestion);
+    console.log('listeningQuestions.length:', listeningQuestions.length);
+    
     const isLastQuestion = currentQuestion >= listeningQuestions.length - 1;
+    console.log('isLastQuestion:', isLastQuestion);
     
     if (isLastQuestion) {
+      console.log('Navigating to results...');
       // Move to results section
       setCurrentQuestionIndex(0);
       navigate('/exam/results', { replace: true });
     } else {
+      console.log('Moving to next question...');
       const nextIndex = currentQuestion + 1;
       setCurrentQuestion(nextIndex);
       setCurrentQuestionIndex(nextIndex);
