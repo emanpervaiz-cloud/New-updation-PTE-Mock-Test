@@ -1,0 +1,431 @@
+{
+  "test_info": {
+    "title": "PTE Academic Reading Mock Test",
+    "total_questions": 20,
+    "time_limit_minutes": 20,
+    "difficulty": "Mixed",
+    "version": "1.0"
+  },
+  "tasks": [
+    {
+      "task_id": 1,
+      "task_type": "RW_Fill_in_the_Blanks",
+      "task_label": "Reading & Writing: Fill in the Blanks",
+      "description": "Select the best word from the dropdown for each blank.",
+      "scoring": "Both Reading and Writing scores affected. No negative marking.",
+      "questions": [
+        {
+          "question_id": 1,
+          "question_number": 1,
+          "difficulty": "Medium",
+          "passage": "The Amazon rainforest, often referred to as the 'lungs of the Earth,' plays a [BLANK_1] role in regulating the global climate. It absorbs vast amounts of carbon dioxide and [BLANK_2] oxygen, supporting millions of species. However, [BLANK_3] deforestation threatens its existence, pushing ecosystems toward irreversible [BLANK_4].",
+          "blanks": [
+            {
+              "blank_id": 1,
+              "correct_answer": "crucial",
+              "options": ["marginal", "crucial", "trivial", "occasional"]
+            },
+            {
+              "blank_id": 2,
+              "correct_answer": "releases",
+              "options": ["absorbs", "retains", "releases", "consumes"]
+            },
+            {
+              "blank_id": 3,
+              "correct_answer": "rampant",
+              "options": ["minimal", "rampant", "careful", "gradual"]
+            },
+            {
+              "blank_id": 4,
+              "correct_answer": "collapse",
+              "options": ["recovery", "growth", "collapse", "stability"]
+            }
+          ]
+        },
+        {
+          "question_id": 2,
+          "question_number": 2,
+          "difficulty": "Medium",
+          "passage": "Artificial intelligence is rapidly [BLANK_1] the healthcare industry. Machine learning algorithms can now [BLANK_2] diseases with remarkable [BLANK_3], sometimes outperforming experienced physicians. Despite this progress, ethical [BLANK_4] around data privacy remain significant.",
+          "blanks": [
+            {
+              "blank_id": 1,
+              "correct_answer": "transforming",
+              "options": ["ignoring", "transforming", "delaying", "replacing"]
+            },
+            {
+              "blank_id": 2,
+              "correct_answer": "diagnose",
+              "options": ["ignore", "cure", "diagnose", "treat"]
+            },
+            {
+              "blank_id": 3,
+              "correct_answer": "accuracy",
+              "options": ["confusion", "speed", "accuracy", "cost"]
+            },
+            {
+              "blank_id": 4,
+              "correct_answer": "concerns",
+              "options": ["benefits", "concerns", "rewards", "advances"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": 2,
+      "task_type": "Multiple_Choice_Multiple_Answer",
+      "task_label": "Multiple Choice: Multiple Answer",
+      "description": "Read the text and select ALL correct responses. More than one response is correct.",
+      "scoring": "Reading score affected. Negative marking applies for wrong selections.",
+      "questions": [
+        {
+          "question_id": 3,
+          "question_number": 3,
+          "difficulty": "Medium",
+          "passage": "The Industrial Revolution, which began in Britain in the late 18th century, brought sweeping changes to society. Factories replaced cottage industries, and urbanization accelerated dramatically as workers moved to cities. While productivity soared and new technologies emerged, the period also saw child labor become widespread, working conditions became dangerous, and income inequality grew significantly. Environmental degradation from coal-powered machinery began to alter landscapes permanently. Yet this era also sparked innovation in transportation, communication, and medicine that eventually improved living standards globally.",
+          "question_text": "Which of the following are mentioned as consequences of the Industrial Revolution?",
+          "options": [
+            {
+              "option_id": "A",
+              "text": "Increased urbanization as workers moved to cities",
+              "is_correct": true
+            },
+            {
+              "option_id": "B",
+              "text": "Immediate improvement in living standards for all workers",
+              "is_correct": false
+            },
+            {
+              "option_id": "C",
+              "text": "Widespread use of child labor in factories",
+              "is_correct": true
+            },
+            {
+              "option_id": "D",
+              "text": "Environmental damage from coal-powered machinery",
+              "is_correct": true
+            },
+            {
+              "option_id": "E",
+              "text": "Elimination of income inequality",
+              "is_correct": false
+            }
+          ],
+          "correct_answers": ["A", "C", "D"]
+        },
+        {
+          "question_id": 4,
+          "question_number": 4,
+          "difficulty": "Hard",
+          "passage": "Climate change poses multifaceted threats to biodiversity worldwide. Rising temperatures have shifted species' habitats poleward and to higher altitudes. Ocean acidification, caused by increased carbon dioxide absorption, threatens coral reefs and shell-forming marine organisms. Extreme weather events are becoming more frequent and intense, disrupting breeding patterns. Migratory species face mismatched timing with food availability. However, some species show remarkable adaptability, and conservation efforts, including protected areas and habitat corridors, have shown measurable success in supporting vulnerable populations.",
+          "question_text": "According to the passage, which statements about climate change and biodiversity are correct?",
+          "options": [
+            {
+              "option_id": "A",
+              "text": "Species are relocating to higher altitudes and toward the poles",
+              "is_correct": true
+            },
+            {
+              "option_id": "B",
+              "text": "Ocean acidification is threatening coral reefs",
+              "is_correct": true
+            },
+            {
+              "option_id": "C",
+              "text": "All species are unable to adapt to climate change",
+              "is_correct": false
+            },
+            {
+              "option_id": "D",
+              "text": "Conservation efforts have had some measurable success",
+              "is_correct": true
+            },
+            {
+              "option_id": "E",
+              "text": "Migratory species have completely disappeared",
+              "is_correct": false
+            }
+          ],
+          "correct_answers": ["A", "B", "D"]
+        }
+      ]
+    },
+    {
+      "task_id": 3,
+      "task_type": "Reorder_Paragraphs",
+      "task_label": "Re-order Paragraphs",
+      "description": "Restore the original order of the text boxes.",
+      "scoring": "Reading score affected. No negative marking.",
+      "questions": [
+        {
+          "question_id": 5,
+          "question_number": 5,
+          "difficulty": "Easy",
+          "paragraphs": [
+            {
+              "para_id": "A",
+              "text": "During the medieval period, scholars gathered to study theology, philosophy, and the natural sciences."
+            },
+            {
+              "para_id": "B",
+              "text": "This led to the establishment of the first universities, which became centers of learning and intellectual exchange."
+            },
+            {
+              "para_id": "C",
+              "text": "Over centuries, universities expanded their curricula, eventually incorporating law, medicine, and the arts."
+            },
+            {
+              "para_id": "D",
+              "text": "Today, these institutions continue to evolve, embracing digital technology and global collaboration."
+            }
+          ],
+          "correct_order": ["A", "B", "C", "D"]
+        },
+        {
+          "question_id": 6,
+          "question_number": 6,
+          "difficulty": "Medium",
+          "paragraphs": [
+            {
+              "para_id": "A",
+              "text": "Scientists first began measuring atmospheric CO₂ levels in the 1950s, noticing a steady upward trend."
+            },
+            {
+              "para_id": "B",
+              "text": "By the 1980s, research had established a clear link between these levels and rising global temperatures."
+            },
+            {
+              "para_id": "C",
+              "text": "As a result, governments worldwide began enacting policies to reduce carbon emissions."
+            },
+            {
+              "para_id": "D",
+              "text": "International agreements like the Paris Accord represent the most ambitious global response to date."
+            }
+          ],
+          "correct_order": ["A", "B", "C", "D"]
+        },
+        {
+          "question_id": 7,
+          "question_number": 7,
+          "difficulty": "Medium",
+          "paragraphs": [
+            {
+              "para_id": "A",
+              "text": "In 1928, Alexander Fleming noticed that mold had contaminated one of his petri dishes and killed nearby bacteria."
+            },
+            {
+              "para_id": "B",
+              "text": "This discovery opened the door to antibiotics, revolutionizing the treatment of infectious diseases."
+            },
+            {
+              "para_id": "C",
+              "text": "The active substance, penicillin, was later isolated and used to treat wounded soldiers in World War II."
+            },
+            {
+              "para_id": "D",
+              "text": "However, the overuse of antibiotics has since led to the emergence of resistant bacterial strains."
+            }
+          ],
+          "correct_order": ["A", "B", "C", "D"]
+        }
+      ]
+    },
+    {
+      "task_id": 4,
+      "task_type": "Reading_Fill_in_the_Blanks",
+      "task_label": "Reading: Fill in the Blanks",
+      "description": "Use the word bank to fill in the blanks. Each word can only be used once.",
+      "scoring": "Reading score affected. No negative marking.",
+      "questions": [
+        {
+          "question_id": 8,
+          "question_number": 8,
+          "difficulty": "Easy",
+          "passage": "Fossil fuels are rapidly [BLANK_1], making the shift to [BLANK_2] energy sources not just desirable but essential. Solar and wind power are considered more [BLANK_3] in the long run, as they rely on resources that are not [BLANK_4].",
+          "word_bank": ["sustainable", "scarce", "renewable", "depleting", "consuming"],
+          "blanks": [
+            { "blank_id": 1, "correct_answer": "depleting" },
+            { "blank_id": 2, "correct_answer": "renewable" },
+            { "blank_id": 3, "correct_answer": "sustainable" },
+            { "blank_id": 4, "correct_answer": "scarce" }
+          ]
+        },
+        {
+          "question_id": 9,
+          "question_number": 9,
+          "difficulty": "Medium",
+          "passage": "Modern lifestyles have become increasingly [BLANK_1], with many people spending hours in front of screens. Regular exercise helps blood [BLANK_2] more efficiently, and can [BLANK_3] mood and energy levels. Studies show that even brief periods of physical activity improve [BLANK_4] function significantly.",
+          "word_bank": ["circulate", "sedentary", "cognitive", "boost", "active"],
+          "blanks": [
+            { "blank_id": 1, "correct_answer": "sedentary" },
+            { "blank_id": 2, "correct_answer": "circulate" },
+            { "blank_id": 3, "correct_answer": "boost" },
+            { "blank_id": 4, "correct_answer": "cognitive" }
+          ]
+        },
+        {
+          "question_id": 10,
+          "question_number": 10,
+          "difficulty": "Medium",
+          "passage": "English has emerged as the [BLANK_1] language of global communication, used to [BLANK_2] trade, diplomacy, and scientific exchange. Yet language remains a significant [BLANK_3] for many communities. The language itself is constantly [BLANK_4], absorbing new words and expressions from cultures worldwide.",
+          "word_bank": ["facilitate", "barrier", "universal", "evolving", "dominant"],
+          "blanks": [
+            { "blank_id": 1, "correct_answer": "dominant" },
+            { "blank_id": 2, "correct_answer": "facilitate" },
+            { "blank_id": 3, "correct_answer": "barrier" },
+            { "blank_id": 4, "correct_answer": "evolving" }
+          ]
+        },
+        {
+          "question_id": 11,
+          "question_number": 11,
+          "difficulty": "Hard",
+          "passage": "The COVID-19 pandemic [BLANK_1] global supply chains in ways that were truly [BLANK_2]. It also [BLANK_3] the adoption of remote work, making digital tools more [BLANK_4] across industries worldwide.",
+          "word_bank": ["unprecedented", "accessible", "disrupted", "accelerated", "passive"],
+          "blanks": [
+            { "blank_id": 1, "correct_answer": "disrupted" },
+            { "blank_id": 2, "correct_answer": "unprecedented" },
+            { "blank_id": 3, "correct_answer": "accelerated" },
+            { "blank_id": 4, "correct_answer": "accessible" }
+          ]
+        },
+        {
+          "question_id": 12,
+          "question_number": 12,
+          "difficulty": "Hard",
+          "passage": "The rise of digital [BLANK_1] poses a [BLANK_2] challenge to personal privacy. As governments and corporations collect more data, the [BLANK_3] once afforded by the internet is steadily [BLANK_4].",
+          "word_bank": ["eroding", "formidable", "surveillance", "anonymity", "transparent"],
+          "blanks": [
+            { "blank_id": 1, "correct_answer": "surveillance" },
+            { "blank_id": 2, "correct_answer": "formidable" },
+            { "blank_id": 3, "correct_answer": "anonymity" },
+            { "blank_id": 4, "correct_answer": "eroding" }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": 5,
+      "task_type": "Multiple_Choice_Single_Answer",
+      "task_label": "Multiple Choice: Single Answer",
+      "description": "Read the text and select the single best response.",
+      "scoring": "Reading score affected. No negative marking.",
+      "questions": [
+        {
+          "question_id": 13,
+          "question_number": 13,
+          "difficulty": "Medium",
+          "passage": "The concept of 'dark matter' refers to a hypothetical form of matter that does not interact with the electromagnetic force, making it invisible to the entire electromagnetic spectrum. Despite being undetectable by conventional means, dark matter is believed to constitute approximately 27% of the universe's total mass-energy content. Its existence is inferred through gravitational effects on visible matter, radiation, and the large-scale structure of the universe. Galaxies rotate at speeds that cannot be explained by the gravitational pull of observable matter alone, suggesting an additional, unseen mass.",
+          "question_text": "Why is dark matter described as 'hypothetical'?",
+          "options": [
+            { "option_id": "A", "text": "It has been directly observed through powerful telescopes", "is_correct": false },
+            { "option_id": "B", "text": "It cannot be detected directly and its existence is inferred from gravitational effects", "is_correct": true },
+            { "option_id": "C", "text": "Scientists disagree about whether gravity exists", "is_correct": false },
+            { "option_id": "D", "text": "It makes up less than 1% of the universe's mass", "is_correct": false }
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question_id": 14,
+          "question_number": 14,
+          "difficulty": "Easy",
+          "passage": "Neuroplasticity refers to the brain's remarkable ability to reorganize itself by forming new neural connections throughout life. This challenges the long-held belief that the brain is a static organ after childhood. Research has shown that experiences, learning, and even trauma can physically alter the brain's structure. Rehabilitation programs for stroke patients exploit neuroplasticity, encouraging unaffected parts of the brain to take over functions lost due to damage. This has transformed approaches to treating neurological conditions.",
+          "question_text": "What does neuroplasticity challenge?",
+          "options": [
+            { "option_id": "A", "text": "The idea that the brain can learn new things", "is_correct": false },
+            { "option_id": "B", "text": "The belief that the brain becomes static and unchanging after childhood", "is_correct": true },
+            { "option_id": "C", "text": "The effectiveness of rehabilitation programs", "is_correct": false },
+            { "option_id": "D", "text": "The existence of neural connections in the brain", "is_correct": false }
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question_id": 15,
+          "question_number": 15,
+          "difficulty": "Medium",
+          "passage": "The Silk Road was not a single road but a network of trade routes connecting China to the Mediterranean world. Beyond goods like silk, spices, and precious metals, ideas, religions, and diseases also traveled these routes. Buddhism spread from India to East Asia, while Islam expanded westward and eastward simultaneously. The Black Death is believed to have traveled the Silk Road from Central Asia to Europe in the 14th century. The exchange of knowledge included papermaking and printing technologies moving westward, fundamentally changing literate cultures.",
+          "question_text": "According to the passage, what traveled along the Silk Road besides trade goods?",
+          "options": [
+            { "option_id": "A", "text": "Military armies and warships", "is_correct": false },
+            { "option_id": "B", "text": "Only silk and spices", "is_correct": false },
+            { "option_id": "C", "text": "Religions, ideas, diseases, and technologies", "is_correct": true },
+            { "option_id": "D", "text": "Exclusively Chinese inventions", "is_correct": false }
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question_id": 16,
+          "question_number": 16,
+          "difficulty": "Medium",
+          "passage": "Microplastics — particles smaller than 5mm — have been found in virtually every environment on Earth, from deep ocean trenches to mountain peaks and even human blood. They enter ecosystems through the breakdown of larger plastic waste, synthetic clothing fibers, and industrial processes. Marine organisms frequently ingest microplastics, which can then enter the human food chain through seafood consumption. The long-term health effects remain under investigation, though preliminary research suggests potential endocrine disruption and inflammatory responses in living tissue.",
+          "question_text": "What does the passage suggest about the health effects of microplastics?",
+          "options": [
+            { "option_id": "A", "text": "They have been proven to cause cancer in humans", "is_correct": false },
+            { "option_id": "B", "text": "They are still being studied but may cause hormonal and inflammatory effects", "is_correct": true },
+            { "option_id": "C", "text": "They are completely harmless to human health", "is_correct": false },
+            { "option_id": "D", "text": "Only marine animals are affected by microplastics", "is_correct": false }
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question_id": 17,
+          "question_number": 17,
+          "difficulty": "Medium",
+          "passage": "The concept of a 'circular economy' contrasts sharply with the traditional linear model of 'take, make, dispose.' In a circular economy, resources are kept in use for as long as possible through repair, reuse, and recycling. Products are designed from the outset with their end-of-life in mind. This approach aims to decouple economic growth from resource consumption, reducing waste and environmental impact. Several European nations have adopted national circular economy strategies, and major corporations are redesigning supply chains to align with these principles.",
+          "question_text": "What is the main goal of a circular economy?",
+          "options": [
+            { "option_id": "A", "text": "To increase the speed of product manufacturing", "is_correct": false },
+            { "option_id": "B", "text": "To eliminate all forms of economic growth", "is_correct": false },
+            { "option_id": "C", "text": "To allow economic growth while reducing resource use and waste", "is_correct": true },
+            { "option_id": "D", "text": "To recycle only plastic products", "is_correct": false }
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question_id": 18,
+          "question_number": 18,
+          "difficulty": "Hard",
+          "passage": "Urban heat islands (UHIs) occur when cities experience higher temperatures than surrounding rural areas, primarily due to human activities and the built environment. Dark surfaces like asphalt absorb more heat, while reduced vegetation limits evaporative cooling. Waste heat from vehicles, air conditioning units, and industrial processes further elevates temperatures. UHIs increase energy consumption as people use more air conditioning, creating a feedback loop. Green roofs, reflective pavements, and tree-planting initiatives are among the strategies cities are employing to combat this effect.",
+          "question_text": "What feedback loop is described in the passage?",
+          "options": [
+            { "option_id": "A", "text": "More trees leading to more rainfall, which cools cities", "is_correct": false },
+            { "option_id": "B", "text": "Higher urban temperatures increasing air conditioning use, which generates more heat", "is_correct": true },
+            { "option_id": "C", "text": "More vehicles causing more trees to be planted", "is_correct": false },
+            { "option_id": "D", "text": "Reduced vegetation leading to less food production", "is_correct": false }
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question_id": 19,
+          "question_number": 19,
+          "difficulty": "Hard",
+          "passage": "The 'Dunning-Kruger effect' is a cognitive bias in which people with limited knowledge or competence in a domain tend to overestimate their own abilities. Conversely, those with high competence often underestimate themselves relative to others, assuming that tasks they find easy are similarly easy for everyone. The phenomenon was first described by psychologists David Dunning and Justin Kruger in 1999. It has since been applied to explain overconfidence in political opinions, medical self-diagnosis, and professional skill assessment, though more recent research suggests the effect may be influenced by statistical artifacts.",
+          "question_text": "How does the Dunning-Kruger effect affect highly competent people?",
+          "options": [
+            { "option_id": "A", "text": "They overestimate their abilities dramatically", "is_correct": false },
+            { "option_id": "B", "text": "They tend to underestimate themselves relative to others", "is_correct": true },
+            { "option_id": "C", "text": "They are immune to cognitive biases", "is_correct": false },
+            { "option_id": "D", "text": "They refuse to assess their own skills", "is_correct": false }
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question_id": 20,
+          "question_number": 20,
+          "difficulty": "Hard",
+          "passage": "Gene editing technology, particularly CRISPR-Cas9, has transformed biological research by enabling precise modifications to DNA sequences. Scientists can now delete, correct, or insert genes with a level of accuracy previously unimaginable. Medical applications include potential cures for genetic disorders like sickle cell disease and hereditary blindness. However, the technology also raises profound ethical questions, especially regarding germline editing — changes that would be heritable and passed to future generations. International scientific bodies have called for a moratorium on heritable human genome editing until comprehensive governance frameworks are established.",
+          "question_text": "Why are international bodies calling for a moratorium on germline editing?",
+          "options": [
+            { "option_id": "A", "text": "Because CRISPR technology does not work effectively", "is_correct": false },
+            { "option_id": "B", "text": "Because genetic diseases cannot currently be treated", "is_correct": false },
+            { "option_id": "C", "text": "Because heritable changes raise ethical concerns and need proper governance first", "is_correct": true },
+            { "option_id": "D", "text": "Because the technology is too expensive for practical use", "is_correct": false }
+          ],
+          "correct_answer": "C"
+        }
+      ]
+    }
+  ]
+}

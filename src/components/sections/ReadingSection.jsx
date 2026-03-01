@@ -35,33 +35,57 @@ const ReadingSection = () => {
         correct = q.correct_answer;
       } else if (q.type === 'Re-order Paragraphs') {
         type = 'reorder_paragraph';
-        sentences = q.paragraphs.map(p => {
-          const match = p.match(/^(\d+)\.\s*(.*)/);
-          if (match) {
-            return { id: `rs_${match[1]}`, text: match[2] };
-          }
-          return { id: `rs_${Math.random()}`, text: p };
-        });
+        sentences = q.paragraphs.map((p, idx) => ({
+          id: `rs_${idx + 1}`,
+          text: p
+        }));
         correctOrder = q.correct_order.map(num => `rs_${num}`);
-      } else if (q.type === 'Fill in the Blanks') {
+      } else if (q.type === 'Reading Fill in the Blanks') {
         type = 'reading_fill_blanks';
         let blankCount = 0;
-        const formattedPassage = q.blank_text.replace(/________/g, () => {
+        const formattedPassage = q.passage.replace(/\[BLANK_\d+\]/g, (match) => {
           blankCount++;
           return `___${blankCount}___`;
         });
 
-        options = [...q.correct_answers].sort();
-        answers = q.correct_answers.map((ans, idx) => ({
-          blank: idx + 1, // Fix: Use 1-based index (e.g. 1 instead of 0) since replace uses 1-based logic
-          correct: ans
+        options = q.word_bank || [];
+        answers = q.blanks.map((blank) => ({
+          blank: blank.blank_id,
+          correct: blank.correct_answer
         }));
 
         return {
           id: q.id,
           type,
-          passage: formattedPassage, // For fill in the blanks, passage is the blank_text
-          prompt: q.student_instructions,
+          passage: formattedPassage,
+          prompt: q.question,
+          options,
+          answers,
+          title: passage.title
+        };
+      } else if (q.type === 'R&W Fill in the Blanks') {
+        type = 'reading_writing_fill_blanks';
+        let blankCount = 0;
+        const formattedPassage = q.passage.replace(/\[BLANK_\d+\]/g, (match) => {
+          blankCount++;
+          return `___${blankCount}___`;
+        });
+
+        options = q.blanks.map(b => ({
+          options: b.options,
+          correct: b.correct_answer
+        }));
+        
+        answers = q.blanks.map((blank) => ({
+          blank: blank.blank_id,
+          correct: blank.correct_answer
+        }));
+
+        return {
+          id: q.id,
+          type,
+          passage: formattedPassage,
+          prompt: q.question,
           options,
           answers,
           title: passage.title
@@ -72,7 +96,7 @@ const ReadingSection = () => {
         id: q.id,
         type,
         passage: passage.text,
-        prompt: q.student_instructions,
+        prompt: q.question,
         question: q.question,
         options,
         correct,
@@ -154,19 +178,19 @@ const ReadingSection = () => {
 
               {/* Render the appropriate question component based on type */}
               {currentQuestionData.type === 'reading_writing_fill_blanks' && (
-                <ReadingWritingFillBlanks question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingWritingFillBlanks key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'multiple_choice' && (
-                <MultipleChoice question={currentQuestionData} onNext={handleNextQuestion} />
+                <MultipleChoice key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reorder_paragraph' && (
-                <ReorderParagraph question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReorderParagraph key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reading_fill_blanks' && (
-                <ReadingFillBlanks question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingFillBlanks key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
               {currentQuestionData.type === 'reading_multiple_choice_audio' && (
-                <ReadingMultipleChoiceAudio question={currentQuestionData} onNext={handleNextQuestion} />
+                <ReadingMultipleChoiceAudio key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
 
