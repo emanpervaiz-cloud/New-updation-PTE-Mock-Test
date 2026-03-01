@@ -44,6 +44,7 @@ class AIEvaluationService {
     this.webhookUrl = import.meta.env.VITE_WEBHOOK_URL || 'https://n8n.srv826531.hstgr.cloud/webhook-test/b225b16c-c602-450e-b858-f9bbe4ba5dd6';
     this.geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
     this.useGemini = !!this.geminiApiKey;
+    this.openRouterKey = import.meta.env.VITE_OPENROUTER_API_KEY;
   }
   
   // Helper method to call Gemini API
@@ -208,27 +209,33 @@ Return JSON format:
     };
   }
 
-  // Transcribe audio using OpenAI Whisper API
+  // Transcribe audio using OpenRouter API (Whisper via OpenRouter)
   async transcribeAudio(audioBlob) {
     try {
-      // Require OpenAI API Key for Whisper
+      // Try OpenAI Whisper first if key available
       const openAiKey = import.meta.env.VITE_OPENAI_API_KEY;
-
-      if (!openAiKey) {
-        console.warn('VITE_OPENAI_API_KEY is not set. Cannot use Whisper API.');
+      
+      if (openAiKey) {
+        return await this.transcribeWithWhisper(audioBlob, openAiKey);
+      }
+      
+      // Fallback to OpenRouter Whisper
+      if (!this.openRouterKey) {
+        console.warn('No API key found for transcription');
         return "[Audio response recorded]";
       }
 
       const formData = new FormData();
       const extension = audioBlob.type.includes('mp4') ? 'm4a' : 'webm';
       formData.append('file', audioBlob, `audio.${extension}`);
-      formData.append('model', 'whisper-1');
-      formData.append('prompt', 'I have a voice note of a girl speaking. I want you to generate an accurate transcript of her voice only. Do not include any other existing transcript or text — only transcribe what she says in the voice note. Make sure the transcript is clear, correctly punctuated, and reflects her exact words.');
+      formData.append('model', 'openai/whisper-1');
 
-      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      const response = await fetch('https://openrouter.ai/api/v1/audio/transcriptions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openAiKey}`
+          'Authorization': `Bearer ${this.openRouterKey}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'PTE Mock Test'
         },
         body: formData
       });
@@ -236,7 +243,7 @@ Return JSON format:
       const data = await response.json();
 
       if (data.error) {
-        console.error('Whisper API Error:', data.error);
+        console.error('OpenRouter Transcription Error:', data.error);
         return `[Transcription failed: ${data.error.message}]`;
       }
 
@@ -245,6 +252,32 @@ Return JSON format:
       console.error('Transcription error:', error);
       return "[Transcription error occurred]";
     }
+  }
+  
+  // Transcribe using OpenAI Whisper directly
+  async transcribeWithWhisper(audioBlob, openAiKey) {
+    const formData = new FormData();
+    const extension = audioBlob.type.includes('mp4') ? 'm4a' : 'webm';
+    formData.append('file', audioBlob, `audio.${extension}`);
+    formData.append('model', 'whisper-1');
+    formData.append('prompt', 'Transcribe the speech accurately with proper punctuation.');
+
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAiKey}`
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      console.error('Whisper API Error:', data.error);
+      return `[Transcription failed: ${data.error.message}]`;
+    }
+
+    return data.text || "[No speech detected]";
   }
 
   // Evaluate writing responses with hybrid scoring engine (Backend)
