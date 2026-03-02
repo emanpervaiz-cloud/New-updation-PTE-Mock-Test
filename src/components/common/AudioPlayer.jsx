@@ -45,6 +45,19 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
     setError("Failed to load audio. Please check file path.");
   };
 
+  const handleSeek = (e) => {
+    const audio = audioRef.current;
+    if (!audio || !duration) return;
+    
+    const progressBar = e.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const clickPosition = (e.clientX - rect.left) / rect.width;
+    const newTime = clickPosition * duration;
+    
+    audio.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
   const formatTime = (time) => {
     if (isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
@@ -100,9 +113,15 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
           {title && <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1f36' }}>{title}</div>}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', minWidth: 32 }}>{formatTime(currentTime)}</span>
-            <div style={{
-              flex: 1, height: 6, background: '#e2e8f0', borderRadius: 10, position: 'relative', overflow: 'hidden'
-            }}>
+            <div 
+              onClick={handleSeek}
+              style={{
+                flex: 1, height: 10, background: '#e2e8f0', borderRadius: 10, position: 'relative', overflow: 'hidden',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = '#cbd5e1'}
+              onMouseLeave={e => e.currentTarget.style.background = '#e2e8f0'}
+            >
               <div
                 style={{
                   height: '100%',
@@ -111,6 +130,19 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
                   transition: 'width 0.1s linear'
                 }}
               />
+              {/* Seek handle */}
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: `${duration ? (currentTime / duration) * 100 : 0}%`,
+                transform: 'translate(-50%, -50%)',
+                width: 16,
+                height: 16,
+                background: '#673ab7',
+                borderRadius: '50%',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                pointerEvents: 'none'
+              }} />
             </div>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', minWidth: 32 }}>{formatTime(duration)}</span>
           </div>
