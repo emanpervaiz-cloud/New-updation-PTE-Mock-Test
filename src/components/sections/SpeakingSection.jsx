@@ -71,10 +71,18 @@ const SpeakingSection = () => {
       window.scrollTo(0, 0);
     } else {
       console.log('Speaking: Navigating to Writing section...');
-      // Set section in context before navigating for consistency
-      setCurrentSection('writing');
-      setCurrentQuestionIndex(0);
-      navigate('/exam/writing', { replace: true });
+      try {
+        // Set section in context before navigating for consistency
+        setCurrentSection('writing');
+        setCurrentQuestionIndex(0);
+        console.log('Speaking: About to navigate to /exam/writing');
+        navigate('/exam/writing', { replace: true });
+        console.log('Speaking: Navigation called successfully');
+      } catch (error) {
+        console.error('Speaking: Navigation error:', error);
+        // Fallback navigation
+        window.location.href = '/exam/writing';
+      }
     }
   };
 
