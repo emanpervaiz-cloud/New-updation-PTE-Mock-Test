@@ -72,7 +72,7 @@ REQUIRED OUTPUT FORMAT:
 class AIEvaluationService {
   constructor() {
     // n8n webhook URL for transcription (using test webhook for debugging)
-    this.webhookUrl = import.meta.env.VITE_WEBHOOK_URL || 'https://n8n.srv826531.hstgr.cloud/webhook-test/b225b16c-c602-450e-b858-f9bbe4ba5dd6';
+    this.webhookUrl = import.meta.env.VITE_WEBHOOK_URL || 'https://n8n.srv826531.hstgr.cloud/webhook/b225b16c-c602-450e-b858-f9bbe4ba5dd6';
     this.geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
     this.useGemini = !!this.geminiApiKey;
     this.openRouterKey = import.meta.env.VITE_OPENROUTER_API_KEY;
