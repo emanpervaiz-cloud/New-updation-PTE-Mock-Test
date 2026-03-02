@@ -253,9 +253,9 @@ Return JSON format:
         return "[Speech recorded - Please add VITE_GEMINI_API_KEY or VITE_OPENAI_API_KEY in Vercel environment variables for automatic transcription.]";
       }
       
-      // No transcription service available
-      console.warn('No transcription service available. Please add VITE_GEMINI_API_KEY or VITE_OPENAI_API_KEY');
-      return "[Audio transcription unavailable - please configure API keys]";
+      // All transcription methods failed
+      console.error('All transcription methods failed');
+      return "[Transcription failed - please check console for errors]";
     } catch (error) {
       console.error('Transcription error:', error);
       return "[Transcription error occurred]";
