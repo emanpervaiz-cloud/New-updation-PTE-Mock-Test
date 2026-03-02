@@ -17,6 +17,18 @@ const SummarizeSpokenText = ({ question, onNext }) => {
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState(null);
 
+  // Reset state when question changes
+  useEffect(() => {
+    setSummary('');
+    setWordCount(0);
+    setAudioPlayed(false);
+    setIsSaved(false);
+    setIsSubmitted(false);
+    setEvaluation(null);
+    setEvalLoading(false);
+    setEvalError(null);
+  }, [question?.id]);
+
   // Calculate word count whenever summary changes
   useEffect(() => {
     const words = summary.trim().split(/\s+/).filter(word => word.length > 0);
@@ -110,11 +122,6 @@ const SummarizeSpokenText = ({ question, onNext }) => {
         <p><strong>Note:</strong> You will only be able to play the audio once.</p>
       </div>
 
-      {/* Debug info */}
-      <div style={{ padding: '10px', background: '#f0f0f0', fontSize: '12px', color: '#666', margin: '10px 0' }}>
-        Debug: words={wordCount}, audioPlayed={audioPlayed ? 'yes' : 'no'}, hasEvaluation={evaluation ? 'yes' : 'no'}, loading={evalLoading ? 'yes' : 'no'}
-      </div>
-
       {/* AI Score Button - Shows when user has written summary */}
       {wordCount >= 5 && audioPlayed && !evaluation && !evalLoading && (
         <div style={{ display: 'flex', justifyContent: 'center', margin: '24px 0' }}>
@@ -135,12 +142,13 @@ const SummarizeSpokenText = ({ question, onNext }) => {
         </div>
       )}
 
+      {/* Score Display - Only shows results, not the button */}
       <ScoreDisplay
         evaluation={evaluation}
         loading={evalLoading}
         error={evalError}
         onGetScore={handleGetScore}
-        hasResponse={wordCount >= 5 && audioPlayed}
+        hasResponse={false}
         questionType="writing"
       />
 
