@@ -433,9 +433,19 @@ Return JSON format:
     return data.text || "[No speech detected]";
   }
 
-  // Evaluate writing responses with Gemini AI
+  // Evaluate writing responses with n8n + OpenRouter
   async evaluateWriting(prompt, response, questionType) {
-    // Use Gemini for direct writing evaluation
+    // Priority 1: Use n8n with OpenRouter for writing evaluation
+    if (this.webhookUrl && this.openRouterKey) {
+      try {
+        console.log('Using n8n with OpenRouter for writing evaluation');
+        return await this.evaluateWritingWithN8n(prompt, response, questionType);
+      } catch (n8nError) {
+        console.error('n8n writing evaluation failed:', n8nError);
+      }
+    }
+    
+    // Priority 2: Use Gemini for direct writing evaluation
     if (this.geminiApiKey) {
       try {
         console.log('Using Gemini for writing evaluation');
@@ -472,7 +482,69 @@ Return JSON format:
     }
   }
   
-  // Evaluate writing with Gemini API
+  // Evaluate writing with n8n webhook and OpenRouter
+  async evaluateWritingWithN8n(prompt, response, questionType) {
+    console.log('Using n8n with OpenRouter for writing evaluation');
+    
+    const n8nResponse = await fetch(this.webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'evaluate_writing',
+        prompt: prompt,
+        response: response,
+        questionType: questionType,
+        openRouterKey: this.openRouterKey,
+        useOpenRouter: !!this.openRouterKey
+      })
+    });
+    
+    if (!n8nResponse.ok) {
+      throw new Error(`n8n webhook error: ${n8nResponse.status}`);
+    }
+    
+    const responseText = await n8nResponse.text();
+    console.log('n8n writing evaluation raw response:', responseText);
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.log('Response is not JSON, using as text:', responseText);
+      return this.parseWritingTextResponse(responseText);
+    }
+    
+    console.log('n8n writing evaluation parsed:', JSON.stringify(data, null, 2));
+    
+    return {
+      grammarScore: data.grammarScore || data.grammar_score || 5,
+      spellingScore: data.spellingScore || data.spelling_score || 5,
+      vocabularyScore: data.vocabularyScore || data.vocabulary_score || 5,
+      grammarErrors: data.grammarErrors || data.grammar_errors || [],
+      spellingErrors: data.spellingErrors || data.spelling_errors || [],
+      vocabularySuggestions: data.vocabularySuggestions || data.vocabulary_suggestions || [],
+      feedback: data.feedback || data.overall_feedback || 'Writing evaluation completed.',
+      source: 'n8n'
+    };
+  }
+  
+  // Parse text response for writing evaluation
+  parseWritingTextResponse(text) {
+    return {
+      grammarScore: 5,
+      spellingScore: 5,
+      vocabularyScore: 5,
+      grammarErrors: [],
+      spellingErrors: [],
+      vocabularySuggestions: [],
+      feedback: text || 'Writing evaluation completed.',
+      source: 'n8n-text'
+    };
+  }
+  
+  // Evaluate writing with Gemini API (fallback)
   async evaluateWritingWithGemini(prompt, response, questionType) {
     const evaluationPrompt = `Evaluate this PTE Academic writing response:
 
