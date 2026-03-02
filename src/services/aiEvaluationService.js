@@ -482,9 +482,9 @@ Return JSON format:
     }
   }
   
-  // Evaluate writing with n8n webhook and OpenRouter
+  // Evaluate writing with n8n webhook
   async evaluateWritingWithN8n(prompt, response, questionType) {
-    console.log('Using n8n with OpenRouter for writing evaluation');
+    console.log('Using n8n for writing evaluation');
     
     const n8nResponse = await fetch(this.webhookUrl, {
       method: 'POST',
@@ -496,8 +496,7 @@ Return JSON format:
         prompt: prompt,
         response: response,
         questionType: questionType,
-        openRouterKey: this.openRouterKey,
-        useOpenRouter: !!this.openRouterKey
+        geminiKey: this.geminiApiKey
       })
     });
     
