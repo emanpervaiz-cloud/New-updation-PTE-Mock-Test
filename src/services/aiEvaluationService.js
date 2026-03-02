@@ -213,26 +213,26 @@ Return JSON format:
   // Transcribe audio using OpenRouter API (Whisper via OpenRouter)
   async transcribeAudio(audioBlob) {
     try {
-      // Priority 1: Try OpenAI Whisper (best for audio transcription)
-      console.log('Checking OpenAI key:', this.openAiKey ? 'EXISTS' : 'MISSING');
+      // Priority 1: Use Gemini for audio transcription (you have this key)
       console.log('Checking Gemini key:', this.geminiApiKey ? 'EXISTS' : 'MISSING');
+      console.log('Checking OpenAI key:', this.openAiKey ? 'EXISTS' : 'MISSING');
       
-      if (this.openAiKey) {
-        try {
-          console.log('Using OpenAI Whisper for transcription');
-          return await this.transcribeWithWhisper(audioBlob, this.openAiKey);
-        } catch (whisperError) {
-          console.error('Whisper transcription failed:', whisperError);
-        }
-      }
-      
-      // Priority 2: Use Gemini for audio transcription
       if (this.geminiApiKey) {
         try {
           console.log('Using Gemini for transcription');
           return await this.transcribeWithGemini(audioBlob);
         } catch (geminiError) {
           console.error('Gemini transcription failed:', geminiError);
+        }
+      }
+      
+      // Priority 2: Try OpenAI Whisper (fallback)
+      if (this.openAiKey) {
+        try {
+          console.log('Using OpenAI Whisper for transcription');
+          return await this.transcribeWithWhisper(audioBlob, this.openAiKey);
+        } catch (whisperError) {
+          console.error('Whisper transcription failed:', whisperError);
         }
       }
       
