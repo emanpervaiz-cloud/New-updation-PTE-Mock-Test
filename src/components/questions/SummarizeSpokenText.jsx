@@ -111,14 +111,45 @@ const SummarizeSpokenText = ({ question, onNext }) => {
       </div>
 
       {/* AI Score Button - Shows when user has written summary */}
-      <ScoreDisplay
-        evaluation={evaluation}
-        loading={evalLoading}
-        error={evalError}
-        onGetScore={handleGetScore}
-        hasResponse={wordCount >= 5 && audioPlayed}
-        questionType="writing"
-      />
+      <div style={{ marginTop: 24 }}>
+        <ScoreDisplay
+          evaluation={evaluation}
+          loading={evalLoading}
+          error={evalError}
+          onGetScore={handleGetScore}
+          hasResponse={wordCount >= 5 && audioPlayed}
+          questionType="writing"
+        />
+      </div>
+      
+      {/* Manual AI Score Button - Always visible after audio played */}
+      {!evaluation && !evalLoading && wordCount >= 5 && audioPlayed && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+          <button
+            onClick={handleGetScore}
+            style={{
+              padding: '14px 36px', borderRadius: 14,
+              background: 'linear-gradient(135deg, #0d9488, #14b8a6)',
+              color: '#fff', border: 'none',
+              fontWeight: 700, fontSize: 16, cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 6px 20px rgba(13, 148, 136, 0.3)',
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 28px rgba(13, 148, 136, 0.4)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(13, 148, 136, 0.3)';
+            }}
+          >
+            <span style={{ fontSize: 22 }}>📊</span>
+            Get AI Score
+          </button>
+        </div>
+      )}
 
       <div className="action-buttons" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
         <button
