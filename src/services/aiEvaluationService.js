@@ -77,6 +77,14 @@ class AIEvaluationService {
     this.useGemini = !!this.geminiApiKey;
     this.openRouterKey = import.meta.env.VITE_OPENROUTER_API_KEY;
     this.openAiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    
+    console.log('AIEvaluationService initialized:', {
+      geminiKeyExists: !!this.geminiApiKey,
+      geminiKeyFirst10: this.geminiApiKey ? this.geminiApiKey.substring(0, 10) + '...' : 'none',
+      openRouterKeyExists: !!this.openRouterKey,
+      openAiKeyExists: !!this.openAiKey,
+      webhookUrl: this.webhookUrl
+    });
   }
   
   // Helper method to call Gemini API
