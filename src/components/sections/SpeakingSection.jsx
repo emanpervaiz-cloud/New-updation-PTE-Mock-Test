@@ -70,7 +70,7 @@ const SpeakingSection = () => {
       setCurrentQuestionIndex(nextIndex);
       window.scrollTo(0, 0);
     } else {
-      console.log('Speaking: Navigating to writing section...');
+      console.log('Speaking: Navigating to Writing section...');
       // Set section in context before navigating for consistency
       setCurrentSection('writing');
       setCurrentQuestionIndex(0);

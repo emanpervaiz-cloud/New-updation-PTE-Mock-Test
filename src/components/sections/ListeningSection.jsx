@@ -202,9 +202,11 @@ const ListeningSection = () => {
     const isLastQuestion = currentQuestion >= listeningQuestions.length - 1;
     
     if (isLastQuestion) {
-      // Last section completed - navigate to results
-      console.log('Listening section completed - navigating to results');
-      navigate('/exam/results', { replace: true });
+      // Listening is first - navigate to Speaking
+      console.log('Listening section completed - navigating to Speaking');
+      setCurrentSection('speaking');
+      setCurrentQuestionIndex(0);
+      navigate('/exam/speaking', { replace: true });
     } else {
       const nextIndex = currentQuestion + 1;
       setCurrentQuestion(nextIndex);
@@ -299,7 +301,7 @@ const ListeningSection = () => {
                 className="btn btn-primary"
                 onClick={handleNextQuestion}
               >
-                {currentQuestion === listeningQuestions.length - 1 ? 'View Results →' : 'Next →'}
+                {currentQuestion === listeningQuestions.length - 1 ? 'Next: Speaking Section →' : 'Next →'}
               </button>
             </div>
           </div>

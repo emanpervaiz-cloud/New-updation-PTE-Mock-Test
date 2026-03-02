@@ -39,7 +39,7 @@ const WritingSection = () => {
       setCurrentQuestionIndex(nextIndex);
       window.scrollTo(0, 0);
     } else {
-      console.log('Writing: Navigating to reading section...');
+      console.log('Writing: Navigating to Reading section...');
       // Move to reading section
       setCurrentSection('reading');
       setCurrentQuestionIndex(0);

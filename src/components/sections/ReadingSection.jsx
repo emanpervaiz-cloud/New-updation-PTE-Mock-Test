@@ -119,11 +119,9 @@ const ReadingSection = () => {
       setCurrentQuestionIndex(nextIndex);
       window.scrollTo(0, 0);
     } else {
-      console.log('Reading: Navigating to listening section...');
-      // Move to listening section
-      setCurrentSection('listening');
-      setCurrentQuestionIndex(0);
-      navigate('/exam/listening', { replace: true });
+      console.log('Reading: All sections completed - navigating to results');
+      // Reading is last - navigate to results
+      navigate('/exam/results', { replace: true });
     }
   };
 
@@ -206,7 +204,7 @@ const ReadingSection = () => {
                 className="btn btn-primary"
                 onClick={handleNextQuestion}
               >
-                {currentQuestion === readingQuestions.length - 1 ? 'Next: Listening Section →' : 'Next →'}
+                {currentQuestion === readingQuestions.length - 1 ? 'View Results →' : 'Next →'}
               </button>
             </div>
           </div>
