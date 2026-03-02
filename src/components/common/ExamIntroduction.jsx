@@ -17,14 +17,14 @@ const ExamIntroduction = () => {
       setUser(updated);
       try { localStorage.setItem('pte_user', JSON.stringify(updated)); } catch { }
     }
-    navigate('/exam/speaking');
+    navigate('/exam/listening');
   };
 
   const sections = [
+    { title: 'Listening', time: '10 Min', questions: '7 Ques', icon: '🎧', color: '#fce4ec', textColor: '#e91e63' },
     { title: 'Speaking', time: '10 Min', questions: '5 Ques', icon: '🎤', color: '#e8f4fd', textColor: '#2196f3' },
     { title: 'Writing', time: '10 Min', questions: '2 Ques', icon: '✍️', color: '#fffde7', textColor: '#f9a825' },
     { title: 'Reading', time: '10 Min', questions: '4 Ques', icon: '📖', color: '#e8f5e9', textColor: '#43a047' },
-    { title: 'Listening', time: '10 Min', questions: '7 Ques', icon: '🎧', color: '#fce4ec', textColor: '#e91e63' },
   ];
 
   return (
