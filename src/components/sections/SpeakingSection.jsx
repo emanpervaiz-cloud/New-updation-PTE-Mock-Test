@@ -223,7 +223,7 @@ const SpeakingSection = () => {
               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              {currentQuestion === speakingQuestions.length - 1 ? 'Finish Section' : 'Next Question →'}
+              {currentQuestion === speakingQuestions.length - 1 ? 'Next: Writing Section →' : 'Next Question →'}
             </button>
           </div>
         </div>

@@ -206,7 +206,7 @@ const ReadingSection = () => {
                 className="btn btn-primary"
                 onClick={handleNextQuestion}
               >
-                {currentQuestion === readingQuestions.length - 1 ? 'Finish Section' : 'Next'}
+                {currentQuestion === readingQuestions.length - 1 ? 'Next: Listening Section →' : 'Next →'}
               </button>
             </div>
           </div>

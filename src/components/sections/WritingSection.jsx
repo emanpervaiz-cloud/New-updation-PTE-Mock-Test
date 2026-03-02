@@ -112,7 +112,7 @@ const WritingSection = () => {
                 className="btn btn-primary"
                 onClick={handleNextQuestion}
               >
-                {currentQuestion === writingQuestions.length - 1 ? 'Finish Section' : 'Next'}
+                {currentQuestion === writingQuestions.length - 1 ? 'Next: Reading Section →' : 'Next →'}
               </button>
             </div>
           </div>
