@@ -103,7 +103,7 @@ class AIEvaluationService {
     }
     
     console.log('Calling Gemini API...');
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.geminiApiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -391,7 +391,7 @@ Return JSON format:
     console.log('Using Gemini for transcription, API key exists:', !!this.geminiApiKey);
     const base64Audio = await this.blobToBase64(audioBlob);
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.geminiApiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
