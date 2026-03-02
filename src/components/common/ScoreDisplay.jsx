@@ -126,7 +126,7 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
                         <span style={{ fontSize: 24 }}>✍️</span>
                         <div>
                             <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Writing Feedback</div>
-                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>AI-powered grammar analysis</div>
+                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>Shows grammar corrections, spelling errors, vocabulary suggestions</div>
                         </div>
                     </div>
                 </div>
