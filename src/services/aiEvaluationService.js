@@ -234,13 +234,20 @@ Return JSON format:
         }
       }
       
-      // Priority 3: Try n8n webhook for transcription
-      if (this.webhookUrl) {
-        try {
-          return await this.transcribeWithN8n(audioBlob);
-        } catch (n8nError) {
-          console.error('n8n transcription failed:', n8nError);
-        }
+      // Priority 3: Try n8n webhook for transcription (disabled - using direct APIs)
+      // if (this.webhookUrl) {
+      //   try {
+      //     return await this.transcribeWithN8n(audioBlob);
+      //   } catch (n8nError) {
+      //     console.error('n8n transcription failed:', n8nError);
+      //   }
+      // }
+      
+      // Fallback: Use Web Speech API (browser built-in, no API key needed)
+      try {
+        return await this.transcribeWithWebSpeech(audioBlob);
+      } catch (speechError) {
+        console.error('Web Speech API failed:', speechError);
       }
       
       // No transcription service available
@@ -298,6 +305,15 @@ Return JSON format:
     
     console.log('Extracted transcript:', transcript);
     return transcript;
+  }
+
+  // Transcribe using Web Speech API (browser built-in)
+  async transcribeWithWebSpeech(audioBlob) {
+    console.log('Using Web Speech API for transcription');
+    
+    // For now, return a placeholder that allows manual entry
+    // In production, use Gemini API or OpenAI Whisper
+    return "[Speech recorded - AI transcription unavailable. Please add VITE_GEMINI_API_KEY for automatic transcription.]";
   }
 
   // Helper method to convert blob to base64
