@@ -374,6 +374,7 @@ Return JSON format:
 
   // Transcribe using OpenAI Whisper directly
   async transcribeWithWhisper(audioBlob, openAiKey) {
+    console.log('Calling OpenAI Whisper API...');
     const formData = new FormData();
     const extension = audioBlob.type.includes('mp4') ? 'm4a' : 'webm';
     formData.append('file', audioBlob, `audio.${extension}`);
@@ -388,7 +389,10 @@ Return JSON format:
       body: formData
     });
 
+    console.log('Whisper API response status:', response.status);
+    
     const data = await response.json();
+    console.log('Whisper API response:', data);
 
     if (data.error) {
       console.error('Whisper API Error:', data.error);
