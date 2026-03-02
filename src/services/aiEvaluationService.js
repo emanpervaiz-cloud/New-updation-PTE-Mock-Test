@@ -660,18 +660,14 @@ Provide detailed evaluation with specific examples from the text.`;
 
   getFallbackWritingEvaluation() {
     return {
-      fluency_coherence: { score: 5, feedback: "Unable to perform live AI evaluation. Ensure your writing follows a logical structure with clear topic sentences and transitions." },
-      pronunciation_intonation: { score: 5, feedback: "Spelling and punctuation assessment pending. Proofread your work for common spelling errors and proper punctuation usage." },
-      grammar_range_accuracy: { score: 5, feedback: "Grammar evaluation pending. Use a variety of sentence types — simple, compound, and complex — to demonstrate range." },
-      vocabulary_lexical_resource: { score: 5, feedback: "Vocabulary assessment pending. Incorporate academic vocabulary and avoid repeating the same words or phrases." },
-      task_achievement: { score: 5, feedback: "Task completion assessment pending. Make sure you address every part of the prompt and stay within the word limit." },
-      total_score: 25,
-      scaled_score: 5.0,
-      band_descriptor: "Developing Communicator",
-      top_strength: "Submitted a response within the word limit",
-      priority_improvement: "Focus on organizing ideas with clear paragraph structure and cohesive devices",
-      overall_pte_score: 50,
-      cefr_level: "B1"
+      grammarScore: 5,
+      spellingScore: 5,
+      vocabularyScore: 5,
+      grammarErrors: [],
+      spellingErrors: [],
+      vocabularySuggestions: [],
+      feedback: "AI evaluation pending. Please check your grammar, spelling, and vocabulary usage.",
+      source: 'fallback'
     };
   }
 
