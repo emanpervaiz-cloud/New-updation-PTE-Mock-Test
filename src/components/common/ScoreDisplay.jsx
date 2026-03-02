@@ -104,9 +104,112 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
     // Score result display
     if (!evaluation) return null;
 
+    // Simplified display for writing - just grammar improvements
+    if (questionType === 'writing') {
+        return (
+            <div style={{
+                background: 'linear-gradient(135deg, #fafbff, #fff)',
+                borderRadius: 20, padding: 0,
+                border: '1px solid #e8ecf4',
+                marginTop: 16,
+                overflow: 'hidden',
+                animation: 'fadeIn 0.5s ease',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+            }}>
+                {/* Header */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #1a1f36, #323b5c)',
+                    padding: '20px 28px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <span style={{ fontSize: 24 }}>✍️</span>
+                        <div>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Writing Feedback</div>
+                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>AI-powered grammar analysis</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Grammar Errors */}
+                {evaluation.grammarErrors && evaluation.grammarErrors.length > 0 && (
+                    <div style={{ padding: '24px 28px', borderBottom: '1px solid #eef2f6' }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#c62828', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span>📝</span> Grammar Corrections
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {evaluation.grammarErrors.map((error, idx) => (
+                                <div key={idx} style={{
+                                    background: '#fef2f2', borderRadius: 8, padding: '10px 14px',
+                                    border: '1px solid #fecaca', fontSize: 13, color: '#7f1d1d'
+                                }}>
+                                    {error}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Spelling Errors */}
+                {evaluation.spellingErrors && evaluation.spellingErrors.length > 0 && (
+                    <div style={{ padding: '24px 28px', borderBottom: '1px solid #eef2f6' }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#e65100', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span>✏️</span> Spelling Corrections
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                            {evaluation.spellingErrors.map((error, idx) => (
+                                <div key={idx} style={{
+                                    background: '#fff7ed', borderRadius: 8, padding: '8px 12px',
+                                    border: '1px solid #fed7aa', fontSize: 13, color: '#9a3412'
+                                }}>
+                                    {error}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Vocabulary Suggestions */}
+                {evaluation.vocabularySuggestions && evaluation.vocabularySuggestions.length > 0 && (
+                    <div style={{ padding: '24px 28px', borderBottom: '1px solid #eef2f6' }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#1565c0', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span>📚</span> Better Word Choices
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                            {evaluation.vocabularySuggestions.map((suggestion, idx) => (
+                                <div key={idx} style={{
+                                    background: '#eff6ff', borderRadius: 8, padding: '8px 12px',
+                                    border: '1px solid #bfdbfe', fontSize: 13, color: '#1e40af'
+                                }}>
+                                    {suggestion}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Overall Feedback */}
+                {evaluation.feedback && (
+                    <div style={{ padding: '24px 28px' }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#2e7d32', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span>💡</span> Overall Feedback
+                        </div>
+                        <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, background: '#f0fdf4', padding: '16px 20px', borderRadius: 12, border: '1px solid #bbf7d0' }}>
+                            {evaluation.feedback}
+                        </div>
+                    </div>
+                )}
+
+                <style>{`
+                    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                `}</style>
+            </div>
+        );
+    }
+
     const dimensions = [
         { key: 'fluency_coherence', label: 'Fluency & Coherence', icon: '🗣️', color: '#673ab7' },
-        { key: 'pronunciation_intonation', label: questionType === 'writing' ? 'Spelling & Punctuation' : 'Pronunciation & Intonation', icon: questionType === 'writing' ? '✏️' : '🎯', color: '#1565c0' },
+        { key: 'pronunciation_intonation', label: 'Pronunciation & Intonation', icon: '🎯', color: '#1565c0' },
         { key: 'grammar_range_accuracy', label: 'Grammar Range & Accuracy', icon: '📝', color: '#2e7d32' },
         { key: 'vocabulary_lexical_resource', label: 'Vocabulary & Lexical Resource', icon: '📚', color: '#e65100' },
         { key: 'task_achievement', label: 'Task Achievement & Relevance', icon: '🎯', color: '#c62828' }
