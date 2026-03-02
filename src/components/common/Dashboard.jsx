@@ -295,11 +295,13 @@ const Dashboard = () => {
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: '#fff', borderRadius: '20px', padding: '32px', width: '360px',
+              background: '#fff', borderRadius: '20px', padding: '32px', width: '480px', maxHeight: '85vh', overflowY: 'auto',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               border: '1px solid #e2e8f0'
             }}>
             <h3 style={{ margin: '0 0 24px', fontSize: '20px', fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>🎯 Set Your Goal</h3>
+            
+            {/* Current Target Display */}
             <div style={{ textAlign: 'center', fontSize: '48px', fontWeight: 800, color: '#4f46e5', marginBottom: '8px' }}>
               {tempTarget}
             </div>
@@ -309,8 +311,105 @@ const Dashboard = () => {
               type="range" min={30} max={90} step={1}
               value={tempTarget}
               onChange={e => setTempTarget(Number(e.target.value))}
-              style={{ width: '100%', marginBottom: '32px', accentColor: '#4f46e5' }}
+              style={{ width: '100%', marginBottom: '24px', accentColor: '#4f46e5' }}
             />
+
+            {/* PTE Band Levels Reference */}
+            <div style={{ marginBottom: '24px' }}>
+              <h4 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: 700, color: '#374151' }}>📊 PTE Band Levels & Requirements</h4>
+              
+              {[
+                { 
+                  band: 'PTE 90 (Perfect)', 
+                  range: '90', 
+                  color: '#059669',
+                  requirements: [
+                    'Speaking: Native-like fluency & pronunciation',
+                    'Writing: Complex structures, academic vocabulary',
+                    'Reading: Advanced inference & vocabulary',
+                    'Listening: Complete comprehension of academic content'
+                  ]
+                },
+                { 
+                  band: 'PTE 79+ (Band 8)', 
+                  range: '79-89', 
+                  color: '#0891b2',
+                  requirements: [
+                    'Speaking: Fluent with minor hesitations',
+                    'Writing: Varied sentence structures, precise vocabulary',
+                    'Reading: Strong comprehension of complex texts',
+                    'Listening: Understand main ideas and most details'
+                  ]
+                },
+                { 
+                  band: 'PTE 65+ (Band 7)', 
+                  range: '65-78', 
+                  color: '#7c3aed',
+                  requirements: [
+                    'Speaking: Clear communication with some fluency issues',
+                    'Writing: Good grammar range, adequate vocabulary',
+                    'Reading: Good understanding of academic texts',
+                    'Listening: Understand main ideas and key details'
+                  ]
+                },
+                { 
+                  band: 'PTE 50+ (Band 6)', 
+                  range: '50-64', 
+                  color: '#d97706',
+                  requirements: [
+                    'Speaking: Basic communication, noticeable accent',
+                    'Writing: Simple structures, some grammatical errors',
+                    'Reading: Understand main ideas with some difficulty',
+                    'Listening: Catch main ideas, miss some details'
+                  ]
+                },
+                { 
+                  band: 'PTE 36+ (Band 5)', 
+                  range: '36-49', 
+                  color: '#dc2626',
+                  requirements: [
+                    'Speaking: Limited vocabulary, frequent pauses',
+                    'Writing: Basic sentences, frequent errors',
+                    'Reading: Limited comprehension of complex texts',
+                    'Listening: Understand only basic information'
+                  ]
+                }
+              ].map((level, idx) => (
+                <div 
+                  key={idx}
+                  style={{
+                    border: `2px solid ${tempTarget >= parseInt(level.range) ? level.color : '#e5e7eb'}`,
+                    borderRadius: '12px', 
+                    padding: '12px 16px', 
+                    marginBottom: '12px',
+                    background: tempTarget >= parseInt(level.range) ? `${level.color}08` : '#f9fafb',
+                    opacity: tempTarget >= parseInt(level.range) ? 1 : 0.6
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ 
+                      fontSize: '12px', 
+                      fontWeight: 700, 
+                      color: '#fff',
+                      background: level.color,
+                      padding: '2px 8px',
+                      borderRadius: '4px'
+                    }}>
+                      {level.band}
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#6b7280' }}>Score: {level.range}</span>
+                    {tempTarget >= parseInt(level.range) && tempTarget < (idx === 0 ? 91 : parseInt(['90','79','65','50','36'][idx-1])) && (
+                      <span style={{ marginLeft: 'auto', fontSize: '11px', color: level.color, fontWeight: 600 }}>✓ Your Target</span>
+                    )}
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '12px', color: '#4b5563', lineHeight: '1.6' }}>
+                    {level.requirements.map((req, ridx) => (
+                      <li key={ridx}>{req}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
               <button
