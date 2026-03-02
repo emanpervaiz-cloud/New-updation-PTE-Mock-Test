@@ -574,35 +574,19 @@ Return JSON format:
   
   // Evaluate writing with Gemini API (fallback)
   async evaluateWritingWithGemini(prompt, response, questionType) {
-    const evaluationPrompt = `Evaluate this PTE Academic writing response:
-
-PROMPT: ${prompt}
-
-STUDENT RESPONSE:
-${response}
-
-Provide detailed evaluation with specific examples from the text.`;
-
-    const geminiResponse = await this.callGemini(evaluationPrompt, WRITING_EXAMINER_SYSTEM_PROMPT);
+    console.log('evaluateWritingWithGemini called');
     
-    // Parse Gemini response
-    let evaluation;
-    try {
-      const jsonMatch = geminiResponse.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        evaluation = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('No JSON found in Gemini response');
-      }
-    } catch (parseError) {
-      console.error('Error parsing Gemini writing response:', parseError);
-      // Create structured evaluation from text
-      evaluation = this.parseGeminiTextResponse(geminiResponse);
-    }
-
+    // Simple test - return hardcoded response to verify flow
+    console.log('Returning test evaluation');
     return {
-      ...evaluation,
-      source: 'gemini'
+      grammarScore: 8,
+      spellingScore: 7,
+      vocabularyScore: 9,
+      grammarErrors: ['Test error -> Test correction'],
+      spellingErrors: ['speling -> spelling'],
+      vocabularySuggestions: ['good -> excellent'],
+      feedback: 'This is a test evaluation to verify the flow is working. Your writing shows good structure.',
+      source: 'gemini-test'
     };
   }
 
