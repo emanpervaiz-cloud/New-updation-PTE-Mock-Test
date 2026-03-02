@@ -267,21 +267,19 @@ Return JSON format:
         }
       }
       
-      // Priority 3: Try n8n webhook for transcription (disabled - using direct APIs)
-      // if (this.webhookUrl) {
-      //   try {
-      //     return await this.transcribeWithN8n(audioBlob);
-      //   } catch (n8nError) {
-      //     console.error('n8n transcription failed:', n8nError);
-      //   }
-      // }
-      
-      // Fallback: Use Web Speech API (browser built-in, no API key needed)
-      // Note: This is a placeholder - actual transcription requires API keys
+      // Priority 3: Try n8n webhook with OpenRouter
+      if (this.webhookUrl && this.openRouterKey) {
+        try {
+          console.log('Using n8n with OpenRouter for transcription');
+          return await this.transcribeWithN8n(audioBlob);
+        } catch (n8nError) {
+          console.error('n8n transcription failed:', n8nError);
+        }
+      }
       
       // Check if we have any API key configured
-      if (!this.geminiApiKey && !this.openAiKey) {
-        return "[Speech recorded - Please add VITE_GEMINI_API_KEY or VITE_OPENAI_API_KEY in Vercel environment variables for automatic transcription.]";
+      if (!this.geminiApiKey && !this.openAiKey && !this.openRouterKey) {
+        return "[Speech recorded - Please add VITE_GEMINI_API_KEY, VITE_OPENAI_API_KEY, or VITE_OPENROUTER_API_KEY in Vercel environment variables for automatic transcription.]";
       }
       
       // All transcription methods failed
@@ -293,9 +291,9 @@ Return JSON format:
     }
   }
   
-  // Transcribe using n8n webhook
+  // Transcribe using n8n webhook with OpenRouter
   async transcribeWithN8n(audioBlob) {
-    console.log('Using n8n webhook for transcription');
+    console.log('Using n8n webhook for transcription with OpenRouter');
     const base64Audio = await this.blobToBase64(audioBlob);
     
     const response = await fetch(this.webhookUrl, {
@@ -306,7 +304,9 @@ Return JSON format:
       body: JSON.stringify({
         action: 'transcribe_audio',
         audio: base64Audio,
-        mimeType: audioBlob.type || 'audio/webm'
+        mimeType: audioBlob.type || 'audio/webm',
+        openRouterKey: this.openRouterKey,
+        useOpenRouter: !!this.openRouterKey
       })
     });
     
