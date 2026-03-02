@@ -44,15 +44,19 @@ const SummarizeWrittenText = ({ question, onNext }) => {
 
     setEvalLoading(true);
     setEvalError(null);
+    console.log('SummarizeWrittenText: Getting AI score...', { summaryLength: summary.length });
     try {
       const evaluator = new AIEvaluationService();
+      console.log('SummarizeWrittenText: Calling evaluateWriting...');
       const result = await evaluator.evaluateWriting(
         `Summarize the following passage in one sentence (5-75 words):\n\n${question.passage}`,
         summary,
         'summarize_written_text'
       );
+      console.log('SummarizeWrittenText: Evaluation result:', result);
       setEvaluation(result);
     } catch (err) {
+      console.error('SummarizeWrittenText: Evaluation error:', err);
       setEvalError(err.message || 'Failed to evaluate. Please try again.');
     }
     setEvalLoading(false);
