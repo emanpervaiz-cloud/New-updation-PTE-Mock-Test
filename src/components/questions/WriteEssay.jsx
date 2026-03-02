@@ -41,19 +41,7 @@ const WriteEssay = ({ question, onNext }) => {
     setEvalLoading(true);
     setEvalError(null);
     try {
-      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || import.meta.env.VITE_OPENAI_API_KEY;
-      const apiUrl = import.meta.env.VITE_OPENROUTER_API_KEY
-        ? 'https://openrouter.ai/api/v1/chat/completions'
-        : 'https://api.openai.com/v1/chat/completions';
-      const provider = import.meta.env.VITE_OPENROUTER_API_KEY ? 'openrouter' : 'openai';
-
-      if (!apiKey) {
-        setEvalError('No API key configured. Please set VITE_OPENROUTER_API_KEY in your .env file.');
-        setEvalLoading(false);
-        return;
-      }
-
-      const evaluator = new AIEvaluationService(apiKey, apiUrl, provider);
+      const evaluator = new AIEvaluationService();
       const result = await evaluator.evaluateWriting(
         question.prompt,
         essay,
