@@ -139,6 +139,38 @@ class AIEvaluationService {
     return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   }
 
+  // Generic helper to call any chat-completion LLM (OpenRouter, OpenAI)
+  async callChatLLM(systemPrompt, userPrompt, apiKey, apiUrl, model) {
+    const responseObj = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'http://localhost:5173',
+        'X-Title': 'PTE Mock Test'
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 1000
+      })
+    });
+
+    if (!responseObj.ok) {
+      const errorText = await responseObj.text();
+      throw new Error(`API Error: ${responseObj.status} - ${errorText}`);
+    }
+
+    const data = await responseObj.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new Error('No content in API response');
+    return content;
+  }
+
   // Evaluate speaking responses with multiple AI providers (Priority order: n8n -> Python -> Gemini -> Backend)
   async evaluateSpeaking(prompt, audioBlobOrText, questionType) {
     let transcript = audioBlobOrText;
@@ -917,78 +949,159 @@ Provide detailed evaluation with specific examples from the text.`;
     };
   }
 
-  // Evaluate reading responses with multiple AI providers (Priority order: n8n -> Python -> Backend)
+  // Evaluate reading responses with resilient provider chain
   async evaluateReading(questionsWithAnswers) {
-    // Try n8n Python scoring first
+    console.log('🚀 [Reading] Starting evaluation...');
+
+    // 1. Try n8n Python scoring first
     try {
-      console.log('Trying n8n Python scoring for reading...');
+      console.log('🔄 Trying n8n Python scoring for reading...');
       const n8nResult = await this.evaluateWithPythonServer(null, questionsWithAnswers, 'reading');
       if (n8nResult && n8nResult.success) {
-        console.log('✅ n8n Python scoring SUCCESS');
-        return {
-          ...n8nResult.result,
-          source: 'n8n-python'
-        };
+        return { ...n8nResult.result, source: 'n8n-python' };
       }
     } catch (n8nError) {
       console.error('❌ n8n Python scoring failed:', n8nError.message);
     }
 
+    // 2. Try Direct LLM fallback (Resilient Chain)
+    const providers = [];
+    if (this.openAiKey) providers.push({ name: 'openai', key: this.openAiKey, url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o' });
+    if (this.openRouterKey) providers.push({ name: 'openrouter', key: this.openRouterKey, url: 'https://openrouter.ai/api/v1/chat/completions', model: 'openai/gpt-4o' });
+
+    for (const provider of providers) {
+      try {
+        console.log(`🚀 Trying Direct LLM (${provider.name}) for reading...`);
+        return await this.evaluateObjectiveWithLLM('reading', questionsWithAnswers, provider.key, provider.url, provider.model);
+      } catch (e) {
+        console.error(`❌ Direct LLM (${provider.name}) reading failed:`, e.message);
+      }
+    }
+
+    // 3. Try Backend
     try {
-      const backendUrl = 'http://localhost:5000/api/scoring/evaluate-reading';
-      const apiResponse = await fetch(backendUrl, {
+      console.log('🔄 Trying backend for reading...');
+      const apiResponse = await fetch('http://localhost:5000/api/scoring/evaluate-reading', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questions: questionsWithAnswers })
       });
-
-      if (!apiResponse.ok) {
-        throw new Error(`Backend responded with status ${apiResponse.status}`);
-      }
-
-      const result = await apiResponse.json();
-      return { ...result, source: 'backend' };
+      if (apiResponse.ok) return { ...await apiResponse.json(), source: 'backend' };
     } catch (error) {
-      console.error('Error evaluating reading via backend:', error);
-      return { ...this.getFallbackReadingEvaluation(), source: 'fallback' };
+      console.error('❌ Backend reading failed:', error.message);
     }
+
+    // 4. Final Fallback (Objective only)
+    console.warn('⚠️ ALL Reading AI providers failed - using objective-only fallback');
+    return { ...this.calculateObjectiveOnlyScore(questionsWithAnswers), source: 'fallback-final' };
   }
 
-  // Evaluate listening responses with multiple AI providers (Priority order: n8n -> Python -> Backend)
+  // Evaluate listening responses with resilient provider chain
   async evaluateListening(questionsWithAnswers) {
-    // Try n8n Python scoring first
+    console.log('🚀 [Listening] Starting evaluation...');
+
+    // 1. Try n8n Python scoring first
     try {
-      console.log('Trying n8n Python scoring for listening...');
+      console.log('🔄 Trying n8n Python scoring for listening...');
       const n8nResult = await this.evaluateWithPythonServer(null, questionsWithAnswers, 'listening');
       if (n8nResult && n8nResult.success) {
-        console.log('✅ n8n Python scoring SUCCESS');
-        return {
-          ...n8nResult.result,
-          source: 'n8n-python'
-        };
+        return { ...n8nResult.result, source: 'n8n-python' };
       }
     } catch (n8nError) {
       console.error('❌ n8n Python scoring failed:', n8nError.message);
     }
 
+    // 2. Try Direct LLM fallback (Resilient Chain)
+    const providers = [];
+    if (this.openAiKey) providers.push({ name: 'openai', key: this.openAiKey, url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o' });
+    if (this.openRouterKey) providers.push({ name: 'openrouter', key: this.openRouterKey, url: 'https://openrouter.ai/api/v1/chat/completions', model: 'openai/gpt-4o' });
+
+    for (const provider of providers) {
+      try {
+        console.log(`🚀 Trying Direct LLM (${provider.name}) for listening...`);
+        return await this.evaluateObjectiveWithLLM('listening', questionsWithAnswers, provider.key, provider.url, provider.model);
+      } catch (e) {
+        console.error(`❌ Direct LLM (${provider.name}) listening failed:`, e.message);
+      }
+    }
+
+    // 3. Try Backend
     try {
-      const backendUrl = 'http://localhost:5000/api/scoring/evaluate-listening';
-      const apiResponse = await fetch(backendUrl, {
+      console.log('🔄 Trying backend for listening...');
+      const apiResponse = await fetch('http://localhost:5000/api/scoring/evaluate-listening', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questions: questionsWithAnswers })
       });
-
-      if (!apiResponse.ok) {
-        throw new Error(`Backend responded with status ${apiResponse.status}`);
-      }
-
-      const result = await apiResponse.json();
-      return { ...result, source: 'backend' };
+      if (apiResponse.ok) return { ...await apiResponse.json(), source: 'backend' };
     } catch (error) {
-      console.error('Error evaluating listening via backend:', error);
-      return { ...this.getFallbackListeningEvaluation(), source: 'fallback' };
+      console.error('❌ Backend listening failed:', error.message);
     }
+
+    // 4. Final Fallback (Objective only)
+    console.warn('⚠️ ALL Listening AI providers failed - using objective-only fallback');
+    return { ...this.calculateObjectiveOnlyScore(questionsWithAnswers), source: 'fallback-final' };
+  }
+
+  // Generic helper for Reading/Listening AI evaluation
+  async evaluateObjectiveWithLLM(section, questions, apiKey, apiUrl, model) {
+    const objective = this.calculateObjectiveOnlyScore(questions);
+
+    const systemPrompt = `Analyze these PTE ${section} results:
+Total Questions: ${objective.total_count}
+Correct: ${objective.correct_count}
+Accuracy: ${objective.accuracy_percentage}%
+
+Performance breakdown:
+${JSON.stringify(objective.detailed_results, null, 2)}
+
+Provide feedback on:
+1. Types of questions where the student struggled
+2. General pattern of errors
+3. Specific advice for improvement
+
+Return JSON format:
+{
+  "feedback": "detailed qualitative feedback",
+  "suggestions": ["suggestion1", "suggestion2"]
+}`;
+
+    const content = await this.callChatLLM(systemPrompt, `Analyze my ${section} performance.`, apiKey, apiUrl, model);
+    const parsed = JSON.parse(content.match(/\{[\s\S]*\}/)[0]);
+
+    return {
+      ...objective,
+      feedback: parsed.feedback,
+      suggestions: parsed.suggestions || [],
+      source: `direct-${model}`
+    };
+  }
+
+  // Simple objective scoring helper
+  calculateObjectiveOnlyScore(questions) {
+    let correctCount = 0;
+    const totalCount = questions.length;
+    const resultsDetailed = questions.map(q => {
+      const correct = q.correct_answer || q.correct;
+      const student = q.response || q.responses;
+      const isCorrect = this.compareAnswers(correct, student);
+      if (isCorrect) correctCount++;
+      return {
+        type: q.type || 'unknown',
+        is_correct: isCorrect,
+        student_answer: student,
+        correct_answer: correct
+      };
+    });
+
+    return {
+      correct_count: correctCount,
+      total_count: totalCount,
+      accuracy_percentage: totalCount > 0 ? (correctCount / totalCount * 100).toFixed(1) : 0,
+      detailed_results: resultsDetailed,
+      feedback: `You answered ${correctCount} out of ${totalCount} questions correctly.`,
+      suggestions: ["Review the incorrect answers to understand the context better."]
+    };
   }
 
   // Helper method to compare answers
