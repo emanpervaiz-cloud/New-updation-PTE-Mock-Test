@@ -36,7 +36,7 @@ const Timer = ({ initialTime, onComplete, autoSubmit = true }) => {
       background: isCriticalTime ? '#fee2e2' : (isLowTime ? '#fff3e0' : '#f8f9fe'),
       borderRadius: 10,
       border: `1.5px solid ${isCriticalTime ? '#fecaca' : (isLowTime ? '#ffe0b2' : '#eef2f6')}`,
-      color: isCriticalTime ? '#dc2626' : (isLowTime ? '#fb8c00' : '#1a1f36'),
+      color: isCriticalTime ? '#dc2626' : (isLowTime ? '#fb8c00' : 'var(--primary-color)'),
       fontWeight: 700,
       fontSize: 16,
       fontFamily: "'JetBrains Mono', 'Courier New', monospace",

@@ -32,7 +32,7 @@ const WritingSection = () => {
 
   const handleNextQuestion = () => {
     console.log('Writing: handleNextQuestion called', { currentQuestion, total: writingQuestions.length });
-    
+
     if (currentQuestion < writingQuestions.length - 1) {
       const nextIndex = currentQuestion + 1;
       setCurrentQuestion(nextIndex);
@@ -60,36 +60,82 @@ const WritingSection = () => {
   }, []);
 
   return (
-    <div className="exam-container exam-theme">
-      <header className="exam-header">
-        <div className="container">
-          <h1 className="exam-title">PTE Academic Mock Test</h1>
-          <div className="timer-display">
-            <Timer initialTime={600} /> {/* 10 minutes for writing section */}
+    <div style={{ minHeight: '100vh', background: 'var(--bg-color)', fontFamily: "'Inter', sans-serif" }}>
+      {/* Premium Header */}
+      <header style={{
+        background: '#fff', borderBottom: '1px solid var(--accent-color)',
+        padding: '0 24px', height: 64, display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 8,
+            background: 'var(--primary-color)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 800, fontSize: 16,
+          }}>A</div>
+          <span style={{ fontWeight: 700, fontSize: 16, color: 'var(--primary-color)' }}>Writing Module</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>
+            <span style={{ color: 'var(--secondary-color)' }}>●</span> Section Test
           </div>
+          <Timer initialTime={600} />
         </div>
       </header>
 
-      <main className="main-content">
-        <div className="container">
-          <div className="exam-section">
-            <h2>Writing Section</h2>
+      <main style={{ padding: '32px 24px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          {/* Section Indicator */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24,
+            padding: '12px 20px', background: 'rgba(13, 59, 102, 0.05)',
+            borderRadius: 12, color: 'var(--primary-color)'
+          }}>
+            <span style={{ fontSize: 20 }}>✍️</span>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Current Section</div>
+              <div style={{ fontSize: 15, fontWeight: 700 }}>PTE Writing</div>
+            </div>
+          </div>
 
-            <ProgressBar
-              current={currentQuestion + 1}
-              total={writingQuestions.length}
-            />
+          <ProgressBar
+            current={currentQuestion + 1}
+            total={writingQuestions.length}
+          />
 
-            <div className="exam-question">
-              <div className="question-number">
-                Question {currentQuestion + 1} of {writingQuestions.length}
+          {/* Question Card */}
+          <div style={{
+            background: '#fff',
+            borderRadius: 24,
+            padding: 32,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
+            border: '1px solid var(--accent-color)',
+            minHeight: 400,
+            display: 'flex',
+            flexDirection: 'column',
+            marginBottom: 24
+          }}>
+            <div style={{ marginBottom: 24 }}>
+              <div style={{
+                fontSize: 14, fontWeight: 700, color: 'var(--primary-color)',
+                marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-color)' }} />
+                Instructions
               </div>
+              <p style={{
+                margin: 0, fontSize: 16, color: 'var(--text-main)', lineHeight: 1.6,
+                background: 'var(--accent-color)', padding: '16px 20px', borderRadius: 12,
+                borderLeft: '4px solid var(--primary-color)'
+              }}>
+                {currentQuestionData.instruction}
+              </p>
+            </div>
 
-              <div className="exam-instructions">
-                <p>{currentQuestionData.instruction}</p>
-              </div>
-
-              {/* Render the appropriate question component based on type */}
+            <div style={{ flex: 1 }}>
               {currentQuestionData.type === 'summarize_written_text' && (
                 <SummarizeWrittenText question={currentQuestionData} onNext={handleNextQuestion} />
               )}
@@ -97,24 +143,39 @@ const WritingSection = () => {
                 <WriteEssay question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
+          </div>
 
-            <div className="navigation-buttons" style={{ position: 'relative', zIndex: 10 }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handlePreviousQuestion}
-                disabled={currentQuestion === 0}
-              >
-                Previous
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleNextQuestion}
-              >
-                {currentQuestion === writingQuestions.length - 1 ? 'Next: Reading Section →' : 'Next →'}
-              </button>
-            </div>
+          {/* Navigation */}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '20px 32px', background: '#fff', borderRadius: 20,
+            border: '1px solid var(--accent-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+          }}>
+            <button
+              onClick={handlePreviousQuestion}
+              disabled={currentQuestion === 0}
+              style={{
+                padding: '10px 24px', borderRadius: 12,
+                background: 'transparent', color: currentQuestion === 0 ? '#cbd5e1' : 'var(--text-secondary)',
+                border: `1.5px solid ${currentQuestion === 0 ? 'var(--accent-color)' : '#d1d9e2'}`,
+                fontWeight: 600, fontSize: 14, cursor: currentQuestion === 0 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              ← Previous
+            </button>
+            <button
+              onClick={handleNextQuestion}
+              style={{
+                padding: '10px 32px', borderRadius: 12,
+                background: 'var(--primary-color)',
+                color: '#fff', border: 'none',
+                fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {currentQuestion === writingQuestions.length - 1 ? 'Next: Reading Section →' : 'Next Question →'}
+            </button>
           </div>
         </div>
       </main>

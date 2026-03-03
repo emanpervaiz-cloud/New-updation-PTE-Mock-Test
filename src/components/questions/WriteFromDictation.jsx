@@ -76,15 +76,15 @@ const WriteFromDictation = ({ question, onNext }) => {
         <div style={{
           marginTop: 24,
           padding: '20px',
-          background: '#f0fdf4',
+          background: 'rgba(13, 59, 102, 0.05)',
           borderRadius: '12px',
-          border: '1px solid #bbf7d0',
+          border: '1px solid var(--primary-color)',
           animation: 'fadeIn 0.5s ease-out'
         }}>
-          <h4 style={{ color: '#166534', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h4 style={{ color: 'var(--primary-color)', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 20 }}>✅</span> Correct Sentence
           </h4>
-          <p style={{ color: '#15803d', fontWeight: 600, margin: 0, fontSize: 16 }}>
+          <p style={{ color: 'var(--primary-color)', fontWeight: 600, margin: 0, fontSize: 16 }}>
             {question.correctResponse || question.transcript}
           </p>
           <style>{`

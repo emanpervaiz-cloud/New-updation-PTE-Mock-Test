@@ -75,7 +75,7 @@ const ReadingSection = () => {
           options: b.options,
           correct: b.correct_answer
         }));
-        
+
         answers = q.blanks.map((blank) => ({
           blank: blank.blank_id,
           correct: blank.correct_answer
@@ -112,7 +112,7 @@ const ReadingSection = () => {
 
   const handleNextQuestion = () => {
     console.log('Reading: handleNextQuestion called', { currentQuestion, total: readingQuestions.length });
-    
+
     if (currentQuestion < readingQuestions.length - 1) {
       const nextIndex = currentQuestion + 1;
       setCurrentQuestion(nextIndex);
@@ -138,39 +138,86 @@ const ReadingSection = () => {
   }, []);
 
   return (
-    <div className="exam-container exam-theme">
-      <header className="exam-header">
-        <div className="container">
-          <h1 className="exam-title">PTE Academic Mock Test</h1>
-          <div className="timer-display">
-            <Timer initialTime={2100} /> {/* 35 minutes for reading section */}
+    <div style={{ minHeight: '100vh', background: 'var(--bg-color)', fontFamily: "'Inter', sans-serif" }}>
+      {/* Premium Header */}
+      <header style={{
+        background: '#fff', borderBottom: '1px solid var(--accent-color)',
+        padding: '0 24px', height: 64, display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 8,
+            background: 'var(--primary-color)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 800, fontSize: 16,
+          }}>A</div>
+          <span style={{ fontWeight: 700, fontSize: 16, color: 'var(--primary-color)' }}>Reading Module</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>
+            <span style={{ color: 'var(--secondary-color)' }}>●</span> Section Test
           </div>
+          <Timer initialTime={2100} />
         </div>
       </header>
 
-      <main className="main-content">
-        <div className="container">
-          <div className="exam-section">
-            <h2>Reading Section</h2>
+      <main style={{ padding: '32px 24px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          {/* Section Indicator */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24,
+            padding: '12px 20px', background: 'rgba(13, 59, 102, 0.05)',
+            borderRadius: 12, color: 'var(--primary-color)'
+          }}>
+            <span style={{ fontSize: 20 }}>📖</span>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Current Section</div>
+              <div style={{ fontSize: 15, fontWeight: 700 }}>PTE Reading</div>
+            </div>
+          </div>
 
-            <ProgressBar
-              current={currentQuestion + 1}
-              total={readingQuestions.length}
-            />
+          <ProgressBar
+            current={currentQuestion + 1}
+            total={readingQuestions.length}
+          />
 
-            <div className="exam-question">
-              <div className="question-number">
-                Question {currentQuestion + 1} of {readingQuestions.length}
+          {/* Question Card */}
+          <div style={{
+            background: '#fff',
+            borderRadius: 24,
+            padding: 32,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
+            border: '1px solid var(--accent-color)',
+            minHeight: 400,
+            display: 'flex',
+            flexDirection: 'column',
+            marginBottom: 24
+          }}>
+            <div style={{ marginBottom: 24 }}>
+              <div style={{
+                fontSize: 14, fontWeight: 700, color: 'var(--primary-color)',
+                marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-color)' }} />
+                Question {currentQuestion + 1} Guide
               </div>
-
-              <div className="exam-instructions" style={{ marginBottom: 24 }}>
-                <p><strong>{currentQuestionData.prompt}</strong></p>
+              <div style={{
+                margin: 0, fontSize: 16, color: 'var(--text-main)', lineHeight: 1.6,
+                background: 'var(--accent-color)', padding: '16px 20px', borderRadius: 12,
+                borderLeft: '4px solid var(--primary-color)'
+              }}>
+                <strong>{currentQuestionData.prompt}</strong>
               </div>
+            </div>
 
+            <div style={{ flex: 1 }}>
               {currentQuestionData.passage && currentQuestionData.type !== 'reading_fill_blanks' && currentQuestionData.type !== 'reading_writing_fill_blanks' && (
-                <div style={{ padding: '24px', background: '#f8f9fe', borderRadius: '16px', marginBottom: '32px', borderLeft: '4px solid #673ab7', fontSize: '16px', lineHeight: '1.7', color: '#1e293b' }}>
-                  {currentQuestionData.title && <h3 style={{ margin: '0 0 16px', fontSize: 20, color: '#0f172a' }}>{currentQuestionData.title}</h3>}
-                  <p style={{ margin: 0 }}>{currentQuestionData.passage}</p>
+                <div style={{ padding: '20px', background: 'rgba(13, 59, 102, 0.03)', borderRadius: '16px', marginBottom: '24px', border: '1px solid var(--accent-color)', color: 'var(--text-main)' }}>
+                  {currentQuestionData.title && <h3 style={{ margin: '0 0 12px', fontSize: 18, color: 'var(--primary-color)' }}>Topic: {currentQuestionData.title}</h3>}
+                  <p style={{ margin: 0, lineHeight: 1.7 }}>{currentQuestionData.passage}</p>
                 </div>
               )}
 
@@ -191,22 +238,39 @@ const ReadingSection = () => {
                 <ReadingMultipleChoiceAudio key={currentQuestionData.id} question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
+          </div>
 
-            <div className="navigation-buttons">
-              <button
-                className="btn btn-secondary"
-                onClick={handlePreviousQuestion}
-                disabled={currentQuestion === 0}
-              >
-                Previous
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleNextQuestion}
-              >
-                {currentQuestion === readingQuestions.length - 1 ? 'View Results →' : 'Next →'}
-              </button>
-            </div>
+          {/* Navigation */}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '20px 32px', background: '#fff', borderRadius: 20,
+            border: '1px solid var(--accent-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+          }}>
+            <button
+              onClick={handlePreviousQuestion}
+              disabled={currentQuestion === 0}
+              style={{
+                padding: '10px 24px', borderRadius: 12,
+                background: 'transparent', color: currentQuestion === 0 ? '#cbd5e1' : 'var(--text-secondary)',
+                border: `1.5px solid ${currentQuestion === 0 ? 'var(--accent-color)' : '#d1d9e2'}`,
+                fontWeight: 600, fontSize: 14, cursor: currentQuestion === 0 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              ← Previous
+            </button>
+            <button
+              onClick={handleNextQuestion}
+              style={{
+                padding: '10px 32px', borderRadius: 12,
+                background: 'var(--primary-color)',
+                color: '#fff', border: 'none',
+                fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {currentQuestion === readingQuestions.length - 1 ? 'View Results →' : 'Next Question →'}
+            </button>
           </div>
         </div>
       </main>

@@ -112,7 +112,7 @@ const DescribeImage = ({ question, onNext }) => {
         'describe_image'
       );
       setEvaluation(result);
-      
+
       // Store AI evaluation in localStorage for ResultsPage
       try {
         const aiEvaluations = JSON.parse(localStorage.getItem('pte_ai_evaluations') || '{}');
@@ -208,10 +208,10 @@ const DescribeImage = ({ question, onNext }) => {
             disabled={recordingTime >= 40 || micError}
             style={{
               width: 64, height: 64, borderRadius: '50%',
-              background: isRecording ? '#dc2626' : (hasRecorded ? '#10b981' : '#673ab7'),
+              background: isRecording ? '#dc2626' : (hasRecorded ? 'var(--success-color)' : 'var(--primary-color)'),
               color: '#fff', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-              boxShadow: isRecording ? '0 0 0 6px rgba(220, 38, 38, 0.15)' : '0 4px 12px rgba(103, 58, 183, 0.2)',
+              boxShadow: isRecording ? '0 0 0 6px rgba(220, 38, 38, 0.15)' : '0 4px 12px rgba(13, 59, 102, 0.2)',
               transition: 'all 0.3s ease',
               animation: isRecording ? 'pulse 1.5s infinite' : 'none'
             }}
@@ -220,6 +220,9 @@ const DescribeImage = ({ question, onNext }) => {
           </button>
 
           <div>
+            <div style={{ position: 'absolute', top: 16, left: 24, fontSize: 12, fontWeight: 700, color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              🖼️ Describe Image
+            </div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1f36', marginBottom: 4 }}>
               {isRecording ? 'Recording in progress...' : (hasRecorded ? 'Recording complete!' : (prepTime > 0 ? 'Preparing...' : 'Ready to record'))}
             </div>

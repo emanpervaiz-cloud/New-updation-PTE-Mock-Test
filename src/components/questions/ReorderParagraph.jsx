@@ -5,7 +5,7 @@ const ReorderParagraph = ({ question, onNext }) => {
   const { saveAnswer } = useExam();
   const [orderedSentences, setOrderedSentences] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   useEffect(() => {
     if (question && question.sentences && question.sentences.length > 0) {
       setOrderedSentences([...question.sentences].sort(() => Math.random() - 0.5));
@@ -41,12 +41,12 @@ const ReorderParagraph = ({ question, onNext }) => {
       onNext();
       return;
     }
-    
+
     // Don't submit if no sentences ordered
     if (orderedSentences.length === 0) {
       return;
     }
-    
+
     // Save the answer
     saveAnswer(question.id, {
       questionId: question.id,
@@ -54,7 +54,7 @@ const ReorderParagraph = ({ question, onNext }) => {
       type: 'reorder_paragraph',
       responses: orderedSentences.map(sentence => sentence.id)
     });
-    
+
     setIsSubmitted(true);
   };
 
@@ -85,19 +85,19 @@ const ReorderParagraph = ({ question, onNext }) => {
       </div>
 
       {isSubmitted && (
-        <div className="answer-feedback" style={{ 
-          marginTop: '20px', 
-          padding: '15px', 
-          backgroundColor: '#f0f9ff', 
+        <div className="answer-feedback" style={{
+          marginTop: '20px',
+          padding: '15px',
+          backgroundColor: 'rgba(13, 59, 102, 0.05)',
           borderRadius: '8px',
-          border: '1px solid #0ea5e9'
+          border: '1px solid var(--primary-color)'
         }}>
-          <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>Correct Order:</h4>
+          <h4 style={{ color: 'var(--primary-color)', marginBottom: '10px' }}>Correct Order:</h4>
           {question.sentences?.map((sentence, idx) => {
             const userIndex = orderedSentences.findIndex(s => s.id === sentence.id);
             const isCorrectPosition = userIndex === idx;
             return (
-              <div key={sentence.id} style={{ 
+              <div key={sentence.id} style={{
                 marginBottom: '8px',
                 padding: '8px',
                 backgroundColor: isCorrectPosition ? '#dcfce7' : '#fee2e2',

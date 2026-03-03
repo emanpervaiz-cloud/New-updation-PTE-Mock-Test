@@ -14,14 +14,14 @@ const Materials = () => {
                 style={{
                     background: '#fff', borderRadius: 16, overflow: 'hidden',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-                    border: '2px solid #673ab7', cursor: 'pointer',
+                    border: '1px solid var(--accent-color)', cursor: 'pointer',
                     transition: 'transform 0.2s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
-                <div style={{ background: '#f3e5f5', padding: '16px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#4527a0' }}>💎 Interactive Essay DB</h3>
+                <div style={{ background: 'rgba(13, 59, 102, 0.05)', padding: '16px 20px', borderBottom: '1px solid var(--accent-color)' }}>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--primary-color)' }}>💎 Interactive Essay DB</h3>
                 </div>
                 <div style={{ padding: '20px' }}>
                     <p style={{ fontSize: 14, color: '#666', margin: '0 0 16px' }}>
@@ -29,8 +29,8 @@ const Materials = () => {
                     </p>
                     <button style={{
                         width: '100%', padding: '10px', borderRadius: 8,
-                        background: '#673ab7', color: '#fff', border: 'none',
-                        fontWeight: 600, cursor: 'pointer'
+                        background: 'var(--primary-color)', color: '#fff', border: 'none',
+                        fontWeight: 700, cursor: 'pointer'
                     }}>Open Database</button>
                 </div>
             </div>
@@ -41,14 +41,14 @@ const Materials = () => {
                 style={{
                     background: '#fff', borderRadius: 16, overflow: 'hidden',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-                    border: '2px solid #00796b', cursor: 'pointer',
+                    border: '1px solid var(--accent-color)', cursor: 'pointer',
                     transition: 'transform 0.2s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
-                <div style={{ background: '#e0f2f1', padding: '16px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#004d40' }}>🤖 AI Evaluation Rubric</h3>
+                <div style={{ background: 'rgba(13, 59, 102, 0.05)', padding: '16px 20px', borderBottom: '1px solid var(--accent-color)' }}>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--primary-color)' }}>🤖 AI Evaluation Rubric</h3>
                 </div>
                 <div style={{ padding: '20px' }}>
                     <p style={{ fontSize: 14, color: '#666', margin: '0 0 16px' }}>
@@ -56,8 +56,8 @@ const Materials = () => {
                     </p>
                     <button style={{
                         width: '100%', padding: '10px', borderRadius: 8,
-                        background: '#00796b', color: '#fff', border: 'none',
-                        fontWeight: 600, cursor: 'pointer'
+                        background: 'var(--primary-color)', color: '#fff', border: 'none',
+                        fontWeight: 700, cursor: 'pointer'
                     }}>View Rubric</button>
                 </div>
             </div>
@@ -68,14 +68,14 @@ const Materials = () => {
                 style={{
                     background: '#fff', borderRadius: 16, overflow: 'hidden',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-                    border: '2px solid #00d4ff', cursor: 'pointer',
+                    border: '1px solid var(--accent-color)', cursor: 'pointer',
                     transition: 'transform 0.2s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
-                <div style={{ background: '#e0f7fa', padding: '16px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#006064' }}>🎧 Audio Dictation Lab</h3>
+                <div style={{ background: 'rgba(13, 59, 102, 0.05)', padding: '16px 20px', borderBottom: '1px solid var(--accent-color)' }}>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--primary-color)' }}>🎧 Audio Dictation Lab</h3>
                 </div>
                 <div style={{ padding: '20px' }}>
                     <p style={{ fontSize: 14, color: '#666', margin: '0 0 16px' }}>
@@ -83,8 +83,8 @@ const Materials = () => {
                     </p>
                     <button style={{
                         width: '100%', padding: '10px', borderRadius: 8,
-                        background: 'linear-gradient(135deg,#00d4ff,#7c3aed)', color: '#fff', border: 'none',
-                        fontWeight: 600, cursor: 'pointer'
+                        background: 'var(--secondary-color)', color: 'var(--primary-color)', border: 'none',
+                        fontWeight: 700, cursor: 'pointer'
                     }}>Open Lab</button>
                 </div>
             </div>

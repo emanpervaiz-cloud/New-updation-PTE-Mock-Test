@@ -19,21 +19,21 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
                     onClick={onGetScore}
                     style={{
                         padding: '14px 36px', borderRadius: 14,
-                        background: 'linear-gradient(135deg, #ff8a65, #ff6d00)',
-                        color: '#fff', border: 'none',
+                        background: 'var(--secondary-color)',
+                        color: 'var(--primary-color)', border: 'none',
                         fontWeight: 700, fontSize: 15, cursor: 'pointer',
                         transition: 'all 0.3s ease',
-                        boxShadow: '0 6px 20px rgba(255, 109, 0, 0.25)',
+                        boxShadow: '0 6px 20px rgba(250, 169, 22, 0.25)',
                         display: 'flex', alignItems: 'center', gap: 10,
                         letterSpacing: '0.3px'
                     }}
                     onMouseEnter={e => {
                         e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 8px 28px rgba(255, 109, 0, 0.35)';
+                        e.currentTarget.style.boxShadow = '0 8px 28px rgba(250, 169, 22, 0.35)';
                     }}
                     onMouseLeave={e => {
                         e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 109, 0, 0.25)';
+                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(250, 169, 22, 0.25)';
                     }}
                 >
                     <span style={{ fontSize: 20 }}>📊</span>
@@ -56,11 +56,11 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
             }}>
                 <div style={{
                     width: 48, height: 48, borderRadius: '50%',
-                    border: '4px solid #e8ecf4', borderTopColor: '#673ab7',
+                    border: '4px solid var(--accent-color)', borderTopColor: 'var(--primary-color)',
                     animation: 'spin 0.8s linear infinite',
                     margin: '0 auto 16px'
                 }} />
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1f36', marginBottom: 4 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--primary-color)', marginBottom: 4 }}>
                     AI Examiner Evaluating...
                 </div>
                 <div style={{ fontSize: 13, color: '#5a6270' }}>
@@ -114,31 +114,31 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
         };
 
         const writingDimensions = [
-            { 
-                key: 'grammar', 
-                label: 'Grammar Range & Accuracy', 
-                icon: '📝', 
+            {
+                key: 'grammar',
+                label: 'Grammar Range & Accuracy',
+                icon: '📝',
                 color: '#2e7d32',
                 score: evaluation.grammarScore || 5,
-                feedback: evaluation.grammarErrors?.length > 0 
+                feedback: evaluation.grammarErrors?.length > 0
                     ? `Found ${evaluation.grammarErrors.length} grammar issues: ${evaluation.grammarErrors.slice(0, 2).join(', ')}${evaluation.grammarErrors.length > 2 ? '...' : ''}`
                     : 'Grammar analysis shows good sentence structure. Continue using varied sentence types.'
             },
-            { 
-                key: 'spelling', 
-                label: 'Spelling & Punctuation', 
-                icon: '✏️', 
+            {
+                key: 'spelling',
+                label: 'Spelling & Punctuation',
+                icon: '✏️',
                 color: '#e65100',
                 score: evaluation.spellingScore || 5,
                 feedback: evaluation.spellingErrors?.length > 0
                     ? `Found ${evaluation.spellingErrors.length} spelling errors: ${evaluation.spellingErrors.slice(0, 2).join(', ')}${evaluation.spellingErrors.length > 2 ? '...' : ''}`
                     : 'Spelling and punctuation are accurate. Maintain careful proofreading habits.'
             },
-            { 
-                key: 'vocabulary', 
-                label: 'Vocabulary & Lexical Resource', 
-                icon: '📚', 
-                color: '#673ab7',
+            {
+                key: 'vocabulary',
+                label: 'Vocabulary & Lexical Resource',
+                icon: '📚',
+                color: 'var(--primary-color)',
                 score: evaluation.vocabularyScore || 5,
                 feedback: evaluation.vocabularySuggestions?.length > 0
                     ? `Vocabulary suggestions: ${evaluation.vocabularySuggestions.slice(0, 2).join(', ')}${evaluation.vocabularySuggestions.length > 2 ? '...' : ''}`
@@ -154,11 +154,11 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
                 marginTop: 16,
                 overflow: 'hidden',
                 animation: 'fadeIn 0.5s ease',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                boxShadow: 'var(--shadow-md)'
             }}>
                 {/* Header */}
                 <div style={{
-                    background: 'linear-gradient(135deg, #1a1f36, #323b5c)',
+                    background: 'var(--primary-color)',
                     padding: '20px 28px',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                 }}>
@@ -178,7 +178,7 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
                             marginBottom: 20, padding: '20px 24px',
                             background: '#fff', borderRadius: 16,
                             border: '1px solid #f0f2f8',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                            boxShadow: 'var(--shadow-sm)'
                         }}>
                             <div style={{
                                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -231,7 +231,7 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
     }
 
     const dimensions = [
-        { key: 'fluency_coherence', label: 'Fluency & Coherence', icon: '🗣️', color: '#673ab7' },
+        { key: 'fluency_coherence', label: 'Fluency & Coherence', icon: '🗣️', color: 'var(--primary-color)' },
         { key: 'pronunciation_intonation', label: 'Pronunciation & Intonation', icon: '🎯', color: '#1565c0' },
         { key: 'grammar_range_accuracy', label: 'Grammar Range & Accuracy', icon: '📝', color: '#2e7d32' },
         { key: 'vocabulary_lexical_resource', label: 'Vocabulary & Lexical Resource', icon: '📚', color: '#e65100' },
@@ -265,7 +265,7 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
         }}>
             {/* Header */}
             <div style={{
-                background: 'linear-gradient(135deg, #1a1f36, #323b5c)',
+                background: 'var(--primary-color)',
                 padding: '20px 28px',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
@@ -289,8 +289,8 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
             {/* Total Score */}
             <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32,
-                padding: '24px 28px', borderBottom: '1px solid #eef2f6',
-                background: 'rgba(103, 58, 183, 0.03)'
+                padding: '24px 28px', borderBottom: '1px solid var(--accent-color)',
+                background: 'rgba(13, 59, 102, 0.03)'
             }}>
                 <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 48, fontWeight: 800, color: getScoreColor(evaluation.scaled_score || 0), lineHeight: 1 }}>
@@ -309,8 +309,8 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
                 <div style={{ textAlign: 'center' }}>
                     <div style={{
                         fontSize: 20, fontWeight: 800,
-                        color: '#673ab7', lineHeight: 1,
-                        padding: '8px 16px', background: '#ede7f6', borderRadius: 12
+                        color: 'var(--primary-color)', lineHeight: 1,
+                        padding: '8px 16px', background: 'rgba(13, 59, 102, 0.05)', borderRadius: 12
                     }}>
                         {evaluation.cefr_level || 'N/A'}
                     </div>
@@ -320,7 +320,7 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
                     <>
                         <div style={{ width: 1, height: 60, background: '#e8ecf4' }} />
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 36, fontWeight: 800, color: '#1a1f36', lineHeight: 1 }}>
+                            <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--primary-color)', lineHeight: 1 }}>
                                 {evaluation.overall_pte_score}
                             </div>
                             <div style={{ fontSize: 13, color: '#5a6270', fontWeight: 600, marginTop: 4 }}>PTE Score /90</div>
@@ -333,13 +333,13 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
             {evaluation.transcript && questionType === 'speaking' && (
                 <div style={{ padding: '0 28px 24px' }}>
                     <div style={{
-                        background: '#f8f9fe', borderRadius: 14, padding: '16px 20px',
-                        border: '1px solid #e8ecf4'
+                        background: 'var(--accent-color)', borderRadius: 14, padding: '16px 20px',
+                        border: '1px solid var(--accent-color)'
                     }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span>📝</span> Speech Transcript
                         </div>
-                        <div style={{ fontSize: 14, color: '#1f2937', fontStyle: 'italic', lineHeight: 1.6, background: '#fff', padding: '12px 16px', borderRadius: 8, border: '1px dashed #d1d5db' }}>
+                        <div style={{ fontSize: 14, color: 'var(--text-main)', fontStyle: 'italic', lineHeight: 1.6, background: '#fff', padding: '12px 16px', borderRadius: 8, border: '1px dashed #d1d5db' }}>
                             "{evaluation.transcript}"
                         </div>
                     </div>

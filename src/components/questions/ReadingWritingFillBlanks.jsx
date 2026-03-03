@@ -5,7 +5,7 @@ const ReadingWritingFillBlanks = ({ question, onNext }) => {
   const { saveAnswer } = useExam();
   const [answers, setAnswers] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   useEffect(() => {
     if (question) {
       setAnswers({});
@@ -25,12 +25,12 @@ const ReadingWritingFillBlanks = ({ question, onNext }) => {
       onNext();
       return;
     }
-    
+
     // Don't submit if no answers selected
     if (Object.keys(answers).length === 0) {
       return;
     }
-    
+
     // Save the answers
     saveAnswer(question.id, {
       questionId: question.id,
@@ -38,7 +38,7 @@ const ReadingWritingFillBlanks = ({ question, onNext }) => {
       type: 'reading_writing_fill_blanks',
       responses: answers
     });
-    
+
     setIsSubmitted(true);
   };
 
@@ -86,19 +86,19 @@ const ReadingWritingFillBlanks = ({ question, onNext }) => {
       </div>
 
       {isSubmitted && (
-        <div className="answer-feedback" style={{ 
-          marginTop: '20px', 
-          padding: '15px', 
-          backgroundColor: '#f0f9ff', 
+        <div className="answer-feedback" style={{
+          marginTop: '20px',
+          padding: '15px',
+          backgroundColor: 'rgba(13, 59, 102, 0.05)',
           borderRadius: '8px',
-          border: '1px solid #0ea5e9'
+          border: '1px solid var(--primary-color)'
         }}>
-          <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>Correct Answers:</h4>
+          <h4 style={{ color: 'var(--primary-color)', marginBottom: '10px' }}>Correct Answers:</h4>
           {question.answers?.map((answer, idx) => {
             const userAnswer = answers[`blank_${answer.blank}`];
             const isCorrect = userAnswer === answer.correct;
             return (
-              <div key={idx} style={{ 
+              <div key={idx} style={{
                 marginBottom: '8px',
                 padding: '8px',
                 backgroundColor: isCorrect ? '#dcfce7' : '#fee2e2',

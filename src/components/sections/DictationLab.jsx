@@ -5,70 +5,70 @@ import { useState, useEffect, useRef, useCallback } from "react";
 // ─────────────────────────────────────────────
 const wordData = [
   // ACADEMIC
-  { word: "accumulate",     type: "verb",      cat: "academic",    meaning: "gather gradually",                          example: "Toxins can accumulate in the body over years.",                                difficulty: "medium" },
-  { word: "acknowledge",    type: "verb",      cat: "academic",    meaning: "admit or recognize something",              example: "Researchers acknowledge the limitations of the study.",                       difficulty: "easy"   },
-  { word: "adequate",       type: "adjective", cat: "academic",    meaning: "sufficient for the purpose",                example: "Students need adequate preparation time before the exam.",                    difficulty: "medium" },
-  { word: "ambiguous",      type: "adjective", cat: "academic",    meaning: "open to more than one interpretation",      example: "The data provided ambiguous results.",                                        difficulty: "hard"   },
-  { word: "approximately",  type: "adverb",    cat: "academic",    meaning: "close to the actual figure",                example: "Approximately 500 participants were included in the study.",                  difficulty: "hard"   },
-  { word: "assessment",     type: "noun",      cat: "academic",    meaning: "the evaluation of something",               example: "The assessment revealed significant improvements.",                          difficulty: "medium" },
-  { word: "assumption",     type: "noun",      cat: "academic",    meaning: "something taken for granted",               example: "The model rests on several key assumptions.",                                difficulty: "hard"   },
-  { word: "authentic",      type: "adjective", cat: "academic",    meaning: "genuine and original",                      example: "The document was found to be authentic.",                                    difficulty: "medium" },
-  { word: "capacity",       type: "noun",      cat: "academic",    meaning: "maximum amount that can be contained",      example: "The factory is operating at full capacity.",                                 difficulty: "easy"   },
-  { word: "comprehensive",  type: "adjective", cat: "academic",    meaning: "covering all aspects",                      example: "The report provided a comprehensive analysis.",                              difficulty: "hard"   },
-  { word: "consequently",   type: "adverb",    cat: "academic",    meaning: "as a result",                               example: "The budget was cut; consequently, the project was delayed.",                 difficulty: "hard"   },
-  { word: "correlation",    type: "noun",      cat: "academic",    meaning: "a mutual relationship between two things",  example: "There is a strong correlation between stress and illness.",                  difficulty: "hard"   },
-  { word: "demonstrate",    type: "verb",      cat: "academic",    meaning: "clearly show the truth of something",       example: "The experiment demonstrates the effect of heat.",                            difficulty: "medium" },
-  { word: "empirical",      type: "adjective", cat: "academic",    meaning: "based on observation and evidence",         example: "Empirical evidence supports the theory.",                                    difficulty: "hard"   },
-  { word: "fundamental",    type: "adjective", cat: "academic",    meaning: "forming a necessary base",                  example: "Clean water is a fundamental human right.",                                  difficulty: "medium" },
-  { word: "hypothesis",     type: "noun",      cat: "academic",    meaning: "a proposed explanation requiring testing",  example: "Scientists developed a hypothesis to explain the anomaly.",                  difficulty: "hard"   },
-  { word: "incorporate",    type: "verb",      cat: "academic",    meaning: "include as part of a whole",                example: "The design incorporates renewable materials.",                               difficulty: "hard"   },
-  { word: "inevitable",     type: "adjective", cat: "academic",    meaning: "certain to happen",                         example: "Some change is inevitable in a growing economy.",                           difficulty: "medium" },
-  { word: "methodology",    type: "noun",      cat: "academic",    meaning: "a system of methods used in a study",       example: "The research methodology was clearly explained.",                            difficulty: "hard"   },
-  { word: "phenomenon",     type: "noun",      cat: "academic",    meaning: "a fact or event observed to exist",         example: "Global warming is a well-documented phenomenon.",                           difficulty: "hard"   },
+  { word: "accumulate", type: "verb", cat: "academic", meaning: "gather gradually", example: "Toxins can accumulate in the body over years.", difficulty: "medium" },
+  { word: "acknowledge", type: "verb", cat: "academic", meaning: "admit or recognize something", example: "Researchers acknowledge the limitations of the study.", difficulty: "easy" },
+  { word: "adequate", type: "adjective", cat: "academic", meaning: "sufficient for the purpose", example: "Students need adequate preparation time before the exam.", difficulty: "medium" },
+  { word: "ambiguous", type: "adjective", cat: "academic", meaning: "open to more than one interpretation", example: "The data provided ambiguous results.", difficulty: "hard" },
+  { word: "approximately", type: "adverb", cat: "academic", meaning: "close to the actual figure", example: "Approximately 500 participants were included in the study.", difficulty: "hard" },
+  { word: "assessment", type: "noun", cat: "academic", meaning: "the evaluation of something", example: "The assessment revealed significant improvements.", difficulty: "medium" },
+  { word: "assumption", type: "noun", cat: "academic", meaning: "something taken for granted", example: "The model rests on several key assumptions.", difficulty: "hard" },
+  { word: "authentic", type: "adjective", cat: "academic", meaning: "genuine and original", example: "The document was found to be authentic.", difficulty: "medium" },
+  { word: "capacity", type: "noun", cat: "academic", meaning: "maximum amount that can be contained", example: "The factory is operating at full capacity.", difficulty: "easy" },
+  { word: "comprehensive", type: "adjective", cat: "academic", meaning: "covering all aspects", example: "The report provided a comprehensive analysis.", difficulty: "hard" },
+  { word: "consequently", type: "adverb", cat: "academic", meaning: "as a result", example: "The budget was cut; consequently, the project was delayed.", difficulty: "hard" },
+  { word: "correlation", type: "noun", cat: "academic", meaning: "a mutual relationship between two things", example: "There is a strong correlation between stress and illness.", difficulty: "hard" },
+  { word: "demonstrate", type: "verb", cat: "academic", meaning: "clearly show the truth of something", example: "The experiment demonstrates the effect of heat.", difficulty: "medium" },
+  { word: "empirical", type: "adjective", cat: "academic", meaning: "based on observation and evidence", example: "Empirical evidence supports the theory.", difficulty: "hard" },
+  { word: "fundamental", type: "adjective", cat: "academic", meaning: "forming a necessary base", example: "Clean water is a fundamental human right.", difficulty: "medium" },
+  { word: "hypothesis", type: "noun", cat: "academic", meaning: "a proposed explanation requiring testing", example: "Scientists developed a hypothesis to explain the anomaly.", difficulty: "hard" },
+  { word: "incorporate", type: "verb", cat: "academic", meaning: "include as part of a whole", example: "The design incorporates renewable materials.", difficulty: "hard" },
+  { word: "inevitable", type: "adjective", cat: "academic", meaning: "certain to happen", example: "Some change is inevitable in a growing economy.", difficulty: "medium" },
+  { word: "methodology", type: "noun", cat: "academic", meaning: "a system of methods used in a study", example: "The research methodology was clearly explained.", difficulty: "hard" },
+  { word: "phenomenon", type: "noun", cat: "academic", meaning: "a fact or event observed to exist", example: "Global warming is a well-documented phenomenon.", difficulty: "hard" },
   // ENVIRONMENT
-  { word: "atmosphere",     type: "noun",      cat: "environment", meaning: "the envelope of gases around Earth",        example: "Carbon dioxide builds up in the atmosphere and traps heat.",                 difficulty: "easy"   },
-  { word: "biodiversity",   type: "noun",      cat: "environment", meaning: "variety of life in an ecosystem",           example: "Deforestation threatens biodiversity on a massive scale.",                   difficulty: "hard"   },
-  { word: "conservation",   type: "noun",      cat: "environment", meaning: "preservation of natural resources",         example: "Conservation efforts have helped tigers recover.",                           difficulty: "medium" },
-  { word: "deforestation",  type: "noun",      cat: "environment", meaning: "clearing forests on a large scale",         example: "Deforestation in the Amazon releases enormous carbon.",                      difficulty: "hard"   },
-  { word: "ecosystem",      type: "noun",      cat: "environment", meaning: "a biological community of organisms",       example: "The coral reef ecosystem is highly fragile.",                                difficulty: "medium" },
-  { word: "emissions",      type: "noun",      cat: "environment", meaning: "gases released into the atmosphere",        example: "Countries must reduce carbon emissions significantly.",                       difficulty: "medium" },
-  { word: "endangered",     type: "adjective", cat: "environment", meaning: "at risk of extinction",                     example: "The giant panda is an endangered species.",                                  difficulty: "easy"   },
-  { word: "erosion",        type: "noun",      cat: "environment", meaning: "gradual destruction by natural forces",     example: "Coastal erosion threatens homes every year.",                                difficulty: "medium" },
-  { word: "extinction",     type: "noun",      cat: "environment", meaning: "the state of no longer existing",           example: "Human activity is accelerating the extinction of species.",                  difficulty: "medium" },
-  { word: "sustainable",    type: "adjective", cat: "environment", meaning: "maintained without harming the environment",example: "Sustainable farming protects the soil long term.",                          difficulty: "easy"   },
+  { word: "atmosphere", type: "noun", cat: "environment", meaning: "the envelope of gases around Earth", example: "Carbon dioxide builds up in the atmosphere and traps heat.", difficulty: "easy" },
+  { word: "biodiversity", type: "noun", cat: "environment", meaning: "variety of life in an ecosystem", example: "Deforestation threatens biodiversity on a massive scale.", difficulty: "hard" },
+  { word: "conservation", type: "noun", cat: "environment", meaning: "preservation of natural resources", example: "Conservation efforts have helped tigers recover.", difficulty: "medium" },
+  { word: "deforestation", type: "noun", cat: "environment", meaning: "clearing forests on a large scale", example: "Deforestation in the Amazon releases enormous carbon.", difficulty: "hard" },
+  { word: "ecosystem", type: "noun", cat: "environment", meaning: "a biological community of organisms", example: "The coral reef ecosystem is highly fragile.", difficulty: "medium" },
+  { word: "emissions", type: "noun", cat: "environment", meaning: "gases released into the atmosphere", example: "Countries must reduce carbon emissions significantly.", difficulty: "medium" },
+  { word: "endangered", type: "adjective", cat: "environment", meaning: "at risk of extinction", example: "The giant panda is an endangered species.", difficulty: "easy" },
+  { word: "erosion", type: "noun", cat: "environment", meaning: "gradual destruction by natural forces", example: "Coastal erosion threatens homes every year.", difficulty: "medium" },
+  { word: "extinction", type: "noun", cat: "environment", meaning: "the state of no longer existing", example: "Human activity is accelerating the extinction of species.", difficulty: "medium" },
+  { word: "sustainable", type: "adjective", cat: "environment", meaning: "maintained without harming the environment", example: "Sustainable farming protects the soil long term.", difficulty: "easy" },
   // HEALTH
-  { word: "cognitive",      type: "adjective", cat: "health",      meaning: "related to mental processes",               example: "Cognitive decline can begin before obvious symptoms appear.",                difficulty: "hard"   },
-  { word: "deteriorate",    type: "verb",      cat: "health",      meaning: "become progressively worse",                example: "Without treatment, the condition may rapidly deteriorate.",                  difficulty: "hard"   },
-  { word: "diagnosis",      type: "noun",      cat: "health",      meaning: "identifying a disease from symptoms",       example: "Early diagnosis significantly improves recovery rates.",                     difficulty: "medium" },
-  { word: "immune",         type: "adjective", cat: "health",      meaning: "resistant to a disease",                    example: "A strong immune system fights off infections.",                             difficulty: "easy"   },
-  { word: "inflammation",   type: "noun",      cat: "health",      meaning: "body's response to infection or injury",    example: "Chronic inflammation is linked to many serious diseases.",                  difficulty: "hard"   },
-  { word: "mortality",      type: "noun",      cat: "health",      meaning: "the state of being subject to death",       example: "Infant mortality has declined sharply over fifty years.",                   difficulty: "hard"   },
-  { word: "nutrition",      type: "noun",      cat: "health",      meaning: "the process of providing food for growth",  example: "Good nutrition during childhood affects lifelong health.",                   difficulty: "easy"   },
-  { word: "prevalence",     type: "noun",      cat: "health",      meaning: "the fact of being widespread",              example: "The prevalence of diabetes is rising globally.",                            difficulty: "hard"   },
-  { word: "vaccination",    type: "noun",      cat: "health",      meaning: "treatment with a vaccine for immunity",     example: "Mass vaccination campaigns eradicated smallpox.",                           difficulty: "medium" },
-  { word: "vulnerable",     type: "adjective", cat: "health",      meaning: "susceptible to harm or attack",             example: "Elderly people are particularly vulnerable during heatwaves.",              difficulty: "medium" },
+  { word: "cognitive", type: "adjective", cat: "health", meaning: "related to mental processes", example: "Cognitive decline can begin before obvious symptoms appear.", difficulty: "hard" },
+  { word: "deteriorate", type: "verb", cat: "health", meaning: "become progressively worse", example: "Without treatment, the condition may rapidly deteriorate.", difficulty: "hard" },
+  { word: "diagnosis", type: "noun", cat: "health", meaning: "identifying a disease from symptoms", example: "Early diagnosis significantly improves recovery rates.", difficulty: "medium" },
+  { word: "immune", type: "adjective", cat: "health", meaning: "resistant to a disease", example: "A strong immune system fights off infections.", difficulty: "easy" },
+  { word: "inflammation", type: "noun", cat: "health", meaning: "body's response to infection or injury", example: "Chronic inflammation is linked to many serious diseases.", difficulty: "hard" },
+  { word: "mortality", type: "noun", cat: "health", meaning: "the state of being subject to death", example: "Infant mortality has declined sharply over fifty years.", difficulty: "hard" },
+  { word: "nutrition", type: "noun", cat: "health", meaning: "the process of providing food for growth", example: "Good nutrition during childhood affects lifelong health.", difficulty: "easy" },
+  { word: "prevalence", type: "noun", cat: "health", meaning: "the fact of being widespread", example: "The prevalence of diabetes is rising globally.", difficulty: "hard" },
+  { word: "vaccination", type: "noun", cat: "health", meaning: "treatment with a vaccine for immunity", example: "Mass vaccination campaigns eradicated smallpox.", difficulty: "medium" },
+  { word: "vulnerable", type: "adjective", cat: "health", meaning: "susceptible to harm or attack", example: "Elderly people are particularly vulnerable during heatwaves.", difficulty: "medium" },
   // ECONOMICS
-  { word: "aggregate",      type: "noun",      cat: "economics",   meaning: "a total formed by combining elements",      example: "Aggregate demand fell during the recession.",                               difficulty: "hard"   },
-  { word: "allocation",     type: "noun",      cat: "economics",   meaning: "distributing resources for a purpose",      example: "The allocation of healthcare funds is critical.",                           difficulty: "hard"   },
-  { word: "expenditure",    type: "noun",      cat: "economics",   meaning: "the action of spending money",              example: "Government expenditure on education has increased.",                        difficulty: "hard"   },
-  { word: "fluctuate",      type: "verb",      cat: "economics",   meaning: "rise and fall irregularly",                 example: "Oil prices fluctuate with global political events.",                        difficulty: "medium" },
-  { word: "globalization",  type: "noun",      cat: "economics",   meaning: "integration of world economies",            example: "Globalization has transformed international trade.",                         difficulty: "hard"   },
-  { word: "inflation",      type: "noun",      cat: "economics",   meaning: "a general rise in prices",                  example: "High inflation reduces consumer purchasing power.",                         difficulty: "easy"   },
-  { word: "productivity",   type: "noun",      cat: "economics",   meaning: "effectiveness of productive effort",        example: "Technology has dramatically increased worker productivity.",                 difficulty: "medium" },
-  { word: "recession",      type: "noun",      cat: "economics",   meaning: "period of temporary economic decline",      example: "The recession caused millions to lose their jobs.",                         difficulty: "easy"   },
-  { word: "scarcity",       type: "noun",      cat: "economics",   meaning: "insufficient supply of something",          example: "Water scarcity threatens millions in drought-prone regions.",               difficulty: "medium" },
-  { word: "viable",         type: "adjective", cat: "economics",   meaning: "capable of working successfully",           example: "Solar energy is now a commercially viable alternative.",                    difficulty: "medium" },
+  { word: "aggregate", type: "noun", cat: "economics", meaning: "a total formed by combining elements", example: "Aggregate demand fell during the recession.", difficulty: "hard" },
+  { word: "allocation", type: "noun", cat: "economics", meaning: "distributing resources for a purpose", example: "The allocation of healthcare funds is critical.", difficulty: "hard" },
+  { word: "expenditure", type: "noun", cat: "economics", meaning: "the action of spending money", example: "Government expenditure on education has increased.", difficulty: "hard" },
+  { word: "fluctuate", type: "verb", cat: "economics", meaning: "rise and fall irregularly", example: "Oil prices fluctuate with global political events.", difficulty: "medium" },
+  { word: "globalization", type: "noun", cat: "economics", meaning: "integration of world economies", example: "Globalization has transformed international trade.", difficulty: "hard" },
+  { word: "inflation", type: "noun", cat: "economics", meaning: "a general rise in prices", example: "High inflation reduces consumer purchasing power.", difficulty: "easy" },
+  { word: "productivity", type: "noun", cat: "economics", meaning: "effectiveness of productive effort", example: "Technology has dramatically increased worker productivity.", difficulty: "medium" },
+  { word: "recession", type: "noun", cat: "economics", meaning: "period of temporary economic decline", example: "The recession caused millions to lose their jobs.", difficulty: "easy" },
+  { word: "scarcity", type: "noun", cat: "economics", meaning: "insufficient supply of something", example: "Water scarcity threatens millions in drought-prone regions.", difficulty: "medium" },
+  { word: "viable", type: "adjective", cat: "economics", meaning: "capable of working successfully", example: "Solar energy is now a commercially viable alternative.", difficulty: "medium" },
   // SOCIETY
-  { word: "discrimination", type: "noun",      cat: "society",     meaning: "unjust treatment based on group identity",  example: "Laws protect workers from racial discrimination.",                          difficulty: "medium" },
-  { word: "diversity",      type: "noun",      cat: "society",     meaning: "the range of different things",             example: "Cultural diversity enriches communities.",                                  difficulty: "easy"   },
-  { word: "governance",     type: "noun",      cat: "society",     meaning: "the way an organization is managed",        example: "Good governance is essential for public trust.",                            difficulty: "hard"   },
-  { word: "inequality",     type: "noun",      cat: "society",     meaning: "difference in social or economic position", example: "Income inequality has widened over recent decades.",                        difficulty: "medium" },
-  { word: "infrastructure", type: "noun",      cat: "society",     meaning: "basic systems serving a country",           example: "Infrastructure investment creates long-term economic benefits.",            difficulty: "hard"   },
-  { word: "migration",      type: "noun",      cat: "society",     meaning: "movement of people to another place",       example: "Climate change is causing increased migration.",                            difficulty: "easy"   },
-  { word: "segregation",    type: "noun",      cat: "society",     meaning: "separation of groups within society",       example: "Racial segregation was legally enforced in the past.",                      difficulty: "hard"   },
-  { word: "surveillance",   type: "noun",      cat: "society",     meaning: "close observation, especially by authorities", example: "Digital surveillance raises serious privacy concerns.",                 difficulty: "hard"   },
-  { word: "urbanization",   type: "noun",      cat: "society",     meaning: "process of becoming more urban",            example: "Rapid urbanization is straining city infrastructure.",                      difficulty: "hard"   },
-  { word: "welfare",        type: "noun",      cat: "society",     meaning: "health, happiness, and social support",     example: "Child welfare must be the top priority.",                                   difficulty: "easy"   },
+  { word: "discrimination", type: "noun", cat: "society", meaning: "unjust treatment based on group identity", example: "Laws protect workers from racial discrimination.", difficulty: "medium" },
+  { word: "diversity", type: "noun", cat: "society", meaning: "the range of different things", example: "Cultural diversity enriches communities.", difficulty: "easy" },
+  { word: "governance", type: "noun", cat: "society", meaning: "the way an organization is managed", example: "Good governance is essential for public trust.", difficulty: "hard" },
+  { word: "inequality", type: "noun", cat: "society", meaning: "difference in social or economic position", example: "Income inequality has widened over recent decades.", difficulty: "medium" },
+  { word: "infrastructure", type: "noun", cat: "society", meaning: "basic systems serving a country", example: "Infrastructure investment creates long-term economic benefits.", difficulty: "hard" },
+  { word: "migration", type: "noun", cat: "society", meaning: "movement of people to another place", example: "Climate change is causing increased migration.", difficulty: "easy" },
+  { word: "segregation", type: "noun", cat: "society", meaning: "separation of groups within society", example: "Racial segregation was legally enforced in the past.", difficulty: "hard" },
+  { word: "surveillance", type: "noun", cat: "society", meaning: "close observation, especially by authorities", example: "Digital surveillance raises serious privacy concerns.", difficulty: "hard" },
+  { word: "urbanization", type: "noun", cat: "society", meaning: "process of becoming more urban", example: "Rapid urbanization is straining city infrastructure.", difficulty: "hard" },
+  { word: "welfare", type: "noun", cat: "society", meaning: "health, happiness, and social support", example: "Child welfare must be the top priority.", difficulty: "easy" },
 ];
 
 // ─────────────────────────────────────────────
@@ -144,7 +144,7 @@ function Waveform({ active, onClick }) {
       style={{
         height: 60, display: "flex", alignItems: "center", justifyContent: "center",
         gap: 3, cursor: "pointer", borderRadius: 10,
-        background: "#141d2e", border: `1px solid ${active ? "#00d4ff" : "#1e2d45"}`,
+        background: 'var(--primary-color)', border: `1px solid ${active ? 'var(--secondary-color)' : 'transparent'}`,
         padding: "0 16px", transition: "border-color .2s", marginBottom: 16,
       }}
     >
@@ -153,7 +153,7 @@ function Waveform({ active, onClick }) {
           key={i}
           style={{
             width: 3, borderRadius: 2,
-            background: active ? "#00d4ff" : "#1e2d45",
+            background: active ? 'var(--secondary-color)' : 'rgba(255, 255, 255, 0.3)',
             height: active ? undefined : h,
             animation: active ? `wave${i % 5} 0.6s ease-in-out ${i * 0.05}s infinite alternate` : "none",
             ...(active ? { height: h } : {}),
@@ -174,9 +174,9 @@ function Waveform({ active, onClick }) {
 /** Difficulty badge */
 function DiffBadge({ level }) {
   const map = {
-    easy:   { bg: "rgba(16,185,129,.15)", color: "#10b981", border: "rgba(16,185,129,.3)" },
+    easy: { bg: "rgba(16,185,129,.15)", color: "#10b981", border: "rgba(16,185,129,.3)" },
     medium: { bg: "rgba(245,158,11,.15)", color: "#f59e0b", border: "rgba(245,158,11,.3)" },
-    hard:   { bg: "rgba(239,68,68,.15)",  color: "#ef4444", border: "rgba(239,68,68,.3)"  },
+    hard: { bg: "rgba(239,68,68,.15)", color: "#ef4444", border: "rgba(239,68,68,.3)" },
   };
   const s = map[level] || map.medium;
   return (
@@ -194,8 +194,9 @@ function DiffBadge({ level }) {
 function ScoreCard({ value, label, color }) {
   return (
     <div style={{
-      background: "#0e1520", border: "1px solid #1e2d45", borderRadius: 12,
+      background: 'var(--bg-color)', border: "1px solid var(--accent-color)", borderRadius: 12,
       padding: "14px 16px", textAlign: "center", flex: 1,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
     }}>
       <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "monospace", color, lineHeight: 1 }}>{value}</div>
       <div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 1, marginTop: 4, fontFamily: "monospace" }}>{label}</div>
@@ -211,9 +212,9 @@ function Btn({ children, onClick, variant = "primary", disabled = false, style: 
     transition: "all .2s", opacity: disabled ? 0.4 : 1, ...extraStyle,
   };
   const variants = {
-    primary:   { background: "linear-gradient(135deg,#00d4ff,#7c3aed)", color: "#fff" },
-    secondary: { background: "#141d2e", border: "1px solid #1e2d45", color: "#e2e8f0" },
-    ghost:     { background: "transparent", border: "1px solid #1e2d45", color: "#94a3b8" },
+    primary: { background: 'var(--secondary-color)', color: 'var(--primary-color)' },
+    secondary: { background: 'var(--bg-color)', border: "1px solid var(--accent-color)", color: 'var(--primary-color)' },
+    ghost: { background: "transparent", border: "1px solid var(--accent-color)", color: 'var(--text-secondary)' },
   };
   return (
     <button onClick={disabled ? undefined : onClick} style={{ ...base, ...variants[variant] }}>
@@ -227,19 +228,19 @@ function Btn({ children, onClick, variant = "primary", disabled = false, style: 
 // ─────────────────────────────────────────────
 function DictationTab({ scores, setScores }) {
   const [category, setCategory] = useState("all");
-  const [speed, setSpeed]       = useState(1.0);
-  const [deck, setDeck]         = useState(() => shuffle(wordData));
-  const [idx, setIdx]           = useState(0);
+  const [speed, setSpeed] = useState(1.0);
+  const [deck, setDeck] = useState(() => shuffle(wordData));
+  const [idx, setIdx] = useState(0);
   const [playsLeft, setPlaysLeft] = useState(3);
-  const [playing, setPlaying]   = useState(false);
+  const [playing, setPlaying] = useState(false);
   const [answered, setAnswered] = useState(false);
-  const [input, setInput]       = useState("");
-  const [result, setResult]     = useState(null); // null | { correct, accuracy, word }
+  const [input, setInput] = useState("");
+  const [result, setResult] = useState(null); // null | { correct, accuracy, word }
   const inputRef = useRef(null);
 
   const filteredDeck = category === "all" ? deck : deck.filter(w => w.cat === category);
   const current = filteredDeck[idx % Math.max(filteredDeck.length, 1)];
-  const total   = Math.min(filteredDeck.length, 20);
+  const total = Math.min(filteredDeck.length, 20);
   const progress = total > 0 ? ((idx % total) / total) * 100 : 0;
 
   function resetCard() {
@@ -266,13 +267,13 @@ function DictationTab({ scores, setScores }) {
     const userAns = input.trim().toLowerCase();
     const correct = current.word.toLowerCase();
     const isCorrect = userAns === correct;
-    const accuracy  = calcCharAccuracy(userAns, correct);
+    const accuracy = calcCharAccuracy(userAns, correct);
     setAnswered(true);
     setResult({ isCorrect, accuracy, word: current });
     setScores(s => ({
       correct: s.correct + (isCorrect ? 1 : 0),
-      wrong:   s.wrong   + (isCorrect ? 0 : 1),
-      streak:  isCorrect ? s.streak + 1 : 0,
+      wrong: s.wrong + (isCorrect ? 0 : 1),
+      streak: isCorrect ? s.streak + 1 : 0,
     }));
     setTimeout(() => speak(current.word, 0.8), 300);
   }
@@ -285,7 +286,7 @@ function DictationTab({ scores, setScores }) {
     }
   }
 
-  const categories = ["all","academic","environment","health","economics","society"];
+  const categories = ["all", "academic", "environment", "health", "economics", "society"];
 
   return (
     <div>
@@ -295,9 +296,9 @@ function DictationTab({ scores, setScores }) {
           <button key={cat} onClick={() => changeCategory(cat)} style={{
             padding: "6px 14px", borderRadius: 100, fontSize: 12, fontWeight: 600,
             fontFamily: "monospace", cursor: "pointer", transition: "all .2s",
-            background: category === cat ? "rgba(124,58,237,.15)" : "#0e1520",
-            color:      category === cat ? "#a78bfa" : "#64748b",
-            border:     `1px solid ${category === cat ? "#7c3aed" : "#1e2d45"}`,
+            background: category === cat ? 'rgba(13, 59, 102, 0.1)' : 'var(--bg-color)',
+            color: category === cat ? 'var(--primary-color)' : 'var(--text-secondary)',
+            border: `1px solid ${category === cat ? 'var(--primary-color)' : 'var(--accent-color)'}`,
           }}>
             {cat.charAt(0).toUpperCase() + cat.slice(1)}
           </button>
@@ -311,9 +312,10 @@ function DictationTab({ scores, setScores }) {
 
       {/* Player card */}
       <div style={{
-        background: "#0e1520", border: `1px solid ${playing ? "#00d4ff" : "#1e2d45"}`,
+        background: 'var(--bg-color)', border: `1px solid ${playing ? 'var(--primary-color)' : 'var(--accent-color)'}`,
         borderRadius: 16, padding: 24, position: "relative", overflow: "hidden",
         transition: "border-color .3s",
+        boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
       }}>
         {playing && (
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg,#00d4ff,#7c3aed)" }} />
@@ -339,12 +341,12 @@ function DictationTab({ scores, setScores }) {
         <div style={{ display: "flex", gap: 10, marginBottom: 16, alignItems: "center" }}>
           {/* Big play button */}
           <button onClick={playWord} disabled={playsLeft <= 0} style={{
-            width: 52, height: 52, borderRadius: "50%", background: "#00d4ff", border: "none",
+            width: 52, height: 52, borderRadius: "50%", background: 'var(--secondary-color)', border: "none",
             cursor: playsLeft > 0 ? "pointer" : "not-allowed", opacity: playsLeft > 0 ? 1 : 0.4,
             display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            boxShadow: "0 0 20px rgba(0,212,255,.3)", transition: "transform .15s",
+            boxShadow: "0 4px 12px rgba(250, 169, 22, 0.3)", transition: "transform .15s",
           }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--primary-color)"><path d="M8 5v14l11-7z" /></svg>
           </button>
           <button onClick={playWord} style={{ flex: 1, padding: "13px 0", borderRadius: 10, background: "#141d2e", border: "1px solid #1e2d45", color: "#e2e8f0", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
             ↩ Replay
@@ -361,9 +363,9 @@ function DictationTab({ scores, setScores }) {
             <button key={s} onClick={() => setSpeed(s)} style={{
               padding: "4px 11px", borderRadius: 6, fontSize: 12, fontFamily: "monospace",
               cursor: "pointer", transition: "all .2s",
-              background: speed === s ? "rgba(124,58,237,.15)" : "transparent",
-              color:      speed === s ? "#a78bfa" : "#64748b",
-              border:     `1px solid ${speed === s ? "#7c3aed" : "#1e2d45"}`,
+              background: speed === s ? 'rgba(13, 59, 102, 0.1)' : "transparent",
+              color: speed === s ? 'var(--primary-color)' : 'var(--text-secondary)',
+              border: `1px solid ${speed === s ? 'var(--primary-color)' : 'var(--accent-color)'}`,
             }}>{s}×</button>
           ))}
           <span style={{ marginLeft: "auto", fontFamily: "monospace", fontSize: 11, color: "#64748b" }}>
@@ -408,7 +410,7 @@ function DictationTab({ scores, setScores }) {
           disabled={answered || !input.trim()}
           style={{
             width: "100%", padding: 15, borderRadius: 12, border: "none",
-            background: "linear-gradient(135deg,#00d4ff,#7c3aed)", color: "#fff",
+            background: 'var(--primary-color)', color: "#fff",
             fontWeight: 700, fontSize: 15, cursor: answered ? "not-allowed" : "pointer",
             opacity: answered || !input.trim() ? 0.4 : 1, marginBottom: 12,
           }}
@@ -435,12 +437,12 @@ function DictationTab({ scores, setScores }) {
               {result.isCorrect
                 ? <span style={{ color: "#10b981" }}>{result.word.word} ✓</span>
                 : <>
-                    <span style={{ color: "#94a3b8" }}>Your answer: </span>
-                    <span style={{ color: "#ef4444", textDecoration: "line-through" }}>{input}</span>
-                    <br />
-                    <span style={{ color: "#94a3b8" }}>Correct: </span>
-                    <span style={{ color: "#10b981", fontWeight: 700 }}>{result.word.word}</span>
-                  </>
+                  <span style={{ color: "#94a3b8" }}>Your answer: </span>
+                  <span style={{ color: "#ef4444", textDecoration: "line-through" }}>{input}</span>
+                  <br />
+                  <span style={{ color: "#94a3b8" }}>Correct: </span>
+                  <span style={{ color: "#10b981", fontWeight: 700 }}>{result.word.word}</span>
+                </>
               }
             </div>
             <div style={{ marginTop: 8, padding: "8px 0 0", borderTop: "1px solid #1e2d45", fontFamily: "monospace", fontSize: 12, color: "#64748b" }}>
@@ -475,12 +477,12 @@ function DictationTab({ scores, setScores }) {
 // TAB: SENTENCES
 // ─────────────────────────────────────────────
 function SentenceTab({ scores, setScores }) {
-  const [idx, setIdx]           = useState(0);
-  const [playing, setPlaying]   = useState(false);
-  const [input, setInput]       = useState("");
+  const [idx, setIdx] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [input, setInput] = useState("");
   const [revealed, setRevealed] = useState(false);
-  const [result, setResult]     = useState(null);
-  const [speed]                 = useState(0.9);
+  const [result, setResult] = useState(null);
+  const [speed] = useState(0.9);
 
   const sentence = sentenceData[idx];
 
@@ -497,8 +499,8 @@ function SentenceTab({ scores, setScores }) {
     setRevealed(true);
     setScores(s => ({
       correct: s.correct + (isGood ? 1 : 0),
-      wrong:   s.wrong   + (isGood ? 0 : 1),
-      streak:  isGood ? s.streak + 1 : 0,
+      wrong: s.wrong + (isGood ? 0 : 1),
+      streak: isGood ? s.streak + 1 : 0,
     }));
   }
 
@@ -510,13 +512,13 @@ function SentenceTab({ scores, setScores }) {
 
   // Diff highlighting
   function renderDiff() {
-    const userWords    = input.toLowerCase().split(/\s+/);
+    const userWords = input.toLowerCase().split(/\s+/);
     const correctWords = sentence.toLowerCase().replace(/[.,!?]/g, "").split(/\s+/);
     return correctWords.map((w, i) => {
       const u = (userWords[i] || "").replace(/[.,!?]/g, "");
       if (u === w) return <span key={i} style={{ color: "#10b981", marginRight: 4 }}>{w}</span>;
-      if (u)       return <span key={i} style={{ color: "#ef4444", textDecoration: "line-through", marginRight: 4 }}>{u}</span>;
-      return           <span key={i} style={{ color: "#f59e0b", fontStyle: "italic", marginRight: 4 }}>[{w}]</span>;
+      if (u) return <span key={i} style={{ color: "#ef4444", textDecoration: "line-through", marginRight: 4 }}>{u}</span>;
+      return <span key={i} style={{ color: "#f59e0b", fontStyle: "italic", marginRight: 4 }}>[{w}]</span>;
     });
   }
 
@@ -538,7 +540,7 @@ function SentenceTab({ scores, setScores }) {
 
         <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
           <button onClick={playSent} style={{ width: 52, height: 52, borderRadius: "50%", background: "#00d4ff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 0 20px rgba(0,212,255,.3)" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z" /></svg>
           </button>
           <button onClick={playSent} style={{ flex: 1, padding: 13, borderRadius: 10, background: "#141d2e", border: "1px solid #1e2d45", color: "#e2e8f0", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>↩ Replay</button>
           <button onClick={() => setRevealed(r => !r)} style={{ flex: 1, padding: 13, borderRadius: 10, background: "#141d2e", border: "1px solid #1e2d45", color: "#e2e8f0", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>👁 {revealed ? "Hide" : "Reveal"}</button>
@@ -603,7 +605,7 @@ function SentenceTab({ scores, setScores }) {
 // ─────────────────────────────────────────────
 function WordBankTab() {
   const [category, setCategory] = useState("all");
-  const [search,   setSearch]   = useState("");
+  const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(null);
 
   const filtered = wordData.filter(w => {
@@ -620,7 +622,7 @@ function WordBankTab() {
   }
 
   const catColors = { academic: "#00d4ff", environment: "#10b981", health: "#f59e0b", economics: "#7c3aed", society: "#ec4899" };
-  const categories = ["all","academic","environment","health","economics","society"];
+  const categories = ["all", "academic", "environment", "health", "economics", "society"];
 
   return (
     <div>
@@ -640,8 +642,8 @@ function WordBankTab() {
           <button key={cat} onClick={() => setCategory(cat)} style={{
             padding: "5px 13px", borderRadius: 100, fontSize: 12, fontWeight: 600, fontFamily: "monospace", cursor: "pointer",
             background: category === cat ? "rgba(124,58,237,.15)" : "#0e1520",
-            color:      category === cat ? "#a78bfa" : "#64748b",
-            border:     `1px solid ${category === cat ? "#7c3aed" : "#1e2d45"}`,
+            color: category === cat ? "#a78bfa" : "#64748b",
+            border: `1px solid ${category === cat ? "#7c3aed" : "#1e2d45"}`,
           }}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
         ))}
       </div>
@@ -695,7 +697,7 @@ function WordBankTab() {
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
 export default function DictationLab() {
-  const [tab, setTab]       = useState("dictation");
+  const [tab, setTab] = useState("dictation");
   const [scores, setScores] = useState({ correct: 0, wrong: 0, streak: 0 });
 
   // Load voices on mount
@@ -705,12 +707,12 @@ export default function DictationLab() {
 
   const tabs = [
     { id: "dictation", label: "🎙 Dictation" },
-    { id: "sentence",  label: "📝 Sentences" },
-    { id: "wordbank",  label: "📚 Word Bank" },
+    { id: "sentence", label: "📝 Sentences" },
+    { id: "wordbank", label: "📚 Word Bank" },
   ];
 
   return (
-    <div style={{ background: "#080c14", minHeight: "100vh", color: "#e2e8f0", fontFamily: "'Segoe UI', sans-serif" }}>
+    <div style={{ background: 'var(--bg-color)', minHeight: "100vh", color: 'var(--text-main)', fontFamily: "'Inter', sans-serif" }}>
       {/* Grid bg */}
       <div style={{ position: "fixed", inset: 0, backgroundImage: "linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px)", backgroundSize: "40px 40px", pointerEvents: "none", zIndex: 0 }} />
 
@@ -727,19 +729,19 @@ export default function DictationLab() {
             🎧 Audio Dictation Lab
           </h1>
           <div style={{ fontFamily: "monospace", fontSize: 13, color: "#64748b" }}>
-            High-Frequency PTE Words · Real Test Simulation
+            High-Frequency PTE Words · Premium Study Tools
           </div>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 6, background: "#0e1520", border: "1px solid #1e2d45", borderRadius: 12, padding: 6, marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 6, background: 'var(--accent-color)', border: "1px solid var(--accent-color)", borderRadius: 12, padding: 6, marginBottom: 20 }}>
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               flex: 1, padding: "10px 8px", borderRadius: 8, border: "none",
-              background: tab === t.id ? "#00d4ff" : "transparent",
-              color:      tab === t.id ? "#000" : "#64748b",
-              fontWeight: 600, fontSize: 13, cursor: "pointer", transition: "all .2s",
-              boxShadow:  tab === t.id ? "0 0 20px rgba(0,212,255,.3)" : "none",
+              background: tab === t.id ? 'var(--primary-color)' : "transparent",
+              color: tab === t.id ? "#fff" : 'var(--text-secondary)',
+              fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all .2s",
+              boxShadow: tab === t.id ? "0 4px 12px rgba(13, 59, 102, 0.2)" : "none",
             }}>
               {t.label}
             </button>
@@ -748,15 +750,15 @@ export default function DictationLab() {
 
         {/* Scores */}
         <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-          <ScoreCard value={scores.correct} label="Correct"  color="#10b981" />
-          <ScoreCard value={scores.wrong}   label="Wrong"    color="#ef4444" />
-          <ScoreCard value={scores.streak}  label="🔥 Streak" color="#00d4ff" />
+          <ScoreCard value={scores.correct} label="Correct" color="#10b981" />
+          <ScoreCard value={scores.wrong} label="Wrong" color="#ef4444" />
+          <ScoreCard value={scores.streak} label="🔥 Streak" color="#00d4ff" />
         </div>
 
         {/* Panels */}
         {tab === "dictation" && <DictationTab scores={scores} setScores={setScores} />}
-        {tab === "sentence"  && <SentenceTab  scores={scores} setScores={setScores} />}
-        {tab === "wordbank"  && <WordBankTab />}
+        {tab === "sentence" && <SentenceTab scores={scores} setScores={setScores} />}
+        {tab === "wordbank" && <WordBankTab />}
       </div>
     </div>
   );

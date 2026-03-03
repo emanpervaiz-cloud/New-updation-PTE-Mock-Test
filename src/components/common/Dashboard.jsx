@@ -51,6 +51,7 @@ const Dashboard = () => {
 
   const handleStartPractice = (section) => navigate(`/exam/${section}`);
   const handleStartTest = () => navigate('/intro');
+  const handleStartMockTest = () => navigate('/mock-test');
 
   // Define modules dynamically based on user history
   const modules = [
@@ -92,12 +93,12 @@ const Dashboard = () => {
   });
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-color)', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       {/* Sidebar */}
       <aside style={{
-        width: sidebarOpen ? 220 : 64,
-        background: '#fff',
-        borderRight: '1px solid #e2e8f0',
+        width: sidebarOpen ? 240 : 72,
+        background: 'var(--bg-color)',
+        borderRight: '1px solid var(--accent-color)',
         display: 'flex',
         flexDirection: 'column',
         transition: 'width 0.25s ease',
@@ -106,18 +107,18 @@ const Dashboard = () => {
         top: 0,
         height: '100vh',
         zIndex: 100,
-        boxShadow: '4px 0 24px rgba(0,0,0,0.02)',
+        boxShadow: 'var(--shadow-sm)',
         overflow: 'hidden',
       }}>
         {/* Logo */}
-        <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid var(--accent-color)' }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            width: 36, height: 36, borderRadius: 8,
+            background: 'var(--primary-color)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontWeight: 800, fontSize: 18, flexShrink: 0,
-          }}>PTE</div>
-          {sidebarOpen && <span style={{ fontWeight: 800, fontSize: 18, color: '#0f172a', letterSpacing: '-0.5px' }}>Master</span>}
+            color: '#fff', fontWeight: 800, fontSize: 16, flexShrink: 0,
+          }}>P</div>
+          {sidebarOpen && <span style={{ fontWeight: 800, fontSize: 18, color: 'var(--primary-color)', letterSpacing: '-0.5px' }}>THE MIGRATION</span>}
         </div>
 
         {/* Nav */}
@@ -129,15 +130,15 @@ const Dashboard = () => {
               style={{
                 display: 'flex', alignItems: 'center', gap: 14,
                 padding: '12px 20px', cursor: 'pointer', position: 'relative',
-                background: item.active ? '#e0e7ff' : 'transparent',
-                borderRight: item.active ? '4px solid #4f46e5' : '4px solid transparent',
-                color: item.active ? '#4338ca' : '#64748b',
-                fontWeight: item.active ? 600 : 500,
+                background: item.active ? 'var(--accent-color)' : 'transparent',
+                borderRight: item.active ? '4px solid var(--secondary-color)' : '4px solid transparent',
+                color: item.active ? 'var(--primary-color)' : 'var(--text-secondary)',
+                fontWeight: item.active ? 700 : 500,
                 fontSize: 15,
                 transition: 'all 0.2s ease',
               }}
-              onMouseEnter={e => { if (!item.active) { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#334155'; } }}
-              onMouseLeave={e => { if (!item.active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; } }}
+              onMouseEnter={e => { if (!item.active) { e.currentTarget.style.background = 'var(--accent-color)'; e.currentTarget.style.color = 'var(--primary-color)'; } }}
+              onMouseLeave={e => { if (!item.active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
             >
               <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
               {sidebarOpen && (
@@ -159,12 +160,12 @@ const Dashboard = () => {
         <div
           onClick={() => setSidebarOpen(o => !o)}
           style={{
-            padding: '16px 20px', cursor: 'pointer', borderTop: '1px solid #f1f5f9',
+            padding: '16px 20px', cursor: 'pointer', borderTop: '1px solid var(--accent-color)',
             display: 'flex', alignItems: 'center', gap: 12, color: '#94a3b8', fontSize: 14, fontWeight: 500,
             transition: 'color 0.2s'
           }}
-          onMouseEnter={e => e.currentTarget.style.color = '#475569'}
-          onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--primary-color)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
         >
           <span style={{ fontSize: 18 }}>{sidebarOpen ? '◀' : '▶'}</span>
           {sidebarOpen && <span>Collapse</span>}
@@ -175,17 +176,17 @@ const Dashboard = () => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* Top Bar */}
         <header style={{
-          background: '#ffffff', borderBottom: '1px solid #e2e8f0',
+          background: 'var(--bg-color)', borderBottom: '1px solid var(--accent-color)',
           padding: '0 32px', height: 64, display: 'flex', alignItems: 'center',
           gap: 16, position: 'sticky', top: 0, zIndex: 90,
-          boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+          boxShadow: 'var(--shadow-sm)',
         }}>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <span style={{ background: '#fef3c7', color: '#b45309', borderRadius: '6px', padding: '4px 12px', fontSize: 13, fontWeight: 700 }}>PTE Academic</span>
+            <span style={{ background: 'rgba(13, 59, 102, 0.08)', color: 'var(--primary-color)', borderRadius: '6px', padding: '4px 12px', fontSize: 13, fontWeight: 700 }}>PTE Academic</span>
             <button
               onClick={() => navigate('/landing')}
-              style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 14, cursor: 'pointer', padding: '6px 12px', borderRadius: 6, fontWeight: 500 }}
-              onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+              style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: 14, cursor: 'pointer', padding: '6px 12px', borderRadius: 6, fontWeight: 500 }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-color)'}
               onMouseLeave={e => e.currentTarget.style.background = 'none'}
             >Practice Library ▾</button>
           </div>
@@ -210,8 +211,8 @@ const Dashboard = () => {
                     background: '#fff', color: '#ef4444', fontWeight: 600, cursor: 'pointer',
                     fontSize: 13, transition: 'background 0.2s'
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
-                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-color)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-color)'}
                 >
                   Logout
                 </button>
@@ -221,7 +222,7 @@ const Dashboard = () => {
                 onClick={() => navigate('/login')}
                 style={{
                   padding: '8px 20px', borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  background: 'var(--primary-color)',
                   color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer'
                 }}
               >
@@ -239,10 +240,10 @@ const Dashboard = () => {
 
             {/* Greeting Section */}
             <div>
-              <h1 style={{ margin: '0 0 8px', fontSize: '28px', fontWeight: 800, color: '#0f172a' }}>
+              <h1 style={{ margin: '0 0 8px', fontSize: '28px', fontWeight: 800, color: 'var(--primary-color)' }}>
                 Welcome back, {user ? user.name : 'Student'} 👋
               </h1>
-              <p style={{ margin: 0, fontSize: '15px', color: '#64748b' }}>
+              <p style={{ margin: 0, fontSize: '15px', color: 'var(--text-secondary)' }}>
                 Track your progress, practice modules, and achieve your target score of {targetScore}.
               </p>
             </div>
@@ -250,7 +251,7 @@ const Dashboard = () => {
             {/* Modules Grid */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#1e293b' }}>Practice Modules</h2>
+                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: 'var(--primary-color)' }}>Practice Modules</h2>
               </div>
 
               <div style={{
@@ -277,6 +278,7 @@ const Dashboard = () => {
             avgScore={avgScore}
             lastScore={lastScore}
             onStartTest={handleStartTest}
+            onStartMockTest={handleStartMockTest}
             onShowTargetModal={() => { setTempTarget(targetScore); setShowTargetModal(true); }}
           />
 
@@ -295,33 +297,33 @@ const Dashboard = () => {
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: '#fff', borderRadius: '20px', padding: '32px', width: '480px', maxHeight: '85vh', overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              border: '1px solid #e2e8f0'
+              background: 'var(--bg-color)', borderRadius: '20px', padding: '32px', width: '480px', maxHeight: '85vh', overflowY: 'auto',
+              boxShadow: 'var(--shadow-md)',
+              border: '1px solid var(--accent-color)'
             }}>
             <h3 style={{ margin: '0 0 24px', fontSize: '20px', fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>🎯 Set Your Goal</h3>
-            
+
             {/* Current Target Display */}
-            <div style={{ textAlign: 'center', fontSize: '48px', fontWeight: 800, color: '#4f46e5', marginBottom: '8px' }}>
+            <div style={{ textAlign: 'center', fontSize: '48px', fontWeight: 800, color: 'var(--primary-color)', marginBottom: '8px' }}>
               {tempTarget}
             </div>
-            <p style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>Target PTE Score</p>
+            <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px' }}>Target PTE Score</p>
 
             <input
               type="range" min={30} max={90} step={1}
               value={tempTarget}
               onChange={e => setTempTarget(Number(e.target.value))}
-              style={{ width: '100%', marginBottom: '24px', accentColor: '#4f46e5' }}
+              style={{ width: '100%', marginBottom: '24px', accentColor: 'var(--primary-color)' }}
             />
 
             {/* PTE Band Levels Reference */}
             <div style={{ marginBottom: '24px' }}>
               <h4 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: 700, color: '#374151' }}>📊 PTE Band Levels & Requirements</h4>
-              
+
               {[
-                { 
-                  band: 'PTE 90 (Perfect)', 
-                  range: '90', 
+                {
+                  band: 'PTE 90 (Perfect)',
+                  range: '90',
                   color: '#059669',
                   requirements: [
                     'Speaking: Native-like fluency & pronunciation',
@@ -330,9 +332,9 @@ const Dashboard = () => {
                     'Listening: Complete comprehension of academic content'
                   ]
                 },
-                { 
-                  band: 'PTE 79+ (Band 8)', 
-                  range: '79-89', 
+                {
+                  band: 'PTE 79+ (Band 8)',
+                  range: '79-89',
                   color: '#0891b2',
                   requirements: [
                     'Speaking: Fluent with minor hesitations',
@@ -341,9 +343,9 @@ const Dashboard = () => {
                     'Listening: Understand main ideas and most details'
                   ]
                 },
-                { 
-                  band: 'PTE 65+ (Band 7)', 
-                  range: '65-78', 
+                {
+                  band: 'PTE 65+ (Band 7)',
+                  range: '65-78',
                   color: '#7c3aed',
                   requirements: [
                     'Speaking: Clear communication with some fluency issues',
@@ -352,9 +354,9 @@ const Dashboard = () => {
                     'Listening: Understand main ideas and key details'
                   ]
                 },
-                { 
-                  band: 'PTE 50+ (Band 6)', 
-                  range: '50-64', 
+                {
+                  band: 'PTE 50+ (Band 6)',
+                  range: '50-64',
                   color: '#d97706',
                   requirements: [
                     'Speaking: Basic communication, noticeable accent',
@@ -363,9 +365,9 @@ const Dashboard = () => {
                     'Listening: Catch main ideas, miss some details'
                   ]
                 },
-                { 
-                  band: 'PTE 36+ (Band 5)', 
-                  range: '36-49', 
+                {
+                  band: 'PTE 36+ (Band 5)',
+                  range: '36-49',
                   color: '#dc2626',
                   requirements: [
                     'Speaking: Limited vocabulary, frequent pauses',
@@ -375,21 +377,21 @@ const Dashboard = () => {
                   ]
                 }
               ].map((level, idx) => (
-                <div 
+                <div
                   key={idx}
                   style={{
                     border: `2px solid ${tempTarget >= parseInt(level.range) ? level.color : '#e5e7eb'}`,
-                    borderRadius: '12px', 
-                    padding: '12px 16px', 
+                    borderRadius: '12px',
+                    padding: '12px 16px',
                     marginBottom: '12px',
                     background: tempTarget >= parseInt(level.range) ? `${level.color}08` : '#f9fafb',
                     opacity: tempTarget >= parseInt(level.range) ? 1 : 0.6
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <span style={{ 
-                      fontSize: '12px', 
-                      fontWeight: 700, 
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: 700,
                       color: '#fff',
                       background: level.color,
                       padding: '2px 8px',
@@ -398,7 +400,7 @@ const Dashboard = () => {
                       {level.band}
                     </span>
                     <span style={{ fontSize: '12px', color: '#6b7280' }}>Score: {level.range}</span>
-                    {tempTarget >= parseInt(level.range) && tempTarget < (idx === 0 ? 91 : parseInt(['90','79','65','50','36'][idx-1])) && (
+                    {tempTarget >= parseInt(level.range) && tempTarget < (idx === 0 ? 91 : parseInt(['90', '79', '65', '50', '36'][idx - 1])) && (
                       <span style={{ marginLeft: 'auto', fontSize: '11px', color: level.color, fontWeight: 600 }}>✓ Your Target</span>
                     )}
                   </div>
@@ -427,7 +429,7 @@ const Dashboard = () => {
                 onClick={() => { setTargetScore(tempTarget); setShowTargetModal(false); }}
                 style={{
                   flex: 1, padding: '12px', border: 'none',
-                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                  background: 'var(--primary-color)',
                   color: '#fff', borderRadius: '10px', cursor: 'pointer', fontWeight: 600,
                   transition: 'opacity 0.2s',
                 }}

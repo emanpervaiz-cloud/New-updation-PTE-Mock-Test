@@ -34,7 +34,7 @@ const SelectMissingWord = ({ question, onNext }) => {
 
     // Show answer and auto-proceed to next after delay
     setIsSubmitted(true);
-    
+
     // Auto navigate to next question after showing answer for 2 seconds
     setTimeout(() => {
       onNext();
@@ -44,7 +44,7 @@ const SelectMissingWord = ({ question, onNext }) => {
   const renderTranscriptWithBlank = () => {
     // Use context if available, otherwise use transcript
     const text = question.context || question.transcript || '';
-    
+
     // Replace ... or ___ with a blank marker
     const blankPattern = /(\.\.\.|___+|\[blank\])/i;
     const parts = text.split(blankPattern);
@@ -62,7 +62,7 @@ const SelectMissingWord = ({ question, onNext }) => {
               padding: '8px 16px',
               fontSize: '16px',
               borderRadius: '8px',
-              border: '2px solid #673ab7',
+              border: '2px solid var(--primary-color)',
               backgroundColor: '#fff',
               color: selectedOption ? '#1e293b' : '#64748b',
               cursor: isSubmitted ? 'not-allowed' : 'pointer',
@@ -93,10 +93,10 @@ const SelectMissingWord = ({ question, onNext }) => {
         />
       </div>
 
-      <div className="question-section" style={{ 
-        padding: '24px', 
-        background: '#f8f9fe', 
-        borderRadius: '16px', 
+      <div className="question-section" style={{
+        padding: '24px',
+        background: '#f8f9fe',
+        borderRadius: '16px',
         marginBottom: '24px',
         textAlign: 'center'
       }}>
@@ -113,7 +113,7 @@ const SelectMissingWord = ({ question, onNext }) => {
             const optionId = option.id || option.charAt(0);
             const optionText = option.text || option.substring(3);
             const isSelected = selectedOption === optionId;
-            
+
             return (
               <button
                 key={idx}
@@ -123,9 +123,9 @@ const SelectMissingWord = ({ question, onNext }) => {
                   padding: '16px 24px',
                   borderRadius: '12px',
                   border: '2px solid',
-                  borderColor: isSelected ? '#673ab7' : '#e2e8f0',
-                  backgroundColor: isSelected ? '#f3f0ff' : '#ffffff',
-                  color: isSelected ? '#673ab7' : '#1e293b',
+                  borderColor: isSelected ? 'var(--primary-color)' : '#e2e8f0',
+                  backgroundColor: isSelected ? 'rgba(13, 59, 102, 0.05)' : '#ffffff',
+                  color: isSelected ? 'var(--primary-color)' : '#1e293b',
                   fontSize: '16px',
                   textAlign: 'left',
                   cursor: isSubmitted ? 'not-allowed' : 'pointer',
@@ -138,7 +138,7 @@ const SelectMissingWord = ({ question, onNext }) => {
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
-                  backgroundColor: isSelected ? '#673ab7' : '#e2e8f0',
+                  backgroundColor: isSelected ? 'var(--primary-color)' : '#e2e8f0',
                   color: isSelected ? '#fff' : '#64748b',
                   display: 'flex',
                   alignItems: 'center',
@@ -167,7 +167,7 @@ const SelectMissingWord = ({ question, onNext }) => {
           disabled={!isSubmitted && selectedOption === null}
           style={{
             padding: '12px 32px',
-            background: (!isSubmitted && selectedOption === null) ? '#9ca3af' : 'linear-gradient(135deg, #673ab7, #5e35b1)',
+            background: (!isSubmitted && selectedOption === null) ? '#9ca3af' : 'var(--primary-color)',
             color: '#fff',
             border: 'none',
             borderRadius: '12px',
@@ -184,37 +184,36 @@ const SelectMissingWord = ({ question, onNext }) => {
         <div style={{
           marginTop: 24,
           padding: '20px',
-          background: selectedOption === question.correct ? '#f0fdf4' : '#fee2e2',
+          background: 'rgba(13, 59, 102, 0.05)',
           borderRadius: '12px',
-          border: '1px solid',
-          borderColor: selectedOption === question.correct ? '#bbf7d0' : '#fecaca',
+          border: '1px solid var(--primary-color)',
           animation: 'fadeIn 0.5s ease-out'
         }}>
-          <h4 style={{ 
-            color: selectedOption === question.correct ? '#166534' : '#991b1b', 
-            margin: '0 0 12px 0', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 8 
+          <h4 style={{
+            color: 'var(--primary-color)',
+            margin: '0 0 12px 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8
           }}>
             <span style={{ fontSize: 20 }}>
               {selectedOption === question.correct ? '✅' : '❌'}
-            </span> 
+            </span>
             {selectedOption === question.correct ? 'Correct Answer!' : 'Incorrect Answer'}
           </h4>
-          
+
           <div style={{ marginBottom: '8px' }}>
             <p style={{ color: '#64748b', fontSize: '14px', margin: '0 0 4px 0' }}>Your Answer:</p>
-            <p style={{ 
-              color: selectedOption === question.correct ? '#15803d' : '#dc2626', 
-              fontWeight: 600, 
-              margin: 0, 
-              fontSize: 16 
+            <p style={{
+              color: selectedOption === question.correct ? 'var(--primary-color)' : '#dc2626',
+              fontWeight: 600,
+              margin: 0,
+              fontSize: 16
             }}>
               {selectedOption}) {question.options.find(opt => (opt.id || opt.charAt(0)) === selectedOption)?.text || question.options.find(opt => opt.charAt(0) === selectedOption)?.substring(3)}
             </p>
           </div>
-          
+
           {selectedOption !== question.correct && (
             <div>
               <p style={{ color: '#64748b', fontSize: '14px', margin: '0 0 4px 0' }}>Correct Answer:</p>
@@ -223,7 +222,7 @@ const SelectMissingWord = ({ question, onNext }) => {
               </p>
             </div>
           )}
-          
+
           <style>{`
             @keyframes fadeIn {
               from { opacity: 0; transform: translateY(10px); }

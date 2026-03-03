@@ -63,7 +63,7 @@ const SpeakingSection = () => {
 
   const handleNextQuestion = () => {
     console.log('Speaking: handleNextQuestion called', { currentQuestion, total: speakingQuestions.length });
-    
+
     if (currentQuestion < speakingQuestions.length - 1) {
       const nextIndex = currentQuestion + 1;
       setCurrentQuestion(nextIndex);
@@ -110,16 +110,16 @@ const SpeakingSection = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
             width: 32, height: 32, borderRadius: 8,
-            background: 'linear-gradient(135deg, #ff8a65, #ff6f00)',
+            background: 'var(--primary-color)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 16,
           }}>A</div>
-          <span style={{ fontWeight: 700, fontSize: 16, color: '#1a1f36' }}>Speaking Module</span>
+          <span style={{ fontWeight: 700, fontSize: 16, color: 'var(--primary-color)' }}>Speaking Module</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5a6270', fontSize: 13, fontWeight: 600 }}>
-            <span style={{ color: '#673ab7' }}>●</span> Section Test
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>
+            <span style={{ color: 'var(--secondary-color)' }}>●</span> Section Test
           </div>
           <Timer initialTime={1200} /> {/* 20 minutes */}
         </div>
@@ -130,8 +130,8 @@ const SpeakingSection = () => {
           {/* Section Indicator */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24,
-            padding: '12px 20px', background: 'rgba(103, 58, 183, 0.05)',
-            borderRadius: 12, color: '#512da8'
+            padding: '12px 20px', background: 'rgba(13, 59, 102, 0.05)',
+            borderRadius: 12, color: 'var(--primary-color)'
           }}>
             <span style={{ fontSize: 20 }}>🎙️</span>
             <div>
@@ -158,16 +158,16 @@ const SpeakingSection = () => {
           }}>
             <div style={{ marginBottom: 24 }}>
               <div style={{
-                fontSize: 14, fontWeight: 700, color: '#673ab7',
+                fontSize: 14, fontWeight: 700, color: 'var(--primary-color)',
                 marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8
               }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#673ab7' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-color)' }} />
                 Instructions
               </div>
               <p style={{
-                margin: 0, fontSize: 16, color: '#3e4e68', lineHeight: 1.6,
-                background: '#f8f9fe', padding: '16px 20px', borderRadius: 12,
-                borderLeft: '4px solid #673ab7'
+                margin: 0, fontSize: 16, color: 'var(--text-main)', lineHeight: 1.6,
+                background: 'var(--accent-color)', padding: '16px 20px', borderRadius: 12,
+                borderLeft: '4px solid var(--primary-color)'
               }}>
                 {currentQuestionData.instruction}
               </p>
@@ -222,11 +222,11 @@ const SpeakingSection = () => {
               onClick={handleNextQuestion}
               style={{
                 padding: '10px 32px', borderRadius: 12,
-                background: 'linear-gradient(135deg, #1a1f36, #323b5c)',
+                background: 'var(--primary-color)',
                 color: '#fff', border: 'none',
                 fontWeight: 700, fontSize: 14, cursor: 'pointer',
                 transition: 'all 0.2s',
-                boxShadow: '0 4px 12px rgba(26, 31, 54, 0.2)'
+                boxShadow: 'var(--shadow-md)'
               }}
               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}

@@ -45,7 +45,7 @@ const ReadingMultipleChoiceAudio = ({ question, onNext }) => {
             </div>
 
             <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 18, color: '#1a1f36', fontWeight: 600 }}>{question.question}</h3>
+                <h3 style={{ fontSize: 18, color: 'var(--primary-color)', fontWeight: 600 }}>{question.question}</h3>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -57,12 +57,12 @@ const ReadingMultipleChoiceAudio = ({ question, onNext }) => {
                             padding: '16px 20px',
                             borderRadius: 12,
                             border: `2px solid ${(question.multiple && selectedOption?.includes(option.id)) ||
-                                    (!question.multiple && selectedOption === option.id)
-                                    ? '#673ab7' : '#eef2f6'
+                                (!question.multiple && selectedOption === option.id)
+                                ? 'var(--primary-color)' : '#eef2f6'
                                 }`,
                             background: (question.multiple && selectedOption?.includes(option.id)) ||
                                 (!question.multiple && selectedOption === option.id)
-                                ? '#f4f0ff' : '#fff',
+                                ? 'rgba(13, 59, 102, 0.05)' : '#fff',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
@@ -101,14 +101,14 @@ const ReadingMultipleChoiceAudio = ({ question, onNext }) => {
                     style={{
                         padding: '12px 32px',
                         borderRadius: 12,
-                        background: 'linear-gradient(135deg, #673ab7, #5e35b1)',
+                        background: 'var(--primary-color)',
                         color: '#fff',
                         border: 'none',
                         fontWeight: 700,
                         fontSize: 15,
                         cursor: (selectedOption === null || (question.multiple && selectedOption.length === 0)) ? 'not-allowed' : 'pointer',
                         opacity: (selectedOption === null || (question.multiple && selectedOption.length === 0)) ? 0.6 : 1,
-                        boxShadow: '0 4px 12px rgba(103, 58, 183, 0.2)'
+                        boxShadow: '0 4px 12px rgba(13, 59, 102, 0.2)'
                     }}
                 >
                     Submit Answer

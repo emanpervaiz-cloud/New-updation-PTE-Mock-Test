@@ -20,9 +20,9 @@ const ResultsPage = () => {
         setError(null);
         console.log('=== ResultsPage: Starting score calculation ===');
         console.log('Answers count:', Object.keys(state.answers || {}).length);
-        
+
         const answers = state.answers || {};
-        
+
         // Load AI evaluations from localStorage
         let aiEvaluations = {};
         try {
@@ -34,18 +34,18 @@ const ResultsPage = () => {
         } catch (e) {
           console.error('Failed to load AI evaluations:', e);
         }
-        
+
         // Calculate scores using scoring engine with AI evaluations
         const scores = scoringEngine.calculateAllScores(answers, aiEvaluations);
         console.log('Calculated scores:', scores);
-        
+
         // Extract individual section scores
         const speakingScore = scores.speaking?.scaledScore || 10;
         const writingScore = scores.writing?.scaledScore || 10;
         const readingScore = scores.reading?.scaledScore || 10;
         const listeningScore = scores.listening?.scaledScore || 10;
         const overallScore = scores.overall?.overallScore || 10;
-        
+
         const getCefrLevel = (score) => {
           if (score >= 85) return 'C2';
           if (score >= 75) return 'C1';
@@ -54,38 +54,38 @@ const ResultsPage = () => {
           if (score >= 45) return 'A2';
           return 'A1';
         };
-        
+
         // Count completed questions for feedback
         const speakingCount = Object.values(answers).filter(a => a.section === 'speaking').length;
         const writingCount = Object.values(answers).filter(a => a.section === 'writing').length;
         const readingCount = Object.values(answers).filter(a => a.section === 'reading').length;
         const listeningCount = Object.values(answers).filter(a => a.section === 'listening').length;
-        
+
         const calculatedScores = {
-          overall: { 
-            overallScore: overallScore, 
+          overall: {
+            overallScore: overallScore,
             cefrLevel: scores.overall?.cefrLevel || getCefrLevel(overallScore),
             classification: scores.overall?.classification || (overallScore >= 70 ? 'Advanced' : overallScore >= 50 ? 'Intermediate' : 'Beginner')
           },
-          speaking: { 
-            scaledScore: speakingScore, 
-            cefrLevel: scores.speaking?.cefrLevel || getCefrLevel(speakingScore), 
-            feedback: scores.speaking?.feedback || `Completed ${speakingCount} speaking tasks` 
+          speaking: {
+            scaledScore: speakingScore,
+            cefrLevel: scores.speaking?.cefrLevel || getCefrLevel(speakingScore),
+            feedback: scores.speaking?.feedback || `Completed ${speakingCount} speaking tasks`
           },
-          writing: { 
-            scaledScore: writingScore, 
-            cefrLevel: scores.writing?.cefrLevel || getCefrLevel(writingScore), 
-            feedback: scores.writing?.feedback || `Completed ${writingCount} writing tasks` 
+          writing: {
+            scaledScore: writingScore,
+            cefrLevel: scores.writing?.cefrLevel || getCefrLevel(writingScore),
+            feedback: scores.writing?.feedback || `Completed ${writingCount} writing tasks`
           },
-          reading: { 
-            scaledScore: readingScore, 
-            cefrLevel: scores.reading?.cefrLevel || getCefrLevel(readingScore), 
-            feedback: scores.reading?.feedback || `Completed ${readingCount} reading tasks` 
+          reading: {
+            scaledScore: readingScore,
+            cefrLevel: scores.reading?.cefrLevel || getCefrLevel(readingScore),
+            feedback: scores.reading?.feedback || `Completed ${readingCount} reading tasks`
           },
-          listening: { 
-            scaledScore: listeningScore, 
-            cefrLevel: scores.listening?.cefrLevel || getCefrLevel(listeningScore), 
-            feedback: scores.listening?.feedback || `Completed ${listeningCount} listening tasks` 
+          listening: {
+            scaledScore: listeningScore,
+            cefrLevel: scores.listening?.cefrLevel || getCefrLevel(listeningScore),
+            feedback: scores.listening?.feedback || `Completed ${listeningCount} listening tasks`
           }
         };
 
@@ -143,16 +143,16 @@ const ResultsPage = () => {
     } catch (e) {
       console.error('Failed to clear AI evaluations:', e);
     }
-    
+
     resetExam();
     navigate('/');
   };
 
   const getScoreColor = (score) => {
-    if (score >= 70) return '#2e7d32';
-    if (score >= 50) return '#f57f17';
-    if (score >= 30) return '#e65100';
-    return '#c62828';
+    if (score >= 70) return 'var(--success-color)';
+    if (score >= 50) return 'var(--secondary-color)';
+    if (score >= 30) return '#fb8c00';
+    return '#dc2626';
   };
 
   const getScoreBarWidth = (score) => {
@@ -231,7 +231,7 @@ const ResultsPage = () => {
               display: 'inline-block',
               padding: '6px 20px',
               borderRadius: '20px',
-              background: getScoreColor(overallScore),
+              background: 'var(--primary-color)',
               color: '#fff',
               fontWeight: '600',
               fontSize: '16px',
@@ -266,7 +266,7 @@ const ResultsPage = () => {
                       marginLeft: 'auto',
                       padding: '2px 10px',
                       borderRadius: '12px',
-                      background: '#f0f0f0',
+                      background: 'var(--accent-color)',
                       fontSize: '13px',
                       fontWeight: '600'
                     }}>

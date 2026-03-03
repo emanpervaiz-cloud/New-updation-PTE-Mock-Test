@@ -9,8 +9,8 @@ const ProgressBar = ({ current, total, showPercentage = true }) => {
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
         marginBottom: 8, fontSize: 13, fontWeight: 600, color: '#5a6270'
       }}>
-        <span>Question <span style={{ color: '#1a1f36', fontSize: 15, fontWeight: 700 }}>{current}</span> of {total}</span>
-        {showPercentage && <span style={{ color: '#673ab7' }}>{percentage}% Complete</span>}
+        <span>Question <span style={{ color: 'var(--primary-color)', fontSize: 15, fontWeight: 700 }}>{current}</span> of {total}</span>
+        {showPercentage && <span style={{ color: 'var(--primary-color)' }}>{percentage}% Complete</span>}
       </div>
       <div style={{
         height: 6, width: '100%', background: '#e2e8f0', borderRadius: 10, overflow: 'hidden'
@@ -18,7 +18,7 @@ const ProgressBar = ({ current, total, showPercentage = true }) => {
         <div
           style={{
             height: '100%',
-            background: 'linear-gradient(90deg, #673ab7, #9575cd)',
+            background: 'linear-gradient(90deg, var(--primary-color), var(--secondary-color))',
             width: `${percentage}%`,
             borderRadius: 10,
             transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)'

@@ -100,7 +100,7 @@ const RetellLecture = ({ question, onNext }) => {
         'retell_lecture'
       );
       setEvaluation(result);
-      
+
       // Store AI evaluation in localStorage for ResultsPage
       try {
         const aiEvaluations = JSON.parse(localStorage.getItem('pte_ai_evaluations') || '{}');
@@ -131,7 +131,7 @@ const RetellLecture = ({ question, onNext }) => {
         boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
         position: 'relative'
       }}>
-        <div style={{ position: 'absolute', top: 16, left: 24, fontSize: 12, fontWeight: 700, color: '#673ab7', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+        <div style={{ position: 'absolute', top: 16, left: 24, fontSize: 12, fontWeight: 700, color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
           🎙️ Retell Lecture
         </div>
 
@@ -147,8 +147,8 @@ const RetellLecture = ({ question, onNext }) => {
                 <button
                   onClick={handleLectureEnd}
                   style={{
-                    padding: '10px 24px', borderRadius: 10, border: '1.5px solid #673ab7',
-                    background: '#f8f9fe', color: '#673ab7', fontWeight: 600, fontSize: 14, cursor: 'pointer',
+                    padding: '10px 24px', borderRadius: 10, border: '1.5px solid var(--primary-color)',
+                    background: 'var(--accent-color)', color: 'var(--primary-color)', fontWeight: 600, fontSize: 14, cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={e => e.currentTarget.style.background = '#ede7f6'}
@@ -183,10 +183,10 @@ const RetellLecture = ({ question, onNext }) => {
               disabled={recordingTime >= 40 || micError}
               style={{
                 width: 64, height: 64, borderRadius: '50%',
-                background: isRecording ? '#dc2626' : (hasRecorded ? '#10b981' : '#673ab7'),
+                background: isRecording ? '#dc2626' : (hasRecorded ? 'var(--success-color)' : 'var(--primary-color)'),
                 color: '#fff', border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-                boxShadow: isRecording ? '0 0 0 6px rgba(220, 38, 38, 0.15)' : '0 4px 12px rgba(103, 58, 183, 0.2)',
+                boxShadow: isRecording ? '0 0 0 6px rgba(220, 38, 38, 0.15)' : '0 4px 12px rgba(13, 59, 102, 0.2)',
                 transition: 'all 0.3s ease',
                 animation: isRecording ? 'pulse 1.5s infinite' : 'none'
               }}
@@ -232,12 +232,12 @@ const RetellLecture = ({ question, onNext }) => {
           onClick={handleNext}
           style={{
             padding: '12px 32px', borderRadius: 12,
-            background: isRecording ? '#fff' : 'linear-gradient(135deg, #673ab7, #5e35b1)',
-            color: isRecording ? '#673ab7' : '#fff',
-            border: isRecording ? '1.5px solid #673ab7' : 'none',
+            background: isRecording ? '#fff' : 'var(--primary-color)',
+            color: isRecording ? 'var(--primary-color)' : '#fff',
+            border: isRecording ? '1.5px solid var(--primary-color)' : 'none',
             fontWeight: 700, fontSize: 15, cursor: 'pointer',
             transition: 'all 0.2s ease',
-            boxShadow: isRecording ? 'none' : '0 4px 12px rgba(103, 58, 183, 0.2)'
+            boxShadow: isRecording ? 'none' : '0 4px 12px rgba(13, 59, 102, 0.2)'
           }}
           onMouseEnter={e => { if (!isRecording) e.currentTarget.style.transform = 'translateY(-2px)'; }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}

@@ -133,7 +133,7 @@ const PracticePage = () => {
   return (
     <div style={{
       display: 'flex', minHeight: '100vh',
-      background: '#f5f7fb',
+      background: 'var(--bg-color)',
       fontFamily: "'Inter', 'Segoe UI', sans-serif",
     }}>
       {/* Sidebar */}
@@ -156,7 +156,7 @@ const PracticePage = () => {
         <div style={{ padding: '20px 16px 16px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid #f0f0f0' }}>
           <div style={{
             width: 36, height: 36, borderRadius: 10,
-            background: 'linear-gradient(135deg, #ff8a65, #ff6f00)',
+            background: 'var(--primary-color)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 18, flexShrink: 0,
           }}>A</div>
@@ -172,10 +172,10 @@ const PracticePage = () => {
               style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: '10px 16px', cursor: 'pointer',
-                background: item.active ? 'linear-gradient(90deg, #ede7f6, #f3e5f5)' : 'transparent',
-                borderRight: item.active ? '3px solid #673ab7' : '3px solid transparent',
-                color: item.active ? '#512da8' : '#5a6270',
-                fontWeight: item.active ? 600 : 400,
+                background: item.active ? 'rgba(13, 59, 102, 0.05)' : 'transparent',
+                borderRight: item.active ? '3px solid var(--secondary-color)' : '3px solid transparent',
+                color: item.active ? 'var(--primary-color)' : '#5a6270',
+                fontWeight: item.active ? 700 : 400,
                 fontSize: 14, transition: 'all 0.15s',
                 borderRadius: '0 8px 8px 0', margin: '1px 0',
               }}
@@ -218,14 +218,14 @@ const PracticePage = () => {
               Dashboard
             </button>
             <span style={{ color: '#ccc' }}>/</span>
-            <span style={{ background: '#ede7f6', color: '#512da8', borderRadius: 6, padding: '4px 12px', fontSize: 13, fontWeight: 600 }}>
+            <span style={{ background: 'rgba(13, 59, 102, 0.05)', color: 'var(--primary-color)', borderRadius: 6, padding: '4px 12px', fontSize: 13, fontWeight: 700 }}>
               Practice
             </span>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{
               width: 32, height: 32, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #673ab7, #9c27b0)',
+              background: 'var(--primary-color)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontSize: 13, fontWeight: 700,
             }}>U</div>

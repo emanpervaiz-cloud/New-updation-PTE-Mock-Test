@@ -63,11 +63,11 @@ const SummarizeSpokenText = ({ question, onNext }) => {
     console.log('Question ID:', question?.id);
     console.log('Summary length:', summary?.length);
     console.log('Summary content:', summary?.substring(0, 100));
-    
+
     try {
       const evaluator = new AIEvaluationService();
       console.log('Evaluator created, calling evaluateWriting...');
-      
+
       // Use evaluateWriting for Summarize Spoken Text since the student's output is written text
       // We pass the transcript or instruction as the 'prompt' context for the LLM
       const result = await evaluator.evaluateWriting(
@@ -75,10 +75,10 @@ const SummarizeSpokenText = ({ question, onNext }) => {
         summary,
         'summarize_spoken_text'
       );
-      
+
       console.log('AI Evaluation Result:', JSON.stringify(result, null, 2));
       setEvaluation(result);
-      
+
       // Store AI evaluation in localStorage for ResultsPage
       try {
         const aiEvaluations = JSON.parse(localStorage.getItem('pte_ai_evaluations') || '{}');
@@ -106,7 +106,7 @@ const SummarizeSpokenText = ({ question, onNext }) => {
     }
     if (!isSaved) handleSave();
     setIsSubmitted(true);
-    
+
     // Auto navigate to next question after showing answer for 3 seconds
     setTimeout(() => {
       onNext();
@@ -153,10 +153,10 @@ const SummarizeSpokenText = ({ question, onNext }) => {
             onClick={handleGetScore}
             style={{
               padding: '14px 36px', borderRadius: 14,
-              background: 'linear-gradient(135deg, #0d9488, #14b8a6)',
-              color: '#fff', border: 'none',
+              background: 'var(--secondary-color)',
+              color: 'var(--primary-color)', border: 'none',
               fontWeight: 700, fontSize: 16, cursor: 'pointer',
-              boxShadow: '0 6px 20px rgba(13, 148, 136, 0.3)',
+              boxShadow: '0 6px 20px rgba(250, 169, 22, 0.3)',
               display: 'flex', alignItems: 'center', gap: 10,
             }}
           >
@@ -178,7 +178,7 @@ const SummarizeSpokenText = ({ question, onNext }) => {
 
       <div className="action-buttons" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
         <button
-          style={{ padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', background: '#3b82f6', color: '#fff', border: 'none', fontWeight: 600 }}
+          style={{ padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', background: 'var(--primary-color)', color: '#fff', border: 'none', fontWeight: 600 }}
           onClick={handleSubmit}
           disabled={wordCount > question.maxWords || wordCount === 0}
         >
@@ -195,7 +195,7 @@ const SummarizeSpokenText = ({ question, onNext }) => {
           border: '1px solid #e2e8f0',
           animation: 'fadeIn 0.5s ease-out'
         }}>
-          <h4 style={{ color: '#1e293b', margin: '0 0 16px 0', fontSize: '18px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <h4 style={{ color: 'var(--primary-color)', margin: '0 0 16px 0', fontSize: '18px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 24 }}>💡</span> Suggested Model Answer / Key Points
           </h4>
 

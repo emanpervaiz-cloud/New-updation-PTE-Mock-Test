@@ -5,7 +5,7 @@ const MultipleChoice = ({ question, onNext }) => {
   const { saveAnswer } = useExam();
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   useEffect(() => {
     if (question) {
       setSelectedOptions([]);
@@ -32,12 +32,12 @@ const MultipleChoice = ({ question, onNext }) => {
       onNext();
       return;
     }
-    
+
     // Don't submit if no answer selected
     if (selectedOptions.length === 0) {
       return;
     }
-    
+
     // Save the answer
     saveAnswer(question.id, {
       questionId: question.id,
@@ -45,7 +45,7 @@ const MultipleChoice = ({ question, onNext }) => {
       type: 'multiple_choice',
       responses: selectedOptions
     });
-    
+
     setIsSubmitted(true);
   };
 
@@ -81,26 +81,26 @@ const MultipleChoice = ({ question, onNext }) => {
       </div>
 
       {isSubmitted && (
-        <div className="answer-feedback" style={{ 
-          marginTop: '20px', 
-          padding: '15px', 
-          backgroundColor: '#f0f9ff', 
+        <div className="answer-feedback" style={{
+          marginTop: '20px',
+          padding: '15px',
+          backgroundColor: 'rgba(13, 59, 102, 0.05)',
           borderRadius: '8px',
-          border: '1px solid #0ea5e9'
+          border: '1px solid var(--primary-color)'
         }}>
-          <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>
+          <h4 style={{ color: 'var(--primary-color)', marginBottom: '10px' }}>
             {question.multiple ? 'Correct Answers:' : 'Correct Answer:'}
           </h4>
           {question.options.map((option) => {
             const isSelected = selectedOptions.includes(option.id);
-            const isCorrect = Array.isArray(question.correct) 
+            const isCorrect = Array.isArray(question.correct)
               ? question.correct.includes(option.id)
               : question.correct === option.id;
-            
+
             if (!isCorrect && !isSelected) return null;
-            
+
             return (
-              <div key={option.id} style={{ 
+              <div key={option.id} style={{
                 marginBottom: '8px',
                 padding: '8px',
                 backgroundColor: isCorrect ? '#dcfce7' : '#fee2e2',

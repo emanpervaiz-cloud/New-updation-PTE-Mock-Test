@@ -95,7 +95,7 @@ const RepeatSentence = ({ question, onNext }) => {
         'repeat_sentence'
       );
       setEvaluation(result);
-      
+
       // Store AI evaluation in localStorage for ResultsPage
       try {
         const aiEvaluations = JSON.parse(localStorage.getItem('pte_ai_evaluations') || '{}');
@@ -126,11 +126,12 @@ const RepeatSentence = ({ question, onNext }) => {
         boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
         position: 'relative'
       }}>
-        <div style={{ position: 'absolute', top: 16, left: 24, fontSize: 12, fontWeight: 700, color: '#673ab7', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-          🎧 Repeat Sentence
+        <div style={{ position: 'absolute', top: 16, left: 24, fontSize: 12, fontWeight: 700, color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          🎙️ Repeat Sentence
         </div>
 
-        <div style={{ marginTop: 24 }}>
+        <div style={{ marginTop: 24, textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--primary-color)', marginBottom: 8 }}>Audio Status</div>
           <AudioPlayer
             src={question.audioUrl || '/placeholder-audio.mp3'}
             title="Listen to the sentence carefully"
@@ -164,13 +165,13 @@ const RepeatSentence = ({ question, onNext }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <button
             onClick={isRecording ? stopRecording : startRecording}
-            disabled={recordingTime >= 15 || micError}
+            disabled={micError}
             style={{
               width: 64, height: 64, borderRadius: '50%',
-              background: isRecording ? '#dc2626' : (hasRecorded ? '#10b981' : '#673ab7'),
+              background: isRecording ? '#dc2626' : (hasRecorded ? 'var(--success-color)' : 'var(--primary-color)'),
               color: '#fff', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-              boxShadow: isRecording ? '0 0 0 6px rgba(220, 38, 38, 0.15)' : '0 4px 12px rgba(103, 58, 183, 0.2)',
+              boxShadow: isRecording ? '0 0 0 6px rgba(220, 38, 38, 0.15)' : '0 4px 12px rgba(13, 59, 102, 0.2)',
               transition: 'all 0.3s ease',
               animation: isRecording ? 'pulse 1.5s infinite' : 'none'
             }}

@@ -11,6 +11,9 @@ const initialState = {
   examCompleted: false,
   examDurationMinutes: 80, // Total: Listening(15) + Speaking(20) + Writing(10) + Reading(35) = 80 minutes
   useAlternatePaper: false,
+  examMode: 'practice', // 'practice' or 'mock'
+  mockTestSections: ['listening', 'speaking', 'writing', 'reading'], // Order for mock test
+  currentMockSectionIndex: 0,
   scores: {
     speaking: null,
     writing: null,
@@ -30,7 +33,9 @@ const actionTypes = {
   START_EXAM: 'START_EXAM',
   COMPLETE_EXAM: 'COMPLETE_EXAM',
   SET_SCORES: 'SET_SCORES',
-  RESET_EXAM: 'RESET_EXAM'
+  RESET_EXAM: 'RESET_EXAM',
+  SET_EXAM_MODE: 'SET_EXAM_MODE',
+  SET_CURRENT_MOCK_SECTION_INDEX: 'SET_CURRENT_MOCK_SECTION_INDEX'
 };
 
 actionTypes.SET_USE_ALTERNATE = 'SET_USE_ALTERNATE';
@@ -65,6 +70,16 @@ const examReducer = (state, action) => {
       return {
         ...state,
         timer: action.payload
+      };
+    case actionTypes.SET_EXAM_MODE:
+      return {
+        ...state,
+        examMode: action.payload
+      };
+    case actionTypes.SET_CURRENT_MOCK_SECTION_INDEX:
+      return {
+        ...state,
+        currentMockSectionIndex: action.payload
       };
     case actionTypes.SET_USE_ALTERNATE:
       return {
@@ -156,6 +171,14 @@ export const ExamProvider = ({ children }) => {
     dispatch({ type: actionTypes.SET_SCORES, payload: scores });
   };
 
+  const setExamMode = (mode) => {
+    dispatch({ type: actionTypes.SET_EXAM_MODE, payload: mode });
+  };
+
+  const setCurrentMockSectionIndex = (index) => {
+    dispatch({ type: actionTypes.SET_CURRENT_MOCK_SECTION_INDEX, payload: index });
+  };
+
   const resetExam = () => {
     dispatch({ type: actionTypes.RESET_EXAM });
   };
@@ -183,6 +206,8 @@ export const ExamProvider = ({ children }) => {
     completeExam,
     setScores,
     resetExam,
+    setExamMode,
+    setCurrentMockSectionIndex,
     login,
     logout
   };

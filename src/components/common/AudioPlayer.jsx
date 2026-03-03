@@ -48,12 +48,12 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
   const handleSeek = (e) => {
     const audio = audioRef.current;
     if (!audio || !duration) return;
-    
+
     const progressBar = e.currentTarget;
     const rect = progressBar.getBoundingClientRect();
     const clickPosition = (e.clientX - rect.left) / rect.width;
     const newTime = clickPosition * duration;
-    
+
     audio.currentTime = newTime;
     setCurrentTime(newTime);
   };
@@ -67,14 +67,15 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
 
   return (
     <div style={{
-      background: '#f8f9fe',
+      background: 'white',
       borderRadius: 16,
       padding: '16px 20px',
-      border: '1px solid #eef2f6',
+      border: '1px solid var(--accent-color)',
       display: 'flex',
       flexDirection: 'column',
       gap: 12,
-      width: '100%'
+      width: '100%',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
     }}>
       <audio
         ref={audioRef}
@@ -97,11 +98,11 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
           onClick={togglePlayback}
           style={{
             width: 44, height: 44, borderRadius: 12,
-            background: isPlaying ? '#ff8a65' : '#673ab7',
-            color: '#fff', border: 'none', cursor: 'pointer',
+            background: isPlaying ? 'var(--secondary-color)' : 'var(--primary-color)',
+            color: isPlaying ? 'var(--primary-color)' : '#fff', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: '0 4px 10px rgba(103, 58, 183, 0.2)'
+            boxShadow: '0 4px 10px rgba(13, 59, 102, 0.2)'
           }}
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
@@ -113,7 +114,7 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
           {title && <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1f36' }}>{title}</div>}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', minWidth: 32 }}>{formatTime(currentTime)}</span>
-            <div 
+            <div
               onClick={handleSeek}
               style={{
                 flex: 1, height: 10, background: '#e2e8f0', borderRadius: 10, position: 'relative', overflow: 'hidden',
@@ -125,7 +126,7 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
               <div
                 style={{
                   height: '100%',
-                  background: 'linear-gradient(90deg, #673ab7, #9575cd)',
+                  background: 'linear-gradient(90deg, var(--primary-color), var(--secondary-color))',
                   width: `${duration ? (currentTime / duration) * 100 : 0}%`,
                   transition: 'width 0.1s linear'
                 }}
@@ -138,7 +139,7 @@ const AudioPlayer = ({ src, title = "Audio Player", onPlay, onPause }) => {
                 transform: 'translate(-50%, -50%)',
                 width: 16,
                 height: 16,
-                background: '#673ab7',
+                background: 'var(--primary-color)',
                 borderRadius: '50%',
                 boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
                 pointerEvents: 'none'

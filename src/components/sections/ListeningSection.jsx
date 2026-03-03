@@ -32,107 +32,107 @@ const ListeningSection = () => {
       }
       return passage.questions.flatMap((q, qIdx) => {
         try {
-      const audioUrl = passage.audioUrl || `/assets/listening/listening_audio_${(pIdx % 3) + 1}.wav`;
-      const title = passage.title;
+          const audioUrl = passage.audioUrl || `/assets/listening/listening_audio_${(pIdx % 3) + 1}.wav`;
+          const title = passage.title;
 
-      if (q.type === 'Summarize Spoken Text') {
-        return {
-          id: `${passage.passage_id}_${qIdx}`,
-          type: 'summarize_spoken_text',
-          audioUrl,
-          instruction: q.question,
-          minWords: q.word_count_limit ? q.word_count_limit[0] : 50,
-          maxWords: q.word_count_limit ? q.word_count_limit[1] : 70,
-          transcript: passage.transcript,
-          keyPoints: q.key_points,
-          title
-        };
-      } else if (q.type.includes('Multiple Choice')) {
-        const multiple = q.type.includes('Multiple Answers');
-        const options = q.options ? q.options.map((opt, idx) => {
-          const match = opt.match(/^([A-Z])\.\s*(.*)/);
-          return match ? { id: match[1], text: match[2] } : { id: `opt_${idx}`, text: opt };
-        }) : [];
-        const correct = multiple ? q.correct_answers : q.correct_answer;
+          if (q.type === 'Summarize Spoken Text') {
+            return {
+              id: `${passage.passage_id}_${qIdx}`,
+              type: 'summarize_spoken_text',
+              audioUrl,
+              instruction: q.question,
+              minWords: q.word_count_limit ? q.word_count_limit[0] : 50,
+              maxWords: q.word_count_limit ? q.word_count_limit[1] : 70,
+              transcript: passage.transcript,
+              keyPoints: q.key_points,
+              title
+            };
+          } else if (q.type.includes('Multiple Choice')) {
+            const multiple = q.type.includes('Multiple Answers');
+            const options = q.options ? q.options.map((opt, idx) => {
+              const match = opt.match(/^([A-Z])\.\s*(.*)/);
+              return match ? { id: match[1], text: match[2] } : { id: `opt_${idx}`, text: opt };
+            }) : [];
+            const correct = multiple ? q.correct_answers : q.correct_answer;
 
-        return {
-          id: `${passage.passage_id}_${qIdx}`,
-          type: 'listening_multiple_choice',
-          audioUrl,
-          instruction: q.note || 'Listen to the audio and answer the multiple-choice question.',
-          question: q.question,
-          options,
-          correct,
-          multiple,
-          title
-        };
-      } else if (q.type === 'Fill in the Blanks') {
-        let blankCount = 0;
-        const formattedPassage = q.blank_text.replace(/________/g, () => {
-          blankCount++;
-          return `___${blankCount}___`;
-        });
-        const answers = q.correct_answers.map((ans, idx) => ({
-          blank: idx + 1,
-          correct: ans
-        }));
+            return {
+              id: `${passage.passage_id}_${qIdx}`,
+              type: 'listening_multiple_choice',
+              audioUrl,
+              instruction: q.note || 'Listen to the audio and answer the multiple-choice question.',
+              question: q.question,
+              options,
+              correct,
+              multiple,
+              title
+            };
+          } else if (q.type === 'Fill in the Blanks') {
+            let blankCount = 0;
+            const formattedPassage = q.blank_text.replace(/________/g, () => {
+              blankCount++;
+              return `___${blankCount}___`;
+            });
+            const answers = q.correct_answers.map((ans, idx) => ({
+              blank: idx + 1,
+              correct: ans
+            }));
 
-        return {
-          id: `${passage.passage_id}_${qIdx}`,
-          type: 'listening_fill_blanks',
-          audioUrl,
-          passage: formattedPassage,
-          options: [...q.correct_answers].sort(),
-          answers,
-          instruction: 'Type the missing words in the blanks based on the recording.',
-          title
-        };
-      } else if (q.type === 'True / False / Not Given') {
-        return q.statements.map((stmt, idx) => ({
-          id: `${passage.passage_id}_${qIdx}_${idx}`,
-          type: 'listening_multiple_choice',
-          audioUrl,
-          instruction: 'Based on the lecture, decide whether the following statement is True, False, or Not Given.',
-          question: stmt.statement,
-          options: [
-            { id: 'True', text: 'True' },
-            { id: 'False', text: 'False' },
-            { id: 'Not Given', text: 'Not Given' }
-          ],
-          correct: stmt.answer,
-          multiple: false,
-          title
-        }));
-      } else if (q.type === 'Short Answer') {
-        return {
-          id: `${passage.passage_id}_${qIdx}`,
-          type: 'summarize_spoken_text', // Mapping short answer to summarize_spoken_text for simplicity
-          audioUrl,
-          instruction: q.question,
-          minWords: 1,
-          maxWords: 15,
-          transcript: passage.transcript,
-          modelAnswer: q.model_answer,
-          title
-        };
-      } else if (q.type === 'Select Missing Word') {
-        const options = q.options ? q.options.map((opt, idx) => {
-          const match = opt.match(/^([A-Z])\)\s*(.*)/);
-          return match ? { id: match[1], text: match[2] } : { id: `opt_${idx}`, text: opt };
-        }) : [];
-        
-        return {
-          id: `${passage.passage_id}_${qIdx}`,
-          type: 'select_missing_word',
-          audioUrl,
-          instruction: q.question,
-          context: q.context,
-          options,
-          correct: q.correct_answer,
-          title
-        };
-      }
-      return [];
+            return {
+              id: `${passage.passage_id}_${qIdx}`,
+              type: 'listening_fill_blanks',
+              audioUrl,
+              passage: formattedPassage,
+              options: [...q.correct_answers].sort(),
+              answers,
+              instruction: 'Type the missing words in the blanks based on the recording.',
+              title
+            };
+          } else if (q.type === 'True / False / Not Given') {
+            return q.statements.map((stmt, idx) => ({
+              id: `${passage.passage_id}_${qIdx}_${idx}`,
+              type: 'listening_multiple_choice',
+              audioUrl,
+              instruction: 'Based on the lecture, decide whether the following statement is True, False, or Not Given.',
+              question: stmt.statement,
+              options: [
+                { id: 'True', text: 'True' },
+                { id: 'False', text: 'False' },
+                { id: 'Not Given', text: 'Not Given' }
+              ],
+              correct: stmt.answer,
+              multiple: false,
+              title
+            }));
+          } else if (q.type === 'Short Answer') {
+            return {
+              id: `${passage.passage_id}_${qIdx}`,
+              type: 'summarize_spoken_text', // Mapping short answer to summarize_spoken_text for simplicity
+              audioUrl,
+              instruction: q.question,
+              minWords: 1,
+              maxWords: 15,
+              transcript: passage.transcript,
+              modelAnswer: q.model_answer,
+              title
+            };
+          } else if (q.type === 'Select Missing Word') {
+            const options = q.options ? q.options.map((opt, idx) => {
+              const match = opt.match(/^([A-Z])\)\s*(.*)/);
+              return match ? { id: match[1], text: match[2] } : { id: `opt_${idx}`, text: opt };
+            }) : [];
+
+            return {
+              id: `${passage.passage_id}_${qIdx}`,
+              type: 'select_missing_word',
+              audioUrl,
+              instruction: q.question,
+              context: q.context,
+              options,
+              correct: q.correct_answer,
+              title
+            };
+          }
+          return [];
         } catch (err) {
           console.error(`Error processing question ${qIdx} in passage ${passage.passage_id}:`, err);
           return [];
@@ -200,7 +200,7 @@ const ListeningSection = () => {
 
   const handleNextQuestion = () => {
     const isLastQuestion = currentQuestion >= listeningQuestions.length - 1;
-    
+
     if (isLastQuestion) {
       // Listening is first - navigate to Speaking
       console.log('Listening section completed - navigating to Speaking');
@@ -228,37 +228,84 @@ const ListeningSection = () => {
   }, []);
 
   return (
-    <div className="exam-container exam-theme">
-      <header className="exam-header">
-        <div className="container">
-          <h1 className="exam-title">PTE Academic Mock Test</h1>
-          <div className="timer-display">
-            <Timer initialTime={900} /> {/* 15 minutes for listening section */}
+    <div style={{ minHeight: '100vh', background: 'var(--bg-color)', fontFamily: "'Inter', sans-serif" }}>
+      {/* Premium Header */}
+      <header style={{
+        background: '#fff', borderBottom: '1px solid var(--accent-color)',
+        padding: '0 24px', height: 64, display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 8,
+            background: 'var(--primary-color)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 800, fontSize: 16,
+          }}>A</div>
+          <span style={{ fontWeight: 700, fontSize: 16, color: 'var(--primary-color)' }}>Listening Module</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>
+            <span style={{ color: 'var(--secondary-color)' }}>●</span> Section Test
           </div>
+          <Timer initialTime={900} />
         </div>
       </header>
 
-      <main className="main-content">
-        <div className="container">
-          <div className="exam-section">
-            <h2>Listening Section</h2>
+      <main style={{ padding: '32px 24px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          {/* Section Indicator */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24,
+            padding: '12px 20px', background: 'rgba(13, 59, 102, 0.05)',
+            borderRadius: 12, color: 'var(--primary-color)'
+          }}>
+            <span style={{ fontSize: 20 }}>🎧</span>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Current Section</div>
+              <div style={{ fontSize: 15, fontWeight: 700 }}>PTE Listening</div>
+            </div>
+          </div>
 
-            <ProgressBar
-              current={currentQuestion + 1}
-              total={listeningQuestions.length}
-            />
+          <ProgressBar
+            current={currentQuestion + 1}
+            total={listeningQuestions.length}
+          />
 
-            <div className="exam-question">
-              <div className="question-number">
-                Question {currentQuestion + 1} of {listeningQuestions.length}
+          {/* Question Card */}
+          <div style={{
+            background: '#fff',
+            borderRadius: 24,
+            padding: 32,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
+            border: '1px solid var(--accent-color)',
+            minHeight: 400,
+            display: 'flex',
+            flexDirection: 'column',
+            marginBottom: 24
+          }}>
+            <div style={{ marginBottom: 24 }}>
+              <div style={{
+                fontSize: 14, fontWeight: 700, color: 'var(--primary-color)',
+                marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-color)' }} />
+                Question {currentQuestion + 1} Instructions
               </div>
+              <p style={{
+                margin: 0, fontSize: 16, color: 'var(--text-main)', lineHeight: 1.6,
+                background: 'var(--accent-color)', padding: '16px 20px', borderRadius: 12,
+                borderLeft: '4px solid var(--primary-color)'
+              }}>
+                {currentQuestionData.instruction || 'Listen to the audio and answer the question.'}
+              </p>
+            </div>
 
-              <div className="exam-instructions" style={{ marginBottom: 24 }}>
-                <p><strong>{currentQuestionData.instruction || 'Listen to the audio and answer the question.'}</strong></p>
-              </div>
-
+            <div style={{ flex: 1 }}>
               {currentQuestionData.title && currentQuestionData.type !== 'summarize_spoken_text' && (
-                <div style={{ padding: '16px', background: '#e0f2fe', borderRadius: '12px', marginBottom: '24px', borderLeft: '4px solid #0284c7', color: '#0f172a' }}>
+                <div style={{ padding: '16px', background: 'rgba(13, 59, 102, 0.05)', borderRadius: '12px', marginBottom: '24px', borderLeft: '4px solid var(--primary-color)', color: 'var(--primary-color)' }}>
                   <h3 style={{ margin: 0, fontSize: 18 }}>Topic: {currentQuestionData.title}</h3>
                 </div>
               )}
@@ -286,24 +333,39 @@ const ListeningSection = () => {
                 <WriteFromDictation question={currentQuestionData} onNext={handleNextQuestion} />
               )}
             </div>
+          </div>
 
-            <div className="navigation-buttons" style={{ position: 'relative', zIndex: 10 }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handlePreviousQuestion}
-                disabled={currentQuestion === 0}
-              >
-                Previous
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleNextQuestion}
-              >
-                {currentQuestion === listeningQuestions.length - 1 ? 'Next: Speaking Section →' : 'Next →'}
-              </button>
-            </div>
+          {/* Navigation */}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '20px 32px', background: '#fff', borderRadius: 20,
+            border: '1px solid var(--accent-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+          }}>
+            <button
+              onClick={handlePreviousQuestion}
+              disabled={currentQuestion === 0}
+              style={{
+                padding: '10px 24px', borderRadius: 12,
+                background: 'transparent', color: currentQuestion === 0 ? '#cbd5e1' : 'var(--text-secondary)',
+                border: `1.5px solid ${currentQuestion === 0 ? 'var(--accent-color)' : '#d1d9e2'}`,
+                fontWeight: 600, fontSize: 14, cursor: currentQuestion === 0 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              ← Previous
+            </button>
+            <button
+              onClick={handleNextQuestion}
+              style={{
+                padding: '10px 32px', borderRadius: 12,
+                background: 'var(--primary-color)',
+                color: '#fff', border: 'none',
+                fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {currentQuestion === listeningQuestions.length - 1 ? 'Next Section →' : 'Next Question →'}
+            </button>
           </div>
         </div>
       </main>

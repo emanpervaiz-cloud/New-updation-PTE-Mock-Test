@@ -16,6 +16,9 @@ import Dashboard from './components/common/Dashboard';
 import Login from './components/sections/Login';
 import Register from './components/sections/Register';
 import TestGemini from './components/TestGemini';
+import TestApiKeys from './test-api-keys';
+import ModuleResults from './components/common/ModuleResults';
+import MockTestFlow from './components/common/MockTestFlow';
 import './styles/App.css';
 import './styles/exam-theme.css';
 import './styles/responsive.css';
@@ -42,6 +45,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/test-gemini" element={<TestGemini />} />
+            <Route path="/test-api" element={<TestApiKeys />} />
+            <Route path="/mock-test" element={<AuthWrapper><MockTestFlow /></AuthWrapper>} />
+            <Route path="/results/:module" element={<AuthWrapper><ModuleResults /></AuthWrapper>} />
 
             {/* Protected Routes */}
             <Route path="/" element={<AuthWrapper><Dashboard /></AuthWrapper>} />

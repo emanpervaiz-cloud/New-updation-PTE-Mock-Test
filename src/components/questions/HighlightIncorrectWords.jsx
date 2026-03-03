@@ -91,15 +91,15 @@ const HighlightIncorrectWords = ({ question, onNext }) => {
         <div style={{
           marginTop: 24,
           padding: '20px',
-          background: '#f0fdf4',
+          background: 'rgba(13, 59, 102, 0.05)',
           borderRadius: '12px',
-          border: '1px solid #bbf7d0',
+          border: '1px solid var(--primary-color)',
           animation: 'fadeIn 0.5s ease-out'
         }}>
-          <h4 style={{ color: '#166534', margin: '0 0 12px 0', fontSize: '18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h4 style={{ color: 'var(--primary-color)', margin: '0 0 12px 0', fontSize: '18px', display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 20 }}>✅</span> Self-Review Feedback
           </h4>
-          <p style={{ color: '#15803d', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
+          <p style={{ color: 'var(--primary-color)', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
             Compare your highlighted words with the recording. In a real test, points are deducted for incorrect selections.
           </p>
           <style>{`

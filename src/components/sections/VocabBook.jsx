@@ -44,7 +44,7 @@ const VocabBook = () => {
 
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
-                <h2 style={{ fontSize: 28, fontWeight: 800, color: '#1a1a1a', marginBottom: 8 }}>📚 {vocabDataJson.database || "Vocab Book"}</h2>
+                <h2 style={{ fontSize: 28, fontWeight: 800, color: 'var(--primary-color)', marginBottom: 8 }}>📚 {vocabDataJson.database || "Vocab Book"}</h2>
                 <p style={{ color: '#666', fontSize: 15 }}>{vocabDataJson.description || "Master high-frequency words for your PTE Academic exam."}</p>
             </div>
 
@@ -68,9 +68,9 @@ const VocabBook = () => {
                             onClick={() => setFilter(type)}
                             style={{
                                 padding: '8px 16px', borderRadius: 20, border: 'none',
-                                background: filter === type ? '#3949ab' : '#e8eaf6',
-                                color: filter === type ? '#fff' : '#3949ab',
-                                fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                                background: filter === type ? 'var(--primary-color)' : 'var(--accent-color)',
+                                color: filter === type ? '#fff' : 'var(--primary-color)',
+                                fontWeight: 700, fontSize: 13, cursor: 'pointer',
                                 transition: 'all 0.2s'
                             }}
                         >
@@ -116,7 +116,7 @@ const VocabBook = () => {
                             </div>
                         )}
 
-                        <div style={{ background: '#f8f9fa', padding: '10px 12px', borderRadius: 8, borderLeft: '3px solid #3949ab', marginTop: 'auto' }}>
+                        <div style={{ background: 'var(--accent-color)', padding: '10px 12px', borderRadius: 8, borderLeft: '3px solid var(--secondary-color)', marginTop: 'auto' }}>
                             <p style={{ margin: 0, fontSize: 13, color: '#444', fontStyle: 'italic' }}>"{item.example}"</p>
                         </div>
                     </div>

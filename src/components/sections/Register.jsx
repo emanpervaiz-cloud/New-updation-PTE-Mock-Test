@@ -62,7 +62,7 @@ const Register = () => {
             alignItems: 'center',
             justifyContent: 'center',
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%)',
+            background: 'var(--bg-color)',
             fontFamily: "'Inter', sans-serif",
             padding: '20px'
         }}>
@@ -79,9 +79,9 @@ const Register = () => {
                 {/* Logo */}
                 <div style={{
                     width: 64, height: 64, borderRadius: 18, margin: '0 auto 24px',
-                    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                    background: 'var(--primary-color)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)'
+                    boxShadow: '0 8px 16px rgba(13, 59, 102, 0.2)'
                 }}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M20 7h-9" />
@@ -135,8 +135,8 @@ const Register = () => {
                                 background: '#fcfdfe'
                             }}
                             onFocus={(e) => {
-                                e.target.style.borderColor = '#6366f1';
-                                e.target.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.1)';
+                                e.target.style.borderColor = 'var(--primary-color)';
+                                e.target.style.boxShadow = '0 0 0 4px rgba(13, 59, 102, 0.1)';
                             }}
                             onBlur={(e) => {
                                 e.target.style.borderColor = '#e2e8f0';
@@ -167,8 +167,8 @@ const Register = () => {
                                 background: '#fcfdfe'
                             }}
                             onFocus={(e) => {
-                                if (!emailError) e.target.style.borderColor = '#6366f1';
-                                e.target.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.1)';
+                                if (!emailError) e.target.style.borderColor = 'var(--primary-color)';
+                                e.target.style.boxShadow = '0 0 0 4px rgba(13, 59, 102, 0.1)';
                             }}
                             onBlur={(e) => {
                                 if (!emailError) e.target.style.borderColor = '#e2e8f0';
@@ -205,8 +205,8 @@ const Register = () => {
                                     background: '#fcfdfe'
                                 }}
                                 onFocus={(e) => {
-                                    e.target.style.borderColor = '#6366f1';
-                                    e.target.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.1)';
+                                    e.target.style.borderColor = 'var(--primary-color)';
+                                    e.target.style.boxShadow = '0 0 0 4px rgba(13, 59, 102, 0.1)';
                                 }}
                                 onBlur={(e) => {
                                     e.target.style.borderColor = '#e2e8f0';
@@ -252,8 +252,8 @@ const Register = () => {
                         type="submit"
                         disabled={!isFormValid}
                         style={{
-                            background: isFormValid ? 'linear-gradient(90deg, #6366f1, #8b5cf6)' : '#e2e8f0',
-                            color: isFormValid ? '#ffffff' : '#94a3b8',
+                            background: isFormValid ? 'var(--secondary-color)' : 'var(--accent-color)',
+                            color: isFormValid ? 'var(--primary-color)' : '#94a3b8',
                             border: 'none',
                             padding: '16px',
                             borderRadius: '12px',
@@ -266,7 +266,7 @@ const Register = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '10px',
-                            boxShadow: isFormValid ? '0 4px 12px rgba(99, 102, 241, 0.25)' : 'none'
+                            boxShadow: isFormValid ? '0 4px 12px rgba(250, 169, 22, 0.25)' : 'none'
                         }}
                         onMouseEnter={e => isFormValid && (e.currentTarget.style.transform = 'translateY(-2px)')}
                         onMouseLeave={e => isFormValid && (e.currentTarget.style.transform = 'translateY(0)')}
@@ -289,7 +289,7 @@ const Register = () => {
 
                 <p style={{ marginTop: '32px', fontSize: '14px', color: '#64748b', fontWeight: 500 }}>
                     Already have an account? <span
-                        style={{ color: '#6366f1', fontWeight: 700, cursor: 'pointer', textDecoration: 'none' }}
+                        style={{ color: 'var(--primary-color)', fontWeight: 700, cursor: 'pointer', textDecoration: 'none' }}
                         onClick={() => navigate('/login')}
                     >
                         Sign in instead
