@@ -148,20 +148,45 @@ class AIEvaluationService {
       transcript = await this.transcribeAudio(audioBlobOrText);
     }
 
-    // Try n8n Python scoring first
+    // 1. Try DIRECT LLM (OpenRouter or OpenAI)
+    const directLLMProviders = [];
+    if (this.openRouterKey) {
+      directLLMProviders.push({
+        name: 'openrouter',
+        apiKey: this.openRouterKey,
+        apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
+        model: 'openai/gpt-4o'
+      });
+    }
+    if (this.openAiKey) {
+      directLLMProviders.push({
+        name: 'openai',
+        apiKey: this.openAiKey,
+        apiUrl: 'https://api.openai.com/v1/chat/completions',
+        model: 'gpt-4o'
+      });
+    }
+
+    for (const provider of directLLMProviders) {
+      try {
+        console.log(`🚀 Trying ${provider.name} for speaking...`);
+        const result = await this.evaluateWritingWithLLM(prompt, transcript, questionType, provider.apiKey, provider.apiUrl, provider.model);
+        console.log(`✅ ${provider.name} SUCCESS`);
+        return { ...result, transcript, source: provider.name };
+      } catch (e) {
+        console.error(`❌ ${provider.name} failed:`, e.message);
+      }
+    }
+
+    // 2. Try n8n Python scoring
     try {
-      console.log('Trying n8n Python scoring for speaking...');
+      console.log('🔄 Trying n8n Python scoring...');
       const n8nResult = await this.evaluateWithPythonServer(prompt, transcript, 'speaking', questionType);
       if (n8nResult && n8nResult.success) {
-        console.log('✅ n8n Python scoring SUCCESS');
-        return {
-          ...n8nResult.result,
-          transcript: transcript,
-          source: 'n8n-python'
-        };
+        return { ...n8nResult.result, transcript: transcript, source: 'n8n-python' };
       }
     } catch (n8nError) {
-      console.error('❌ n8n Python scoring failed:', n8nError.message);
+      console.error('❌ n8n failure:', n8nError.message);
     }
 
     // Use Gemini if API key is available
@@ -539,95 +564,92 @@ Return JSON format:
       openAi: !!this.openAiKey
     });
 
-    // Try OpenRouter/OpenAI FIRST (since user has this key)
-    const apiKey = this.openRouterKey || this.openAiKey;
-    const apiUrl = this.openRouterKey
-      ? 'https://openrouter.ai/api/v1/chat/completions'
-      : 'https://api.openai.com/v1/chat/completions';
-    const provider = this.openRouterKey ? 'openrouter' : 'openai';
-    const model = this.openRouterKey ? 'openai/gpt-4o' : 'gpt-4o';
+    // --- PROVIDER CHAIN: Try each available AI service until one succeeds ---
 
-    if (apiKey) {
-      try {
-        console.log(`Trying ${provider} for writing evaluation (PRIORITY 1)...`);
-        console.log('API Key first 10 chars:', apiKey.substring(0, 10));
-        const result = await this.evaluateWritingWithLLM(prompt, response, questionType, apiKey, apiUrl, model);
-        console.log(`✅ ${provider} evaluation SUCCESS`);
-        return {
-          ...result,
-          source: provider
-        };
-      } catch (llmError) {
-        console.error(`❌ ${provider} writing evaluation failed:`, llmError.message);
-        console.error('LLM Error stack:', llmError.stack);
-      }
-    } else {
-      console.log('No OpenRouter/OpenAI key available');
+    // 1. Try DIRECT LLM (OpenRouter or OpenAI)
+    const directLLMProviders = [];
+    if (this.openRouterKey) {
+      directLLMProviders.push({
+        name: 'openrouter',
+        apiKey: this.openRouterKey,
+        apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
+        model: 'openai/gpt-4o'
+      });
+    }
+    if (this.openAiKey) {
+      directLLMProviders.push({
+        name: 'openai',
+        apiKey: this.openAiKey,
+        apiUrl: 'https://api.openai.com/v1/chat/completions',
+        model: 'gpt-4o'
+      });
     }
 
-    // Try n8n Python scoring second
+    for (const provider of directLLMProviders) {
+      try {
+        console.log(`🚀 Trying ${provider.name} for writing evaluation...`);
+        const result = await this.evaluateWritingWithLLM(
+          prompt,
+          response,
+          questionType,
+          provider.apiKey,
+          provider.apiUrl,
+          provider.model
+        );
+        console.log(`✅ ${provider.name} evaluation SUCCESS`);
+        return { ...result, source: provider.name };
+      } catch (llmError) {
+        console.error(`❌ ${provider.name} failed:`, llmError.message);
+        // Continue to next provider in loop
+      }
+    }
+
+    // 2. Try n8n Python Scoring (if local/configured)
     try {
-      console.log('Trying n8n Python scoring for writing...');
+      console.log('🔄 Trying n8n Python scoring...');
       const n8nResult = await this.evaluateWithPythonServer(prompt, response, 'writing', questionType);
       if (n8nResult && n8nResult.success) {
         console.log('✅ n8n Python scoring SUCCESS');
-        return {
-          ...n8nResult.result,
-          source: 'n8n-python'
-        };
+        return { ...n8nResult.result, source: 'n8n-python' };
       }
     } catch (n8nError) {
       console.error('❌ n8n Python scoring failed:', n8nError.message);
     }
 
-    // Use Gemini for direct writing evaluation
+    // 3. Try Gemini API
     if (this.geminiApiKey) {
-      console.log('Gemini key found, calling evaluateWritingWithGemini');
       try {
+        console.log('🔄 Trying Gemini evaluation...');
         const result = await this.evaluateWritingWithGemini(prompt, response, questionType);
-        console.log('Gemini evaluation succeeded');
+        console.log('✅ Gemini evaluation SUCCESS');
         return result;
       } catch (geminiError) {
-        console.error('Gemini writing evaluation failed:', geminiError);
+        console.error('❌ Gemini writing evaluation failed:', geminiError.message);
       }
-    } else {
-      console.log('No Gemini key, skipping Gemini evaluation');
     }
 
-    // Fallback to backend
+    // 4. Try Legacy Backend Fallback
     try {
-      console.log('Trying backend fallback...');
+      console.log('🔄 Trying legacy backend fallback...');
       const backendUrl = 'http://localhost:5000/api/scoring/evaluate-writing';
-      const requestBody = {
-        action: "evaluate_writing",
-        questionType: questionType,
-        prompt: prompt,
-        response: response
-      };
-
       const apiResponse = await fetch(backendUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify({ action: "evaluate_writing", questionType, prompt, response })
       });
 
-      if (!apiResponse.ok) {
-        throw new Error(`Backend responded with status ${apiResponse.status}`);
+      if (apiResponse.ok) {
+        const result = await apiResponse.json();
+        console.log('✅ Backend fallback SUCCESS');
+        return { ...result, source: 'backend' };
       }
-
-      const backendResult = await apiResponse.json();
-      console.log('Backend evaluation succeeded');
-      return backendResult;
     } catch (error) {
-      console.error('Error evaluating writing via backend:', error);
-      console.log('=== ALL PROVIDERS FAILED - RETURNING FALLBACK ===');
-      const fallback = this.getFallbackWritingEvaluation();
-      console.log('Fallback evaluation:', fallback);
-      return {
-        ...fallback,
-        source: 'fallback'
-      };
+      console.error('❌ Backend fallback failed:', error.message);
     }
+
+    // FINAL FALLBACK
+    console.warn('⚠️ ALL AI PROVIDERS FAILED - Returning default fallback results');
+    return { ...this.getFallbackWritingEvaluation(), source: 'fallback-final' };
   }
 
   // Evaluate writing with LLM (OpenRouter/OpenAI)
