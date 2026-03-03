@@ -37,10 +37,10 @@ class ScoringEngine {
 
     // Expected question counts per section
     this.EXPECTED_QUESTIONS = {
-      speaking: 5,
+      speaking: 6,
       writing: 2,
-      reading: 4,
-      listening: 7
+      reading: 20,
+      listening: 3
     };
   }
 

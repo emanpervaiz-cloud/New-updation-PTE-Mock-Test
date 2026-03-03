@@ -1,0 +1,14 @@
+{
+  "name": "pte-ai-scripts",
+  "version": "1.0.0",
+  "description": "Python scripts for PTE AI scoring",
+  "scripts": {
+    "install-python-deps": "pip install -r requirements.txt",
+    "start-python-server": "python ai_scoring_server.py",
+    "test-python-server": "python test_python_server.py",
+    "setup-python": "pip install -r requirements.txt && python ai_scoring_server.py"
+  },
+  "keywords": ["pte", "ai", "scoring", "python"],
+  "author": "",
+  "license": "ISC"
+}

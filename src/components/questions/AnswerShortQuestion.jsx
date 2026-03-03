@@ -100,6 +100,16 @@ const AnswerShortQuestion = ({ question, onNext }) => {
         'answer_short_question'
       );
       setEvaluation(result);
+      
+      // Store AI evaluation in localStorage for ResultsPage
+      try {
+        const aiEvaluations = JSON.parse(localStorage.getItem('pte_ai_evaluations') || '{}');
+        aiEvaluations[question.id] = result;
+        localStorage.setItem('pte_ai_evaluations', JSON.stringify(aiEvaluations));
+        console.log('AI evaluation saved for question:', question.id);
+      } catch (storageError) {
+        console.error('Failed to save AI evaluation:', storageError);
+      }
     } catch (err) {
       setEvalError(err.message || 'Failed to evaluate. Please try again.');
     }

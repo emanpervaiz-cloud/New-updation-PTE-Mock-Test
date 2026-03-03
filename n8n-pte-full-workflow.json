@@ -1,10 +1,10 @@
 {
-  "name": "PTE Audio Transcription",
+  "name": "PTE Full AI Evaluation Workflow",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "b225b16c-c602-450e-b858-f9bbe4ba5dd6",
+        "path": "pte-full-evaluation",
         "responseMode": "responseNode",
         "options": {}
       },
@@ -14,9 +14,9 @@
         240,
         256
       ],
-      "id": "3fa7cd15-fbf9-4eaf-9999-e5adb7225507",
+      "id": "webhook-node",
       "name": "PTE Full Evaluation Webhook",
-      "webhookId": "b225b16c-c602-450e-b858-f9bbe4ba5dd6"
+      "webhookId": "pte-full-evaluation-endpoint"
     },
     {
       "parameters": {
@@ -214,7 +214,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "You are a certified English language examiner specializing in high-stakes spoken English assessment, including PTE Academic, IELTS Speaking, and TOEFL iBT evaluations.\n\nYour task is to evaluate a student's response with the precision, consistency, and constructive tone of a professional human examiner.\n\nEVALUATION CRITERIA — Score each dimension out of 10. Be analytical, specific, and evidence-based — reference actual phrases or patterns from the student's response.\n\n1. Fluency & Coherence (0–10): Assess speech flow, logical sequencing, use of discourse markers, and absence of unnatural pauses or repetition.\n2. Pronunciation & Intonation (0–10): Assess phoneme accuracy, word stress, sentence rhythm, and natural intonation patterns. Note any L1 interference if detectable.\n3. Grammatical Range & Accuracy (0–10): Assess variety of sentence structures (simple, compound, complex) and grammatical correctness. Note recurring error patterns.\n4. Vocabulary & Lexical Resource (0–10): Assess range, precision, and appropriateness of word choice. Penalize overuse of basic vocabulary or repetition.\n5. Task Achievement & Relevance (0–10): Assess whether the response fully addresses the prompt, stays on topic, and meets the expected length and depth.\n\nEXAMINER STANDARDS:\n- Never give generic feedback. Always cite evidence from the response.\n- Maintain professional, encouraging, and growth-oriented tone.\n- Penalize but do not discourage. Frame weaknesses as opportunities.\n- Be consistent — same response quality must yield same score range every time.\n\nQUESTION PROMPT: {{ $json.prompt }}\nSTUDENT'S TRANSCRIPT: {{ $json.transcript || $json.response }}\n\nProvide specific feedback with examples from the transcript. Identify:\n- Grammar mistakes with corrections\n- Fluency issues (pauses, repetitions)\n- Pronunciation tips\n- Vocabulary suggestions\n\nReturn JSON format:\n{\n  \"fluencyScore\": number,\n  \"pronunciationScore\": number,\n  \"grammarScore\": number,\n  \"vocabularyScore\": number,\n  \"taskScore\": number,\n  \"overallScore\": number,\n  \"feedback\": \"detailed feedback with specific examples\",\n  \"grammarErrors\": [\"error1 -> correction1\", \"error2 -> correction2\"],\n  \"fluencyIssues\": [\"issue1\", \"issue2\"]\n}",
+        "text": "You are a certified English language examiner specializing in high-stakes spoken English assessment, including PTE Academic, IELTS Speaking, and TOEFL iBT evaluations.\n\nYour task is to evaluate a student's response with the precision, consistency, and constructive tone of a professional human examiner.\n\nEVALUATION CRITERIA — Score each dimension out of 10. Be analytical, specific, and evidence-based — reference actual phrases or patterns from the student's response.\n\n1. Fluency & Coherence (0–10): Assess speech flow, logical sequencing, use of discourse markers, and absence of unnatural pauses or repetition.\n2. Pronunciation & Intonation (0–10): Assess phoneme accuracy, word stress, sentence rhythm, and natural intonation patterns. Note any L1 interference if detectable.\n3. Grammatical Range & Accuracy (0–10): Assess variety of sentence structures (simple, compound, complex) and grammatical correctness. Note recurring error patterns.\n4. Vocabulary & Lexical Resource (0–10): Assess range, precision, and appropriateness of word choice. Penalize overuse of basic vocabulary or repetition.\n5. Task Achievement & Relevance (0–10): Assess whether the response fully addresses the prompt, stays on topic, and meets the expected length and depth.\n\nQUESTION PROMPT: {{ $json.prompt }}\nSTUDENT'S TRANSCRIPT: {{ $json.transcript || $json.response }}\n\nProvide specific feedback with examples from the transcript. Identify:\n- Grammar mistakes with corrections\n- Fluency issues (pauses, repetitions)\n- Pronunciation tips\n- Vocabulary suggestions\n\nReturn JSON format:\n{\n  \"fluencyScore\": number,\n  \"pronunciationScore\": number,\n  \"grammarScore\": number,\n  \"vocabularyScore\": number,\n  \"taskScore\": number,\n  \"overallScore\": number,\n  \"feedback\": \"detailed feedback with specific examples\",\n  \"grammarErrors\": [\"error1 -> correction1\", \"error2 -> correction2\"],\n  \"fluencyIssues\": [\"issue1\", \"issue2\"]\n}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -274,7 +274,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Transcribe this audio accurately with proper punctuation.\n\nAudio: {{ $json.audio }}\n\nReturn only the transcript text.",
+        "text": "Transcribe this audio accurately with proper punctuation.\n\nAudio: {{ $json.audio }}\n\nReturn only the transcript text.",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -502,7 +502,7 @@
       "else": [
         [
           {
-            "node": "Respond Speaking Eval",
+            "node": "Respond Speaking",
             "type": "main",
             "index": 0
           }
@@ -513,7 +513,7 @@
       "main": [
         [
           {
-            "node": "Respond Speaking Eval",
+            "node": "Respond Speaking",
             "type": "main",
             "index": 0
           }
@@ -524,7 +524,7 @@
       "main": [
         [
           {
-            "node": "Respond Writing Eval",
+            "node": "Respond Writing",
             "type": "main",
             "index": 0
           }
@@ -535,7 +535,7 @@
       "main": [
         [
           {
-            "node": "Respond Listening Eval",
+            "node": "Respond Listening",
             "type": "main",
             "index": 0
           }
@@ -546,7 +546,7 @@
       "main": [
         [
           {
-            "node": "Respond Reading Eval",
+            "node": "Respond Reading",
             "type": "main",
             "index": 0
           }
@@ -581,5 +581,9 @@
   },
   "staticData": null,
   "tags": [],
-  "pinData": {}
+  "pinData": {},
+  "versionId": "2.0",
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "createdAt": "2024-01-01T00:00:00.000Z"
 }

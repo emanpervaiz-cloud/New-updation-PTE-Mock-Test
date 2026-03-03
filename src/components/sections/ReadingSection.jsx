@@ -143,7 +143,7 @@ const ReadingSection = () => {
         <div className="container">
           <h1 className="exam-title">PTE Academic Mock Test</h1>
           <div className="timer-display">
-            <Timer initialTime={600} /> {/* 10 minutes for reading section */}
+            <Timer initialTime={2100} /> {/* 35 minutes for reading section */}
           </div>
         </div>
       </header>

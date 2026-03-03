@@ -1,10 +1,10 @@
 {
-  "name": "PTE Audio Transcription",
+  "name": "Enhanced PTE AI Scoring Workflow",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "b225b16c-c602-450e-b858-f9bbe4ba5dd6",
+        "path": "pte-ai-scoring",
         "responseMode": "responseNode",
         "options": {}
       },
@@ -14,9 +14,9 @@
         240,
         256
       ],
-      "id": "3fa7cd15-fbf9-4eaf-9999-e5adb7225507",
-      "name": "PTE Full Evaluation Webhook",
-      "webhookId": "b225b16c-c602-450e-b858-f9bbe4ba5dd6"
+      "id": "webhook-node-1",
+      "name": "PTE Scoring Webhook",
+      "webhookId": "pte-ai-scoring-endpoint"
     },
     {
       "parameters": {
@@ -31,8 +31,8 @@
               "value": "={{ $json.prompt || '' }}"
             },
             {
-              "name": "response",
-              "value": "={{ $json.response || $json.transcript || $json.questions || '' }}"
+              "name": "transcript",
+              "value": "={{ $json.transcript || $json.response || '' }}"
             },
             {
               "name": "questionType",
@@ -48,7 +48,7 @@
         480,
         256
       ],
-      "id": "set-variables",
+      "id": "set-variables-node",
       "name": "Set Variables"
     },
     {
@@ -80,8 +80,8 @@
         720,
         256
       ],
-      "id": "if-speaking-check",
-      "name": "Check Speaking Action"
+      "id": "if-action-check",
+      "name": "Check Action Type"
     },
     {
       "parameters": {
@@ -127,7 +127,7 @@
             {
               "id": "condition-3",
               "leftValue": "={{ $json.action }}",
-              "rightValue": "evaluate_listening",
+              "rightValue": "evaluate_reading",
               "operator": {
                 "type": "string",
                 "operation": "equals"
@@ -144,8 +144,8 @@
         720,
         456
       ],
-      "id": "if-listening-check",
-      "name": "Check Listening Action"
+      "id": "if-reading-check",
+      "name": "Check Reading Action"
     },
     {
       "parameters": {
@@ -159,7 +159,7 @@
             {
               "id": "condition-4",
               "leftValue": "={{ $json.action }}",
-              "rightValue": "evaluate_reading",
+              "rightValue": "evaluate_listening",
               "operator": {
                 "type": "string",
                 "operation": "equals"
@@ -176,8 +176,8 @@
         720,
         556
       ],
-      "id": "if-reading-check",
-      "name": "Check Reading Action"
+      "id": "if-listening-check",
+      "name": "Check Listening Action"
     },
     {
       "parameters": {
@@ -213,63 +213,183 @@
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "You are a certified English language examiner specializing in high-stakes spoken English assessment, including PTE Academic, IELTS Speaking, and TOEFL iBT evaluations.\n\nYour task is to evaluate a student's response with the precision, consistency, and constructive tone of a professional human examiner.\n\nEVALUATION CRITERIA — Score each dimension out of 10. Be analytical, specific, and evidence-based — reference actual phrases or patterns from the student's response.\n\n1. Fluency & Coherence (0–10): Assess speech flow, logical sequencing, use of discourse markers, and absence of unnatural pauses or repetition.\n2. Pronunciation & Intonation (0–10): Assess phoneme accuracy, word stress, sentence rhythm, and natural intonation patterns. Note any L1 interference if detectable.\n3. Grammatical Range & Accuracy (0–10): Assess variety of sentence structures (simple, compound, complex) and grammatical correctness. Note recurring error patterns.\n4. Vocabulary & Lexical Resource (0–10): Assess range, precision, and appropriateness of word choice. Penalize overuse of basic vocabulary or repetition.\n5. Task Achievement & Relevance (0–10): Assess whether the response fully addresses the prompt, stays on topic, and meets the expected length and depth.\n\nEXAMINER STANDARDS:\n- Never give generic feedback. Always cite evidence from the response.\n- Maintain professional, encouraging, and growth-oriented tone.\n- Penalize but do not discourage. Frame weaknesses as opportunities.\n- Be consistent — same response quality must yield same score range every time.\n\nQUESTION PROMPT: {{ $json.prompt }}\nSTUDENT'S TRANSCRIPT: {{ $json.transcript || $json.response }}\n\nProvide specific feedback with examples from the transcript. Identify:\n- Grammar mistakes with corrections\n- Fluency issues (pauses, repetitions)\n- Pronunciation tips\n- Vocabulary suggestions\n\nReturn JSON format:\n{\n  \"fluencyScore\": number,\n  \"pronunciationScore\": number,\n  \"grammarScore\": number,\n  \"vocabularyScore\": number,\n  \"taskScore\": number,\n  \"overallScore\": number,\n  \"feedback\": \"detailed feedback with specific examples\",\n  \"grammarErrors\": [\"error1 -> correction1\", \"error2 -> correction2\"],\n  \"fluencyIssues\": [\"issue1\", \"issue2\"]\n}",
+        "method": "POST",
+        "url": "http://localhost:5001/api/test-evaluation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": {
+            "entries": [
+              {
+                "name": "action",
+                "value": "evaluate_speaking"
+              },
+              {
+                "name": "prompt",
+                "value": "={{ $json.prompt }}"
+              },
+              {
+                "name": "transcript",
+                "value": "={{ $json.transcript }}"
+              },
+              {
+                "name": "question_type",
+                "value": "={{ $json.questionType || 'speaking' }}"
+              }
+            ]
+          }
+        },
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         960,
         256
       ],
-      "id": "ai-speaking-evaluator",
-      "name": "AI Speaking Evaluator"
+      "id": "http-python-speaking",
+      "name": "Python Speaking Eval"
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "You are an expert English writing evaluator for PTE Academic. Analyze the student's written response thoroughly and provide detailed, specific feedback.\n\nCRITICAL: You must analyze the ACTUAL TEXT provided and give specific evidence-based scores. Do NOT give generic placeholder feedback.\n\nEVALUATION CRITERIA — Score each dimension 0-10 with specific examples:\n\n1. FLUENCY & COHERENCE (0-10): \n   - Analyze paragraph structure and logical flow\n   - Identify specific cohesive devices used (however, furthermore, consequently, etc.)\n   - Quote transitions between paragraphs\n   - Score: 8+ for excellent flow, 5-7 for adequate, below 5 for poor organization\n\n2. SPELLING & PUNCTUATION (0-10):\n   - Count and list specific spelling errors with corrections\n   - Identify punctuation mistakes (comma splices, missing periods, etc.)\n   - Note capitalization errors\n   - Score: 9-10 for 0-1 errors, 7-8 for 2-3 errors, below 7 for 4+ errors\n\n3. GRAMMAR RANGE & ACCURACY (0-10):\n   - Identify sentence structure variety (simple/compound/complex/compound-complex)\n   - List specific grammar errors with corrections (subject-verb agreement, tense errors, article usage)\n   - Count error frequency\n   - Score: 8+ for advanced structures with few errors, 6-7 for good range with some errors, below 6 for basic structures or many errors\n\n4. VOCABULARY & LEXICAL RESOURCE (0-10):\n   - Identify overused words and suggest alternatives\n   - Note academic vocabulary usage\n   - Comment on word precision and appropriateness\n   - Score: 8+ for sophisticated academic vocabulary, 6-7 for adequate range, below 6 for repetitive/basic vocabulary\n\n5. TASK ACHIEVEMENT (0-10):\n   - Confirm the response addresses ALL parts of the prompt\n   - Check word count appropriateness\n   - Evaluate argument development and support\n   - Score: 8+ for fully developed response, 6-7 for adequate, below 6 for incomplete\n\nPROMPT: {{ $json.prompt }}\nSTUDENT RESPONSE:\n{{ $json.response }}\n\nREQUIRED OUTPUT FORMAT:\n{\n  \"fluencyScore\": number,\n  \"spellingScore\": number (for writing: spelling/punctuation),\n  \"grammarScore\": number,\n  \"vocabularyScore\": number,\n  \"taskScore\": number,\n  \"overallScore\": number,\n  \"feedback\": \"Detailed paragraph with specific examples from the text\",\n  \"grammarErrors\": [\"Error 1 -> Correction 1\", \"Error 2 -> Correction 2\"],\n  \"spellingErrors\": [\"misspelled -> correct\"],\n  \"vocabularySuggestions\": [\"overused word -> better alternative\"]\n}",
+        "method": "POST",
+        "url": "http://localhost:5001/api/test-evaluation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": {
+            "entries": [
+              {
+                "name": "action",
+                "value": "evaluate_writing"
+              },
+              {
+                "name": "prompt",
+                "value": "={{ $json.prompt }}"
+              },
+              {
+                "name": "response",
+                "value": "={{ $json.response || $json.transcript }}"
+              },
+              {
+                "name": "question_type",
+                "value": "={{ $json.questionType || 'writing' }}"
+              }
+            ]
+          }
+        },
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         960,
         356
       ],
-      "id": "ai-writing-evaluator",
-      "name": "AI Writing Evaluator"
+      "id": "http-python-writing",
+      "name": "Python Writing Eval"
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "You are a certified PTE Academic listening examiner. Evaluate the student's listening comprehension and response accuracy.\n\nEVALUATION CRITERIA:\n1. Comprehension Accuracy (0-10): How accurately the student understood the audio content\n2. Detail Recognition (0-10): Ability to identify specific details from the audio\n3. Contextual Understanding (0-10): Grasp of overall meaning and purpose\n4. Vocabulary Recognition (0-10): Understanding of academic vocabulary heard\n5. Note-taking Effectiveness (0-10): Quality of information captured during listening\n\nQUESTIONS DATA: {{ JSON.stringify($json.questions) }}\n\nCalculate accuracy percentage and provide feedback on listening comprehension skills.",
+        "method": "POST",
+        "url": "http://localhost:5001/api/test-evaluation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": {
+            "entries": [
+              {
+                "name": "action",
+                "value": "evaluate_reading"
+              },
+              {
+                "name": "questions",
+                "value": "={{ $json.questions || [] }}"
+              }
+            ]
+          }
+        },
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         960,
         456
       ],
-      "id": "ai-listening-evaluator",
-      "name": "AI Listening Evaluator"
+      "id": "http-python-reading",
+      "name": "Python Reading Eval"
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "You are a PTE Academic reading examiner. Evaluate the student's reading comprehension and response accuracy.\n\nEVALUATION CRITERIA:\n1. Comprehension Accuracy (0-10): How accurately the student understood the passage\n2. Detail Recognition (0-10): Ability to identify specific details from the text\n3. Inference Skills (0-10): Ability to make logical inferences from the text\n4. Vocabulary Understanding (0-10): Comprehension of academic vocabulary in context\n5. Time Management (0-10): Efficiency in completing the task within time limits\n\nQUESTIONS DATA: {{ JSON.stringify($json.questions) }}\n\nCalculate accuracy percentage and provide feedback on reading comprehension skills.",
+        "method": "POST",
+        "url": "http://localhost:5001/api/test-evaluation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": {
+            "entries": [
+              {
+                "name": "action",
+                "value": "evaluate_listening"
+              },
+              {
+                "name": "questions",
+                "value": "={{ $json.questions || [] }}"
+              }
+            ]
+          }
+        },
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         960,
         556
       ],
-      "id": "ai-reading-evaluator",
-      "name": "AI Reading Evaluator"
+      "id": "http-python-listening",
+      "name": "Python Listening Eval"
     },
     {
       "parameters": {
@@ -307,8 +427,8 @@
         1200,
         656
       ],
-      "id": "set-transcript-result",
-      "name": "Set Transcript Result"
+      "id": "set-transcript",
+      "name": "Set Transcript"
     },
     {
       "parameters": {
@@ -320,10 +440,10 @@
       "typeVersion": 1.1,
       "position": [
         1200,
-        256
+        306
       ],
       "id": "respond-speaking",
-      "name": "Respond Speaking Eval"
+      "name": "Respond Speaking"
     },
     {
       "parameters": {
@@ -335,10 +455,10 @@
       "typeVersion": 1.1,
       "position": [
         1200,
-        356
+        406
       ],
       "id": "respond-writing",
-      "name": "Respond Writing Eval"
+      "name": "Respond Writing"
     },
     {
       "parameters": {
@@ -350,25 +470,10 @@
       "typeVersion": 1.1,
       "position": [
         1200,
-        456
-      ],
-      "id": "respond-listening",
-      "name": "Respond Listening Eval"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify($json) }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [
-        1200,
-        556
+        506
       ],
       "id": "respond-reading",
-      "name": "Respond Reading Eval"
+      "name": "Respond Reading"
     },
     {
       "parameters": {
@@ -380,10 +485,25 @@
       "typeVersion": 1.1,
       "position": [
         1200,
-        656
+        606
       ],
-      "id": "respond-transcription",
-      "name": "Respond Transcription"
+      "id": "respond-listening",
+      "name": "Respond Listening"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        706
+      ],
+      "id": "respond-transcribe",
+      "name": "Respond Transcribe"
     }
   ],
   "connections": {
@@ -402,18 +522,27 @@
       "main": [
         [
           {
-            "node": "Check Speaking Action",
+            "node": "Check Action Type",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Check Speaking Action": {
+    "Check Action Type": {
+      "main": [
+        [
+          {
+            "node": "Python Speaking Eval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
       "if": [
         [
           {
-            "node": "AI Speaking Evaluator",
+            "node": "Python Speaking Eval",
             "type": "main",
             "index": 0
           }
@@ -430,30 +559,19 @@
       ]
     },
     "Check Writing Action": {
-      "if": [
+      "main": [
         [
           {
-            "node": "AI Writing Evaluator",
+            "node": "Check Reading Action",
             "type": "main",
             "index": 0
           }
         ]
       ],
-      "else": [
-        [
-          {
-            "node": "Check Listening Action",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Listening Action": {
       "if": [
         [
           {
-            "node": "AI Listening Evaluator",
+            "node": "Python Writing Eval",
             "type": "main",
             "index": 0
           }
@@ -470,10 +588,48 @@
       ]
     },
     "Check Reading Action": {
+      "main": [
+        [
+          {
+            "node": "Check Listening Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
       "if": [
         [
           {
-            "node": "AI Reading Evaluator",
+            "node": "Python Reading Eval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "else": [
+        [
+          {
+            "node": "Check Listening Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Listening Action": {
+      "main": [
+        [
+          {
+            "node": "Check Transcribe Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "if": [
+        [
+          {
+            "node": "Python Listening Eval",
             "type": "main",
             "index": 0
           }
@@ -502,51 +658,51 @@
       "else": [
         [
           {
-            "node": "Respond Speaking Eval",
+            "node": "Respond Speaking",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "AI Speaking Evaluator": {
+    "Python Speaking Eval": {
       "main": [
         [
           {
-            "node": "Respond Speaking Eval",
+            "node": "Respond Speaking",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "AI Writing Evaluator": {
+    "Python Writing Eval": {
       "main": [
         [
           {
-            "node": "Respond Writing Eval",
+            "node": "Respond Writing",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "AI Listening Evaluator": {
+    "Python Reading Eval": {
       "main": [
         [
           {
-            "node": "Respond Listening Eval",
+            "node": "Respond Reading",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "AI Reading Evaluator": {
+    "Python Listening Eval": {
       "main": [
         [
           {
-            "node": "Respond Reading Eval",
+            "node": "Respond Listening",
             "type": "main",
             "index": 0
           }
@@ -557,18 +713,18 @@
       "main": [
         [
           {
-            "node": "Set Transcript Result",
+            "node": "Set Transcript",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Set Transcript Result": {
+    "Set Transcript": {
       "main": [
         [
           {
-            "node": "Respond Transcription",
+            "node": "Respond Transcribe",
             "type": "main",
             "index": 0
           }
@@ -581,5 +737,9 @@
   },
   "staticData": null,
   "tags": [],
-  "pinData": {}
+  "pinData": {},
+  "versionId": "2.0",
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "createdAt": "2024-01-01T00:00:00.000Z"
 }

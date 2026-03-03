@@ -73,37 +73,41 @@ class AIEvaluationService {
   constructor() {
     // n8n webhook URL for transcription (using test webhook for debugging)
     this.webhookUrl = import.meta.env.VITE_WEBHOOK_URL || 'https://n8n.srv826531.hstgr.cloud/webhook/b225b16c-c602-450e-b858-f9bbe4ba5dd6';
+    // Python scoring server URL
+    this.pythonServerUrl = import.meta.env.VITE_PYTHON_SERVER_URL || 'http://localhost:5001/webhook/pte-scoring';
     this.geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
     this.useGemini = !!this.geminiApiKey;
     this.openRouterKey = import.meta.env.VITE_OPENROUTER_API_KEY;
     this.openAiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    
+
     console.log('AIEvaluationService initialized:', {
       geminiKeyExists: !!this.geminiApiKey,
       geminiKeyFirst10: this.geminiApiKey ? this.geminiApiKey.substring(0, 10) + '...' : 'none',
       openRouterKeyExists: !!this.openRouterKey,
       openAiKeyExists: !!this.openAiKey,
-      webhookUrl: this.webhookUrl
+      webhookUrl: this.webhookUrl,
+      pythonServerUrl: this.pythonServerUrl
     });
-    
+
     // Hardcoded Gemini key for testing (remove after testing)
-    if (!this.geminiApiKey) {
-      console.log('Using hardcoded Gemini key for testing');
-      this.geminiApiKey = 'AIzaSyDqkroRSVXTP5G0AfidR7tYNzv3bksqmO8';
-      this.useGemini = true;
-    }
+    // DISABLED - using actual API key from environment
+    // if (!this.geminiApiKey) {
+    //   console.log('Using hardcoded Gemini key for testing');
+    //   this.geminiApiKey = 'AIzaSyDqkroRSVXTP5G0AfidR7tYNzv3bksqmO8';
+    //   this.useGemini = true;
+    // }
   }
-  
+
   // Helper method to call Gemini API
   async callGemini(prompt, systemPrompt) {
     console.log('callGemini called, key exists:', !!this.geminiApiKey);
-    
+
     if (!this.geminiApiKey) {
       throw new Error('Gemini API key not configured');
     }
-    
+
     console.log('Calling Gemini API...');
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${this.geminiApiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -121,27 +125,43 @@ class AIEvaluationService {
         }
       })
     });
-    
+
     console.log('Gemini API response status:', response.status);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('Gemini API error:', response.status, errorData);
       throw new Error(`Gemini API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
-    
+
     const data = await response.json();
     console.log('Gemini API success, response length:', data.candidates?.[0]?.content?.parts?.[0]?.text?.length);
     return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   }
 
-  // Evaluate speaking responses with Gemini or Backend
+  // Evaluate speaking responses with multiple AI providers (Priority order: n8n -> Python -> Gemini -> Backend)
   async evaluateSpeaking(prompt, audioBlobOrText, questionType) {
     let transcript = audioBlobOrText;
 
     // If it's a recorded audio blob, transcribe it first
     if (audioBlobOrText instanceof Blob) {
       transcript = await this.transcribeAudio(audioBlobOrText);
+    }
+
+    // Try n8n Python scoring first
+    try {
+      console.log('Trying n8n Python scoring for speaking...');
+      const n8nResult = await this.evaluateWithPythonServer(prompt, transcript, 'speaking', questionType);
+      if (n8nResult && n8nResult.success) {
+        console.log('✅ n8n Python scoring SUCCESS');
+        return {
+          ...n8nResult.result,
+          transcript: transcript,
+          source: 'n8n-python'
+        };
+      }
+    } catch (n8nError) {
+      console.error('❌ n8n Python scoring failed:', n8nError.message);
     }
 
     // Use Gemini if API key is available
@@ -180,7 +200,7 @@ Return JSON format:
 }`;
 
         const geminiResponse = await this.callGemini(evaluationPrompt, EXAMINER_SYSTEM_PROMPT);
-        
+
         // Parse Gemini response
         let evaluation;
         try {
@@ -243,7 +263,7 @@ Return JSON format:
       };
     }
   }
-  
+
   // Parse Gemini text response into structured evaluation
   parseGeminiTextResponse(text) {
     // Extract scores using regex
@@ -251,7 +271,7 @@ Return JSON format:
     const grammarMatch = text.match(/grammar.*?(\d+)/i);
     const vocabMatch = text.match(/vocab.*?(\d+)/i);
     const pronunciationMatch = text.match(/pronunciation.*?(\d+)/i);
-    
+
     return {
       fluencyScore: parseInt(fluencyMatch?.[1]) || 5,
       grammarScore: parseInt(grammarMatch?.[1]) || 5,
@@ -268,7 +288,7 @@ Return JSON format:
   async transcribeAudio(audioBlob) {
     console.log('=== TRANSCRIPTION START ===');
     console.log('Audio blob size:', audioBlob?.size, 'type:', audioBlob?.type);
-    
+
     try {
       // PRIORITY 1: Try n8n webhook FIRST (as requested for backup workflow)
       if (this.webhookUrl) {
@@ -286,7 +306,7 @@ Return JSON format:
       } else {
         console.log('⚠️ No n8n webhook URL configured');
       }
-      
+
       // PRIORITY 2: Use Gemini as BACKUP
       if (this.geminiApiKey) {
         try {
@@ -301,7 +321,7 @@ Return JSON format:
           console.error('❌ Gemini backup transcription FAILED:', geminiError.message);
         }
       }
-      
+
       // PRIORITY 3: Try OpenAI Whisper (final fallback)
       if (this.openAiKey) {
         try {
@@ -311,29 +331,29 @@ Return JSON format:
           console.error('❌ Whisper transcription FAILED:', whisperError.message);
         }
       }
-      
+
       // All methods failed
       console.error('=== ALL TRANSCRIPTION METHODS FAILED ===');
       return "[Transcription unavailable - All services failed. Please try again or contact support.]";
-      
+
     } catch (error) {
       console.error('=== TRANSCRIPTION CRITICAL ERROR ===', error);
       return "[Transcription error - Please refresh and try again]";
     }
   }
-  
+
   // Transcribe using n8n webhook - PRIMARY method
   async transcribeWithN8n(audioBlob) {
     console.log('🎙️ N8N TRANSCRIPTION: Starting...');
-    
+
     try {
       const base64Audio = await this.blobToBase64(audioBlob);
       console.log('🎙️ N8N: Audio converted to base64, length:', base64Audio?.length);
-      
+
       // Set timeout for n8n request (30 seconds)
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
-      
+
       console.log('🎙️ N8N: Sending request to webhook:', this.webhookUrl);
       const response = await fetch(this.webhookUrl, {
         method: 'POST',
@@ -349,24 +369,24 @@ Return JSON format:
         }),
         signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       console.log('🎙️ N8N: Response status:', response.status);
-      
+
       if (!response.ok) {
         throw new Error(`n8n webhook error: ${response.status} ${response.statusText}`);
       }
-      
+
       const responseText = await response.text();
       console.log('🎙️ N8N: Raw response:', responseText.substring(0, 200));
-      
+
       // Handle empty response
       if (!responseText || responseText.trim() === '') {
         console.error('🎙️ N8N: Empty response received');
         return '[Empty response from n8n]';
       }
-      
+
       // Try to parse JSON
       let data;
       try {
@@ -377,21 +397,21 @@ Return JSON format:
         console.log('🎙️ N8N: Response is plain text');
         return responseText.trim();
       }
-      
+
       // Extract transcript from various possible formats
-      const transcript = 
-        data.transcript || 
-        data.text || 
+      const transcript =
+        data.transcript ||
+        data.text ||
         data.output ||
         data.result ||
         data.message ||
         (typeof data === 'string' ? data : null) ||
         (data[0] && (data[0].text || data[0].output || data[0].transcript)) ||
         '[No transcript received from n8n]';
-      
+
       console.log('🎙️ N8N: Extracted transcript:', transcript.substring(0, 100) + '...');
       return transcript;
-      
+
     } catch (error) {
       if (error.name === 'AbortError') {
         console.error('🎙️ N8N: Request timed out after 30 seconds');
@@ -405,7 +425,7 @@ Return JSON format:
   // Transcribe using Web Speech API (browser built-in)
   async transcribeWithWebSpeech(audioBlob) {
     console.log('Using Web Speech API for transcription');
-    
+
     // For now, return a placeholder that allows manual entry
     // In production, use Gemini API or OpenAI Whisper
     return "[Speech recorded - AI transcription unavailable. Please add VITE_GEMINI_API_KEY for automatic transcription.]";
@@ -423,13 +443,13 @@ Return JSON format:
       reader.readAsDataURL(blob);
     });
   }
-  
+
   // Transcribe using Gemini API
   async transcribeWithGemini(audioBlob) {
     console.log('Using Gemini for transcription, API key exists:', !!this.geminiApiKey);
     const base64Audio = await this.blobToBase64(audioBlob);
-    
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`, {
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${this.geminiApiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -438,7 +458,7 @@ Return JSON format:
         contents: [{
           parts: [
             { text: 'Transcribe this audio accurately with proper punctuation. Return only the transcript text.' },
-            { 
+            {
               inline_data: {
                 mime_type: 'audio/webm',
                 data: base64Audio
@@ -452,13 +472,13 @@ Return JSON format:
         }
       })
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('Gemini API Error:', response.status, errorData);
       throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
     }
-    
+
     const data = await response.json();
     console.log('Gemini transcription successful');
     return data.candidates?.[0]?.content?.parts?.[0]?.text || '[No speech detected]';
@@ -482,7 +502,7 @@ Return JSON format:
     });
 
     console.log('Whisper API response status:', response.status);
-    
+
     const data = await response.json();
     console.log('Whisper API response:', data);
 
@@ -494,10 +514,72 @@ Return JSON format:
     return data.text || "[No speech detected]";
   }
 
-  // Evaluate writing responses with Gemini API only
+  // Evaluate writing responses with multiple AI providers (Priority order: n8n -> Python -> Gemini -> OpenRouter/OpenAI -> Backend)
   async evaluateWriting(prompt, response, questionType) {
-    console.log('evaluateWriting called, geminiKey exists:', !!this.geminiApiKey);
-    
+    console.log('=== evaluateWriting called ===');
+    console.log('=== ENVIRONMENT VARIABLES DEBUG ===');
+    console.log('Raw import.meta.env:', import.meta.env);
+    console.log('VITE_OPENROUTER_API_KEY:', import.meta.env.VITE_OPENROUTER_API_KEY);
+    console.log('VITE_GEMINI_API_KEY:', import.meta.env.VITE_GEMINI_API_KEY);
+    console.log('====================================');
+
+    console.log('=== DEBUG ENVIRONMENT VARIABLES ===');
+    console.log('import.meta.env.VITE_OPENROUTER_API_KEY exists:', !!import.meta.env.VITE_OPENROUTER_API_KEY);
+    console.log('import.meta.env.VITE_GEMINI_API_KEY exists:', !!import.meta.env.VITE_GEMINI_API_KEY);
+    console.log('this.openRouterKey exists:', !!this.openRouterKey);
+    console.log('this.geminiApiKey exists:', !!this.geminiApiKey);
+    console.log('====================================');
+
+    console.log('Prompt:', prompt?.substring(0, 100));
+    console.log('Response length:', response?.length);
+    console.log('Question type:', questionType);
+    console.log('Available keys:', {
+      gemini: !!this.geminiApiKey,
+      openRouter: !!this.openRouterKey,
+      openAi: !!this.openAiKey
+    });
+
+    // Try OpenRouter/OpenAI FIRST (since user has this key)
+    const apiKey = this.openRouterKey || this.openAiKey;
+    const apiUrl = this.openRouterKey
+      ? 'https://openrouter.ai/api/v1/chat/completions'
+      : 'https://api.openai.com/v1/chat/completions';
+    const provider = this.openRouterKey ? 'openrouter' : 'openai';
+    const model = this.openRouterKey ? 'openai/gpt-4o' : 'gpt-4o';
+
+    if (apiKey) {
+      try {
+        console.log(`Trying ${provider} for writing evaluation (PRIORITY 1)...`);
+        console.log('API Key first 10 chars:', apiKey.substring(0, 10));
+        const result = await this.evaluateWritingWithLLM(prompt, response, questionType, apiKey, apiUrl, model);
+        console.log(`✅ ${provider} evaluation SUCCESS`);
+        return {
+          ...result,
+          source: provider
+        };
+      } catch (llmError) {
+        console.error(`❌ ${provider} writing evaluation failed:`, llmError.message);
+        console.error('LLM Error stack:', llmError.stack);
+      }
+    } else {
+      console.log('No OpenRouter/OpenAI key available');
+    }
+
+    // Try n8n Python scoring second
+    try {
+      console.log('Trying n8n Python scoring for writing...');
+      const n8nResult = await this.evaluateWithPythonServer(prompt, response, 'writing', questionType);
+      if (n8nResult && n8nResult.success) {
+        console.log('✅ n8n Python scoring SUCCESS');
+        return {
+          ...n8nResult.result,
+          source: 'n8n-python'
+        };
+      }
+    } catch (n8nError) {
+      console.error('❌ n8n Python scoring failed:', n8nError.message);
+    }
+
     // Use Gemini for direct writing evaluation
     if (this.geminiApiKey) {
       console.log('Gemini key found, calling evaluateWritingWithGemini');
@@ -511,9 +593,10 @@ Return JSON format:
     } else {
       console.log('No Gemini key, skipping Gemini evaluation');
     }
-    
+
     // Fallback to backend
     try {
+      console.log('Trying backend fallback...');
       const backendUrl = 'http://localhost:5000/api/scoring/evaluate-writing';
       const requestBody = {
         action: "evaluate_writing",
@@ -532,19 +615,145 @@ Return JSON format:
         throw new Error(`Backend responded with status ${apiResponse.status}`);
       }
 
-      return await apiResponse.json();
+      const backendResult = await apiResponse.json();
+      console.log('Backend evaluation succeeded');
+      return backendResult;
     } catch (error) {
       console.error('Error evaluating writing via backend:', error);
-      return this.getFallbackWritingEvaluation();
+      console.log('=== ALL PROVIDERS FAILED - RETURNING FALLBACK ===');
+      const fallback = this.getFallbackWritingEvaluation();
+      console.log('Fallback evaluation:', fallback);
+      return {
+        ...fallback,
+        source: 'fallback'
+      };
     }
   }
-  
+
+  // Evaluate writing with LLM (OpenRouter/OpenAI)
+  async evaluateWritingWithLLM(prompt, response, questionType, apiKey, apiUrl, model) {
+    console.log('=== evaluateWritingWithLLM called ===');
+    console.log('API Key exists:', !!apiKey);
+    console.log('API URL:', apiUrl);
+    console.log('Model:', model);
+    console.log('Prompt length:', prompt?.length);
+    console.log('Response length:', response?.length);
+
+    const systemPrompt = `You are an expert English writing evaluator for PTE Academic. Analyze the student's written response thoroughly and provide detailed, specific feedback.
+
+EVALUATION CRITERIA — Score each dimension 0-10 with specific examples:
+1. GRAMMAR RANGE & ACCURACY (0-10): 
+   - Analyze sentence variety (simple, compound, complex)
+   - Identify specific grammatical errors with corrections
+   - Score: 8+ for excellent grammar, 6-7 for good with minor errors, below 6 for frequent errors
+
+2. SPELLING & PUNCTUATION (0-10):
+   - Check for spelling mistakes
+   - Evaluate punctuation accuracy
+   - Score: 8+ for perfect spelling/punctuation, 6-7 for minor issues, below 6 for frequent errors
+
+3. VOCABULARY & LEXICAL RESOURCE (0-10):
+   - Assess word range and precision
+   - Note academic vocabulary usage
+   - Identify overused/basic words
+   - Score: 8+ for sophisticated academic vocabulary, 6-7 for adequate range, below 6 for limited vocabulary
+
+4. TASK ACHIEVEMENT (0-10):
+   - Confirm response addresses ALL parts of the prompt
+   - Check word count appropriateness
+   - Evaluate argument development and support
+   - Score: 8+ for fully developed response, 6-7 for adequate, below 6 for incomplete
+
+REQUIRED OUTPUT FORMAT:
+{
+  "grammarScore": number,
+  "spellingScore": number,
+  "vocabularyScore": number,
+  "taskScore": number,
+  "overallScore": number,
+  "feedback": "Detailed paragraph with specific examples from the text",
+  "grammarErrors": ["Error 1 -> Correction 1", "Error 2 -> Correction 2"],
+  "spellingErrors": ["misspelled -> correct"],
+  "vocabularySuggestions": ["overused word -> better alternative"]
+}`;
+
+    const userPrompt = `TASK TOPIC: "${prompt}"
+STUDENT RESPONSE: "${response}"
+QUESTION TYPE: ${questionType}
+
+Evaluate this writing response according to the criteria above. Provide specific examples from the text and return JSON format.`;
+
+    console.log('Making API call to:', apiUrl);
+
+    try {
+      const responseObj = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:5173',
+          'X-Title': 'PTE Mock Test'
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          temperature: 0.3,
+          max_tokens: 1000
+        })
+      });
+
+      console.log('API Response Status:', responseObj.status);
+      console.log('API Response OK:', responseObj.ok);
+
+      if (!responseObj.ok) {
+        const errorText = await responseObj.text();
+        console.error('API Error Response Text:', errorText);
+        throw new Error(`API Error: ${responseObj.status} - ${errorText}`);
+      }
+
+      const data = await responseObj.json();
+      console.log('API Response Data:', JSON.stringify(data, null, 2));
+
+      const content = data.choices?.[0]?.message?.content;
+      console.log('Response Content:', content?.substring(0, 200));
+
+      if (!content) {
+        throw new Error('No content in API response');
+      }
+
+      // Try to parse as JSON first
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          console.log('Parsed JSON result:', parsed);
+          return parsed;
+        }
+      } catch (parseError) {
+        console.log('JSON parsing failed, using text parsing:', parseError.message);
+      }
+
+      // Fallback to text parsing
+      return this.parseWritingTextResponse(content);
+
+    } catch (error) {
+      console.error('=== LLM API CALL FAILED ===');
+      console.error('Error:', error);
+      console.error('Error message:', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
+  }
+
   // Evaluate writing with n8n webhook
   async evaluateWritingWithN8n(prompt, response, questionType) {
     console.log('Using n8n for writing evaluation');
     console.log('Webhook URL:', this.webhookUrl);
     console.log('Sending data:', { action: 'evaluate_writing', prompt: prompt?.substring(0, 50), response: response?.substring(0, 50), questionType });
-    
+
     const n8nResponse = await fetch(this.webhookUrl, {
       method: 'POST',
       headers: {
@@ -558,18 +767,18 @@ Return JSON format:
         geminiKey: this.geminiApiKey
       })
     });
-    
+
     console.log('n8n response status:', n8nResponse.status);
-    
+
     if (!n8nResponse.ok) {
       const errorText = await n8nResponse.text();
       console.error('n8n error response:', errorText);
       throw new Error(`n8n webhook error: ${n8nResponse.status} - ${errorText}`);
     }
-    
+
     const responseText = await n8nResponse.text();
     console.log('n8n writing evaluation raw response:', responseText);
-    
+
     let data;
     try {
       data = JSON.parse(responseText);
@@ -577,9 +786,9 @@ Return JSON format:
       console.log('Response is not JSON, using as text:', responseText);
       return this.parseWritingTextResponse(responseText);
     }
-    
+
     console.log('n8n writing evaluation parsed:', JSON.stringify(data, null, 2));
-    
+
     return {
       grammarScore: data.grammarScore || data.grammar_score || 5,
       spellingScore: data.spellingScore || data.spelling_score || 5,
@@ -591,7 +800,7 @@ Return JSON format:
       source: 'n8n'
     };
   }
-  
+
   // Parse text response for writing evaluation
   parseWritingTextResponse(text) {
     return {
@@ -605,11 +814,55 @@ Return JSON format:
       source: 'n8n-text'
     };
   }
-  
+
+  // Evaluate with Python scoring server with improved fallback and timeout
+  async evaluateWithPythonServer(prompt, response, action, questionType = null) {
+    console.log(`🚀 [Python Server] Evaluating ${action}:`, { questionType, promptSnippet: prompt?.substring(0, 30) });
+
+    const requestBody = {
+      action: `evaluate_${action}`,
+      prompt: prompt,
+      [action === 'speaking' ? 'transcript' : (action === 'reading' || action === 'listening' ? 'questions' : 'response')]: response,
+      questionType: questionType
+    };
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout for AI processing
+
+      const fetchResponse = await fetch(this.pythonServerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!fetchResponse.ok) {
+        throw new Error(`Python server error: ${fetchResponse.status} ${fetchResponse.statusText}`);
+      }
+
+      const result = await fetchResponse.json();
+      console.log('✅ [Python Server] Success:', result.success);
+
+      return result;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.error('❌ [Python Server] Timeout after 45s');
+      } else {
+        console.error('❌ [Python Server] Evaluation error:', error.message);
+      }
+      return { success: false, error: error.message };
+    }
+  }
+
   // Evaluate writing with Gemini API (fallback)
   async evaluateWritingWithGemini(prompt, response, questionType) {
     console.log('evaluateWritingWithGemini called');
-    
+
     const evaluationPrompt = `Evaluate this PTE Academic writing response:
 
 PROMPT: ${prompt}
@@ -620,7 +873,7 @@ ${response}
 Provide detailed evaluation with specific examples from the text.`;
 
     const geminiResponse = await this.callGemini(evaluationPrompt, WRITING_EXAMINER_SYSTEM_PROMPT);
-    
+
     // Parse Gemini response
     let evaluation;
     try {
@@ -642,8 +895,23 @@ Provide detailed evaluation with specific examples from the text.`;
     };
   }
 
-  // Evaluate reading responses with hybrid scoring engine (Backend)
+  // Evaluate reading responses with multiple AI providers (Priority order: n8n -> Python -> Backend)
   async evaluateReading(questionsWithAnswers) {
+    // Try n8n Python scoring first
+    try {
+      console.log('Trying n8n Python scoring for reading...');
+      const n8nResult = await this.evaluateWithPythonServer(null, questionsWithAnswers, 'reading');
+      if (n8nResult && n8nResult.success) {
+        console.log('✅ n8n Python scoring SUCCESS');
+        return {
+          ...n8nResult.result,
+          source: 'n8n-python'
+        };
+      }
+    } catch (n8nError) {
+      console.error('❌ n8n Python scoring failed:', n8nError.message);
+    }
+
     try {
       const backendUrl = 'http://localhost:5000/api/scoring/evaluate-reading';
       const apiResponse = await fetch(backendUrl, {
@@ -656,15 +924,31 @@ Provide detailed evaluation with specific examples from the text.`;
         throw new Error(`Backend responded with status ${apiResponse.status}`);
       }
 
-      return await apiResponse.json();
+      const result = await apiResponse.json();
+      return { ...result, source: 'backend' };
     } catch (error) {
       console.error('Error evaluating reading via backend:', error);
-      return this.getFallbackReadingEvaluation();
+      return { ...this.getFallbackReadingEvaluation(), source: 'fallback' };
     }
   }
 
-  // Evaluate listening responses with hybrid scoring engine (Backend)
+  // Evaluate listening responses with multiple AI providers (Priority order: n8n -> Python -> Backend)
   async evaluateListening(questionsWithAnswers) {
+    // Try n8n Python scoring first
+    try {
+      console.log('Trying n8n Python scoring for listening...');
+      const n8nResult = await this.evaluateWithPythonServer(null, questionsWithAnswers, 'listening');
+      if (n8nResult && n8nResult.success) {
+        console.log('✅ n8n Python scoring SUCCESS');
+        return {
+          ...n8nResult.result,
+          source: 'n8n-python'
+        };
+      }
+    } catch (n8nError) {
+      console.error('❌ n8n Python scoring failed:', n8nError.message);
+    }
+
     try {
       const backendUrl = 'http://localhost:5000/api/scoring/evaluate-listening';
       const apiResponse = await fetch(backendUrl, {
@@ -677,10 +961,11 @@ Provide detailed evaluation with specific examples from the text.`;
         throw new Error(`Backend responded with status ${apiResponse.status}`);
       }
 
-      return await apiResponse.json();
+      const result = await apiResponse.json();
+      return { ...result, source: 'backend' };
     } catch (error) {
       console.error('Error evaluating listening via backend:', error);
-      return this.getFallbackListeningEvaluation();
+      return { ...this.getFallbackListeningEvaluation(), source: 'fallback' };
     }
   }
 

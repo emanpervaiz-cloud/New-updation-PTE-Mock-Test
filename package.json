@@ -7,7 +7,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start-python-server": "cd scripts && python ai_scoring_server.py",
+    "install-python-deps": "cd scripts && pip install -r requirements.txt",
+    "test-python-server": "cd scripts && python test_python_server.py",
+    "setup-direct-ai": "setup_direct_ai.bat"
   },
   "keywords": [
     "pte",
@@ -18,6 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "node-fetch": "^3.3.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.13.0"

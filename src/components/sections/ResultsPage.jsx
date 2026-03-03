@@ -13,33 +13,38 @@ const ResultsPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simple score calculation without AI backend
-    const calculateScores = () => {
+    // Calculate scores using AI evaluations if available
+    const calculateScores = async () => {
       try {
         setLoading(true);
         setError(null);
+        console.log('=== ResultsPage: Starting score calculation ===');
+        console.log('Answers count:', Object.keys(state.answers || {}).length);
         
         const answers = state.answers || {};
         
-        // Count answers per section
-        const speakingCount = Object.values(answers).filter(a => a.section === 'speaking').length;
-        const writingCount = Object.values(answers).filter(a => a.section === 'writing').length;
-        const readingCount = Object.values(answers).filter(a => a.section === 'reading').length;
-        const listeningCount = Object.values(answers).filter(a => a.section === 'listening').length;
+        // Load AI evaluations from localStorage
+        let aiEvaluations = {};
+        try {
+          const stored = localStorage.getItem('pte_ai_evaluations');
+          console.log('Raw stored evaluations:', stored);
+          aiEvaluations = JSON.parse(stored || '{}');
+          console.log('Loaded AI evaluations:', Object.keys(aiEvaluations));
+          console.log('AI Evaluation contents:', aiEvaluations);
+        } catch (e) {
+          console.error('Failed to load AI evaluations:', e);
+        }
         
-        // Calculate simple scores based on completion
-        const calculateSectionScore = (count, maxQuestions) => {
-          if (maxQuestions === 0) return 10;
-          const percentage = Math.min(count / maxQuestions, 1);
-          return Math.round(10 + (percentage * 80)); // Scale 10-90
-        };
+        // Calculate scores using scoring engine with AI evaluations
+        const scores = scoringEngine.calculateAllScores(answers, aiEvaluations);
+        console.log('Calculated scores:', scores);
         
-        const speakingScore = calculateSectionScore(speakingCount, 5);
-        const writingScore = calculateSectionScore(writingCount, 2);
-        const readingScore = calculateSectionScore(readingCount, 5);
-        const listeningScore = calculateSectionScore(listeningCount, 3);
-        
-        const overallScore = Math.round((speakingScore + writingScore + readingScore + listeningScore) / 4);
+        // Extract individual section scores
+        const speakingScore = scores.speaking?.scaledScore || 10;
+        const writingScore = scores.writing?.scaledScore || 10;
+        const readingScore = scores.reading?.scaledScore || 10;
+        const listeningScore = scores.listening?.scaledScore || 10;
+        const overallScore = scores.overall?.overallScore || 10;
         
         const getCefrLevel = (score) => {
           if (score >= 85) return 'C2';
@@ -50,31 +55,37 @@ const ResultsPage = () => {
           return 'A1';
         };
         
+        // Count completed questions for feedback
+        const speakingCount = Object.values(answers).filter(a => a.section === 'speaking').length;
+        const writingCount = Object.values(answers).filter(a => a.section === 'writing').length;
+        const readingCount = Object.values(answers).filter(a => a.section === 'reading').length;
+        const listeningCount = Object.values(answers).filter(a => a.section === 'listening').length;
+        
         const calculatedScores = {
           overall: { 
             overallScore: overallScore, 
-            cefrLevel: getCefrLevel(overallScore),
-            classification: overallScore >= 70 ? 'Advanced' : overallScore >= 50 ? 'Intermediate' : 'Beginner'
+            cefrLevel: scores.overall?.cefrLevel || getCefrLevel(overallScore),
+            classification: scores.overall?.classification || (overallScore >= 70 ? 'Advanced' : overallScore >= 50 ? 'Intermediate' : 'Beginner')
           },
           speaking: { 
             scaledScore: speakingScore, 
-            cefrLevel: getCefrLevel(speakingScore), 
-            feedback: `Completed ${speakingCount} speaking tasks` 
+            cefrLevel: scores.speaking?.cefrLevel || getCefrLevel(speakingScore), 
+            feedback: scores.speaking?.feedback || `Completed ${speakingCount} speaking tasks` 
           },
           writing: { 
             scaledScore: writingScore, 
-            cefrLevel: getCefrLevel(writingScore), 
-            feedback: `Completed ${writingCount} writing tasks` 
+            cefrLevel: scores.writing?.cefrLevel || getCefrLevel(writingScore), 
+            feedback: scores.writing?.feedback || `Completed ${writingCount} writing tasks` 
           },
           reading: { 
             scaledScore: readingScore, 
-            cefrLevel: getCefrLevel(readingScore), 
-            feedback: `Completed ${readingCount} reading tasks` 
+            cefrLevel: scores.reading?.cefrLevel || getCefrLevel(readingScore), 
+            feedback: scores.reading?.feedback || `Completed ${readingCount} reading tasks` 
           },
           listening: { 
             scaledScore: listeningScore, 
-            cefrLevel: getCefrLevel(listeningScore), 
-            feedback: `Completed ${listeningCount} listening tasks` 
+            cefrLevel: scores.listening?.cefrLevel || getCefrLevel(listeningScore), 
+            feedback: scores.listening?.feedback || `Completed ${listeningCount} listening tasks` 
           }
         };
 
@@ -122,9 +133,17 @@ const ResultsPage = () => {
     };
 
     calculateScores();
-  }, []);
+  }, [state.answers]);
 
   const handleRetakeExam = () => {
+    // Clear AI evaluations for new exam
+    try {
+      localStorage.removeItem('pte_ai_evaluations');
+      console.log('Cleared AI evaluations for new exam');
+    } catch (e) {
+      console.error('Failed to clear AI evaluations:', e);
+    }
+    
     resetExam();
     navigate('/');
   };

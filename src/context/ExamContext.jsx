@@ -9,7 +9,7 @@ const initialState = {
   timer: null,
   examStarted: false,
   examCompleted: false,
-  examDurationMinutes: 40, // default 40 minutes for full mock test
+  examDurationMinutes: 80, // Total: Listening(15) + Speaking(20) + Writing(10) + Reading(35) = 80 minutes
   useAlternatePaper: false,
   scores: {
     speaking: null,

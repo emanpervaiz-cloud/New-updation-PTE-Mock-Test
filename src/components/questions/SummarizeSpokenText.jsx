@@ -59,8 +59,15 @@ const SummarizeSpokenText = ({ question, onNext }) => {
 
     setEvalLoading(true);
     setEvalError(null);
+    console.log('=== Starting AI Evaluation ===');
+    console.log('Question ID:', question?.id);
+    console.log('Summary length:', summary?.length);
+    console.log('Summary content:', summary?.substring(0, 100));
+    
     try {
       const evaluator = new AIEvaluationService();
+      console.log('Evaluator created, calling evaluateWriting...');
+      
       // Use evaluateWriting for Summarize Spoken Text since the student's output is written text
       // We pass the transcript or instruction as the 'prompt' context for the LLM
       const result = await evaluator.evaluateWriting(
@@ -68,8 +75,25 @@ const SummarizeSpokenText = ({ question, onNext }) => {
         summary,
         'summarize_spoken_text'
       );
+      
+      console.log('AI Evaluation Result:', JSON.stringify(result, null, 2));
       setEvaluation(result);
+      
+      // Store AI evaluation in localStorage for ResultsPage
+      try {
+        const aiEvaluations = JSON.parse(localStorage.getItem('pte_ai_evaluations') || '{}');
+        aiEvaluations[question.id] = result;
+        localStorage.setItem('pte_ai_evaluations', JSON.stringify(aiEvaluations));
+        console.log('AI evaluation saved for question:', question.id);
+        console.log('Current stored evaluations:', Object.keys(aiEvaluations));
+      } catch (storageError) {
+        console.error('Failed to save AI evaluation:', storageError);
+      }
     } catch (err) {
+      console.error('=== AI Evaluation Error ===');
+      console.error('Error object:', err);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
       setEvalError(err.message || 'Failed to evaluate. Please try again.');
     }
     setEvalLoading(false);

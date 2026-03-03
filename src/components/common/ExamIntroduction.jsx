@@ -7,8 +7,16 @@ const ExamIntroduction = () => {
   const { startExam, setTimer, state, setUser } = useExam();
 
   const handleStartExam = () => {
-    // set exam duration to configured minutes (default 40)
-    const seconds = (state?.examDurationMinutes || 40) * 60;
+    // Clear previous AI evaluations
+    try {
+      localStorage.removeItem('pte_ai_evaluations');
+      console.log('Cleared previous AI evaluations');
+    } catch (e) {
+      console.error('Failed to clear AI evaluations:', e);
+    }
+    
+    // set exam duration to configured minutes (default 80)
+    const seconds = (state?.examDurationMinutes || 80) * 60;
     setTimer(seconds);
     startExam();
     // if logged-in user, record lastTestTaken so next test can vary
@@ -21,10 +29,10 @@ const ExamIntroduction = () => {
   };
 
   const sections = [
-    { title: 'Listening', time: '10 Min', questions: '7 Ques', icon: '🎧', color: '#fce4ec', textColor: '#e91e63' },
-    { title: 'Speaking', time: '10 Min', questions: '5 Ques', icon: '🎤', color: '#e8f4fd', textColor: '#2196f3' },
+    { title: 'Listening', time: '15 Min', questions: '3 Ques', icon: '🎧', color: '#fce4ec', textColor: '#e91e63' },
+    { title: 'Speaking', time: '20 Min', questions: '6 Ques', icon: '🎤', color: '#e8f4fd', textColor: '#2196f3' },
     { title: 'Writing', time: '10 Min', questions: '2 Ques', icon: '✍️', color: '#fffde7', textColor: '#f9a825' },
-    { title: 'Reading', time: '10 Min', questions: '4 Ques', icon: '📖', color: '#e8f5e9', textColor: '#43a047' },
+    { title: 'Reading', time: '35 Min', questions: '20 Ques', icon: '📖', color: '#e8f5e9', textColor: '#43a047' },
   ];
 
   return (
@@ -96,7 +104,7 @@ const ExamIntroduction = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#3949ab', textTransform: 'uppercase', marginBottom: 4 }}>Total Duration</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#1a237e' }}>40 Minutes</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1a237e' }}>80 Minutes</div>
               </div>
               <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <span style={{ fontSize: 13, color: '#555' }}>✅ Microphone Enabled</span>

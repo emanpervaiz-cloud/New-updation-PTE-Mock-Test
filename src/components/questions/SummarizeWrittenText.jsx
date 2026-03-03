@@ -55,6 +55,16 @@ const SummarizeWrittenText = ({ question, onNext }) => {
       );
       console.log('SummarizeWrittenText: Evaluation result:', result);
       setEvaluation(result);
+      
+      // Store AI evaluation in localStorage for ResultsPage
+      try {
+        const aiEvaluations = JSON.parse(localStorage.getItem('pte_ai_evaluations') || '{}');
+        aiEvaluations[question.id] = result;
+        localStorage.setItem('pte_ai_evaluations', JSON.stringify(aiEvaluations));
+        console.log('AI evaluation saved for question:', question.id);
+      } catch (storageError) {
+        console.error('Failed to save AI evaluation:', storageError);
+      }
     } catch (err) {
       console.error('SummarizeWrittenText: Evaluation error:', err);
       setEvalError(err.message || 'Failed to evaluate. Please try again.');

@@ -15,6 +15,7 @@ import Materials from './components/sections/Materials';
 import Dashboard from './components/common/Dashboard';
 import Login from './components/sections/Login';
 import Register from './components/sections/Register';
+import TestGemini from './components/TestGemini';
 import './styles/App.css';
 import './styles/exam-theme.css';
 import './styles/responsive.css';
@@ -40,6 +41,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/test-gemini" element={<TestGemini />} />
 
             {/* Protected Routes */}
             <Route path="/" element={<AuthWrapper><Dashboard /></AuthWrapper>} />

@@ -121,7 +121,7 @@ const SpeakingSection = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5a6270', fontSize: 13, fontWeight: 600 }}>
             <span style={{ color: '#673ab7' }}>●</span> Section Test
           </div>
-          <Timer initialTime={600} /> {/* 10 minutes */}
+          <Timer initialTime={1200} /> {/* 20 minutes */}
         </div>
       </header>
 
