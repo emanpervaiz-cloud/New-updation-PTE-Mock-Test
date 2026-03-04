@@ -113,37 +113,32 @@ class ScoringEngine {
         qScore = this.computeAISpeakingScore(aiEval);
       } else {
         // Score based on recording indicators
+        // Non-AI scoring, using proxies inspired by AI criteria
         if (!meta.hasAudio || meta.blobSize === 0) {
           qScore = 10; // No audio = minimum score
         } else {
           const duration = meta.duration || 0;
+          const { min, ideal, max } = this.getDurationTargets(answer.type);
 
-          if (answer.type === 'read_aloud') {
-            // Good reading: 15-40s
-            if (duration >= 15 && duration <= 45) qScore = 65;
-            else if (duration >= 5) qScore = 45;
-            else qScore = 25;
-          } else if (answer.type === 'repeat_sentence') {
-            // Good repeat: 3-12s
-            if (duration >= 3 && duration <= 12) qScore = 65;
-            else if (duration >= 1) qScore = 40;
-            else qScore = 20;
-          } else if (answer.type === 'describe_image') {
-            // Good description: 20-38s
-            if (duration >= 20 && duration <= 38) qScore = 65;
-            else if (duration >= 10) qScore = 45;
-            else qScore = 25;
-          } else if (answer.type === 'retell_lecture') {
-            // Good retelling: 20-38s
-            if (duration >= 20 && duration <= 38) qScore = 65;
-            else if (duration >= 10) qScore = 45;
-            else qScore = 25;
-          } else if (answer.type === 'answer_short_question') {
-            // Short answer: 1-8s
-            if (duration >= 1 && duration <= 8) qScore = 65;
-            else if (duration >= 1) qScore = 40;
-            else qScore = 20;
+          // Proxy for Task Achievement & Fluency based on duration
+          let fluencyAndTaskScore = 10;
+          if (duration >= min) {
+            fluencyAndTaskScore = 30 + (duration / ideal) * 20;
           }
+          if (duration >= ideal && duration <= max) {
+            fluencyAndTaskScore = 75;
+          } else if (duration > max) {
+            fluencyAndTaskScore = 50; // Penalize for speaking too long
+          }
+
+          // Other scores are hard to measure without AI, so we use a baseline
+          const pronunciationScore = 45; // Assume average
+          const grammarScore = 45;       // Assume average
+          const vocabularyScore = 45;    // Assume average
+
+          // Weighted average to form a single score, mimicking AI's multi-faceted view
+          // Weighting fluency/task higher as it's the only metric we can estimate
+          qScore = (fluencyAndTaskScore * 0.5) + (pronunciationScore * 0.2) + (grammarScore * 0.15) + (vocabularyScore * 0.15);
         }
       }
 
@@ -231,33 +226,41 @@ class ScoringEngine {
         const aiEval = aiEvaluations[qId];
         qScore = this.computeAIWritingScore(aiEval);
       } else {
-        if (answer.type === 'summarize_written_text') {
-          // Target: 5-75 words, single sentence
-          if (wordCount === 0) {
-            qScore = 10;
-          } else if (wordCount >= 5 && wordCount <= 75) {
-            qScore = Math.min(75, 35 + Math.round(wordCount * 0.5));
-            // Bonus for sentences that end with period
-            if (typeof response === 'string' && response.trim().endsWith('.')) qScore = Math.min(80, qScore + 5);
-          } else if (wordCount > 75) {
-            qScore = 30; // Over word limit penalty
-          } else {
-            qScore = 20; // Too short
-          }
-        } else if (answer.type === 'write_essay') {
-          // Target: 200-300 words
-          if (wordCount === 0) {
-            qScore = 10;
-          } else if (wordCount >= 200 && wordCount <= 300) {
-            // Good range
-            qScore = 55 + Math.min(20, Math.round((wordCount - 200) * 0.2));
-          } else if (wordCount >= 100 && wordCount < 200) {
-            qScore = 35 + Math.round((wordCount - 100) * 0.2);
-          } else if (wordCount > 300) {
-            qScore = 50; // Slightly over is okay
-          } else {
-            qScore = 20; // Very short
-          }
+        // Non-AI scoring, using proxies inspired by AI criteria
+        if (wordCount === 0) {
+          qScore = 10;
+        } else {
+          const { min, ideal, max } = this.getWordCountTargets(answer.type);
+
+          // 1. Task Achievement (based on word count)
+          let taskScore = 10;
+          if (wordCount >= min) taskScore = 35 + ((wordCount - min) / (ideal - min)) * 20;
+          if (wordCount >= ideal && wordCount <= max) taskScore = 75;
+          if (wordCount > max) taskScore = 55; // Penalty for going over
+
+          // 2. Grammar (proxy by sentence analysis)
+          const sentences = response.match(/[^.!?]+[.!?]+/g) || [];
+          const sentenceCount = sentences.length > 0 ? sentences.length : 1;
+          const avgSentenceLength = wordCount / sentenceCount;
+          let grammarScore = 30;
+          if (avgSentenceLength > 8 && avgSentenceLength < 25) grammarScore = 60;
+          if (sentenceCount > 2 && answer.type === 'write_essay') grammarScore = Math.min(80, grammarScore + 15);
+
+          // 3. Vocabulary (proxy by word complexity and diversity)
+          const words = response.trim().split(/\s+/).filter(w => w);
+          const longWords = words.filter(w => w.length > 6).length;
+          const uniqueWords = new Set(words.map(w => w.toLowerCase())).size;
+          const lexicalDiversity = wordCount > 0 ? uniqueWords / wordCount : 0;
+          let vocabularyScore = 30;
+          if (lexicalDiversity > 0.7) vocabularyScore = 65;
+          if (longWords / wordCount > 0.15) vocabularyScore = Math.min(80, vocabularyScore + 10);
+
+          // 4. Spelling/Punctuation (very basic proxy)
+          let spellingScore = 50;
+          if (response.trim().endsWith('.')) spellingScore = Math.min(70, spellingScore + 10);
+
+          // Weighted average of the proxied scores
+          qScore = (taskScore * 0.35) + (grammarScore * 0.25) + (vocabularyScore * 0.25) + (spellingScore * 0.15);
         }
       }
 
@@ -512,6 +515,25 @@ class ScoringEngine {
 
   getOverallFeedback(score, cefrLevel) {
     return `Your overall PTE score is ${score}/90 (CEFR ${cefrLevel}). ${this.classifyEligibility(score)}.`;
+  }
+
+  getDurationTargets(questionType) {
+    switch (questionType) {
+      case 'read_aloud': return { min: 5, ideal: 15, max: 45 };
+      case 'repeat_sentence': return { min: 1, ideal: 3, max: 12 };
+      case 'describe_image': return { min: 10, ideal: 20, max: 38 };
+      case 'retell_lecture': return { min: 10, ideal: 20, max: 38 };
+      case 'answer_short_question': return { min: 1, ideal: 1, max: 8 };
+      default: return { min: 5, ideal: 15, max: 40 };
+    }
+  }
+
+  getWordCountTargets(questionType) {
+    switch (questionType) {
+      case 'summarize_written_text': return { min: 5, ideal: 40, max: 75 };
+      case 'write_essay': return { min: 100, ideal: 200, max: 300 };
+      default: return { min: 20, ideal: 50, max: 100 };
+    }
   }
 }
 
