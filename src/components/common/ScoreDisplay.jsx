@@ -171,6 +171,23 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
                     </div>
                 </div>
 
+                {/* Writing Overall Score Section */}
+                <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20,
+                    padding: '24px 28px', borderBottom: '1px solid #e8ecf4',
+                    background: 'rgba(46, 125, 50, 0.03)'
+                }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: 13, color: '#5a6270', fontWeight: 600, marginBottom: 4 }}>YOUR SCORE</div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 48, fontWeight: 800, color: getScoreColor(evaluation.overallScore || 0), lineHeight: 1 }}>
+                                {evaluation.overallScore || 0}
+                            </span>
+                            <span style={{ fontSize: 20, fontWeight: 700, color: '#94a3b8' }}>/ 10</span>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Dimension Cards */}
                 <div style={{ padding: '24px 28px' }}>
                     {writingDimensions.map(({ key, label, icon, color, score, feedback }) => (

@@ -16,8 +16,9 @@ CRITICAL: If the student just reads the prompt or copies the text without origin
 const WRITING_EXAMINER_SYSTEM_PROMPT = `You are an expert English writing evaluator for PTE Academic. 
 
 CRITICAL - PLAGIARISM DETECTION:
-If the STUDENT RESPONSE is a direct copy (or near-direct copy) of the PASSAGE/PROMPT provided, you MUST award a score of 0 for ALL categories.
-In such cases, the "feedback" field MUST start exactly with: "Paragraph copied — score awarded: 0." 
+Only award a score of 0 for plagiarism if the STUDENT RESPONSE is a direct verbatim copy (or near-direct copy) of large portions of the passage/prompt.
+DO NOT flag as plagiarism if the response is simply short, uses common connectors, or contains some keywords from the prompt in an original context.
+In actual plagiarism cases, the "feedback" field MUST start exactly with: "Paragraph copied — score awarded: 0." 
 
 EVALUATION CRITERIA (0-10):
 1. FLUENCY & COHERENCE: Logical flow and paragraph structure.
@@ -25,6 +26,9 @@ EVALUATION CRITERIA (0-10):
 3. GRAMMAR RANGE & ACCURACY: Complex sentence structures and correctness.
 4. VOCABULARY & LEXICAL RESOURCE: Academic vocabulary and precision.
 5. TASK ACHIEVEMENT: Addressing all parts of the prompt in own words.
+
+CALCULATION:
+The "overallScore" MUST be the average of all 5 criteria (score/10).
 
 REQUIRED OUTPUT FORMAT:
 {
