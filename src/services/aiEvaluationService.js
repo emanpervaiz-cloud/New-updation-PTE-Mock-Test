@@ -1,78 +1,10 @@
 // AI Evaluation Service for PTE Mock Test
 // AI Evaluation Service for PTE Mock Test
 
-const EXAMINER_SYSTEM_PROMPT = `You are a certified English language examiner specializing in high-stakes spoken English assessment, including PTE Academic, IELTS Speaking, and TOEFL iBT evaluations.
-
-Your task is to evaluate a student's response with the precision, consistency, and constructive tone of a professional human examiner.
-
-EVALUATION CRITERIA — Score each dimension out of 10. Be analytical, specific, and evidence-based — reference actual phrases or patterns from the student's response.
-
-1. Fluency & Coherence (0–10): Assess speech flow, logical sequencing, use of discourse markers, and absence of unnatural pauses or repetition.
-2. Pronunciation & Intonation (0–10): Assess phoneme accuracy, word stress, sentence rhythm, and natural intonation patterns. Note any L1 interference if detectable.
-3. Grammatical Range & Accuracy (0–10): Assess variety of sentence structures (simple, compound, complex) and grammatical correctness. Note recurring error patterns.
-4. Vocabulary & Lexical Resource (0–10): Assess range, precision, and appropriateness of word choice. Penalize overuse of basic vocabulary or repetition.
-5. Task Achievement & Relevance (0–10): Assess whether the response fully addresses the prompt, stays on topic, and meets the expected length and depth.
-
-EXAMINER STANDARDS:
-- Never give generic feedback. Always cite evidence from the response.
-- Maintain professional, encouraging, and growth-oriented tone.
-- Penalize but do not discourage. Frame weaknesses as opportunities.
-- Be consistent — same response quality must yield same score range every time.`;
-
-const WRITING_EXAMINER_SYSTEM_PROMPT = `You are an expert English writing evaluator for PTE Academic. Analyze the student's written response thoroughly and provide detailed, specific feedback.
-
-CRITICAL: You must analyze the ACTUAL TEXT provided and give specific evidence-based scores. Do NOT give generic placeholder feedback.
-
-EVALUATION CRITERIA — Score each dimension 0-10 with specific examples:
-
-1. FLUENCY & COHERENCE (0-10): 
-   - Analyze paragraph structure and logical flow
-   - Identify specific cohesive devices used (however, furthermore, consequently, etc.)
-   - Quote transitions between paragraphs
-   - Score: 8+ for excellent flow, 5-7 for adequate, below 5 for poor organization
-
-2. SPELLING & PUNCTUATION (0-10):
-   - Count and list specific spelling errors with corrections
-   - Identify punctuation mistakes (comma splices, missing periods, etc.)
-   - Note capitalization errors
-   - Score: 9-10 for 0-1 errors, 7-8 for 2-3 errors, below 7 for 4+ errors
-
-3. GRAMMAR RANGE & ACCURACY (0-10):
-   - Identify sentence structure variety (simple/compound/complex/compound-complex)
-   - List specific grammar errors with corrections (subject-verb agreement, tense errors, article usage)
-   - Count error frequency
-   - Score: 8+ for advanced structures with few errors, 6-7 for good range with some errors, below 6 for basic structures or many errors
-
-4. VOCABULARY & LEXICAL RESOURCE (0-10):
-   - Identify overused words and suggest alternatives
-   - Note academic vocabulary usage
-   - Comment on word precision and appropriateness
-   - Score: 8+ for sophisticated academic vocabulary, 6-7 for adequate range, below 6 for repetitive/basic vocabulary
-
-5. TASK ACHIEVEMENT (0-10):
-   - Confirm the response addresses ALL parts of the prompt
-   - Check word count appropriateness
-   - Evaluate argument development and support
-   - Score: 8+ for fully developed response, 6-7 for adequate, below 6 for incomplete
-
-REQUIRED OUTPUT FORMAT:
-{
-  "fluencyScore": number,
-  "pronunciationScore": number (for writing: spelling/punctuation),
-  "grammarScore": number,
-  "vocabularyScore": number,
-  "taskScore": number,
-  "overallScore": number,
-  "feedback": "Detailed paragraph with specific examples from the text",
-  "grammarErrors": ["Error 1 -> Correction 1", "Error 2 -> Correction 2"],
-  "spellingErrors": ["misspelled -> correct"],
-  "vocabularySuggestions": ["overused word -> better alternative"]
-}`;
-
 class AIEvaluationService {
   constructor() {
     // n8n webhook URL for transcription (using test webhook for debugging)
-    this.webhookUrl = import.meta.env.VITE_WEBHOOK_URL || 'https://n8n.srv826531.hstgr.cloud/webhook/b225b16c-c602-450e-b858-f9bbe4ba5dd6';
+    this.webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
     // Python scoring server URL
     this.pythonServerUrl = import.meta.env.VITE_PYTHON_SERVER_URL || 'http://localhost:5001/webhook/pte-scoring';
 
@@ -105,7 +37,7 @@ class AIEvaluationService {
     }
 
     // Try multiple model endpoints to avoid 404 errors
-    const modelsToTry = ['gemini-2.0-flash', 'gemini-2.0-flash-001', 'gemini-2.5-flash', 'gemini-2.5-pro'];
+    const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-pro'];
     let lastError = null;
 
     for (const model of modelsToTry) {
@@ -135,6 +67,30 @@ class AIEvaluationService {
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           console.error(`Gemini model ${model} failed with status ${response.status}:`, errorData);
+
+          if (response.status === 429) {
+            // Rate limit hit - wait 3 seconds then retry same model once
+            console.warn(`⏳ Rate limit on ${model}. Retrying in 3 seconds...`);
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const retryRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.geminiApiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: systemPrompt }] },
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
+              })
+            });
+            if (retryRes.ok) {
+              const retryData = await retryRes.json();
+              const retryText = retryData.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (retryText) {
+                console.log(`✅ Gemini SUCCESS (retry) using model ${model}`);
+                return retryText;
+              }
+            }
+          }
+
           lastError = new Error(`Gemini API error (${model}): ${response.status} - ${errorData.error?.message || JSON.stringify(errorData)}`);
           continue; // Try next model
         }
@@ -199,116 +155,21 @@ class AIEvaluationService {
       transcript = await this.transcribeAudio(audioBlobOrText);
     }
 
-    // 1. Try Gemini FIRST if API key is available
-    if (this.geminiApiKey) {
-      try {
-        console.log('🚀 Trying Gemini for speaking evaluation...');
-        const evaluationPrompt = `Evaluate this speaking response for a PTE Academic exam.
-
-Question: ${prompt}
-Student's Transcript: ${transcript}
-Question Type: ${questionType}
-
-Please evaluate based on these criteria (score each 0-10):
-1. Fluency & Coherence - speech flow, logical sequencing, discourse markers, unnatural pauses
-2. Pronunciation & Intonation - phoneme accuracy, word stress, sentence rhythm
-3. Grammatical Range & Accuracy - sentence structures, grammatical correctness, error patterns
-4. Vocabulary & Lexical Resource - word range, precision, appropriateness
-5. Task Achievement - addresses prompt, stays on topic, expected length
-
-Provide specific feedback with examples from the transcript. Identify:
-- Grammar mistakes with corrections
-- Fluency issues (pauses, repetitions)
-- Pronunciation tips
-- Vocabulary suggestions
-
-Return JSON format:
-{
-  "fluencyScore": number,
-  "pronunciationScore": number,
-  "grammarScore": number,
-  "vocabularyScore": number,
-  "taskScore": number,
-  "overallScore": number,
-  "feedback": "detailed feedback with specific examples",
-  "grammarErrors": ["error1 -> correction1", "error2 -> correction2"],
-  "fluencyIssues": ["issue1", "issue2"]
-}`;
-
-        const geminiResponse = await this.callGemini(evaluationPrompt, EXAMINER_SYSTEM_PROMPT);
-
-        // Parse Gemini response
-        let evaluation;
-        try {
-          // Try to extract JSON from response
-          const jsonMatch = geminiResponse.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            evaluation = JSON.parse(jsonMatch[0]);
-          } else {
-            throw new Error('No JSON found in Gemini response');
-          }
-        } catch (parseError) {
-          console.error('Error parsing Gemini response:', parseError);
-          // Create structured evaluation from text
-          evaluation = this.parseGeminiTextResponse(geminiResponse);
-        }
-
-        console.log('✅ Gemini speaking evaluation SUCCESS');
-        return {
-          ...evaluation,
-          transcript: transcript,
-          source: 'gemini'
-        };
-      } catch (geminiError) {
-        console.error('❌ Gemini evaluation failed, falling back:', geminiError);
-        // Fall through to other providers
-      }
-    }
-
-    // 2. Try DIRECT LLM (OpenRouter or OpenAI)
-    const directLLMProviders = [];
-    if (this.openRouterKey) {
-      directLLMProviders.push({
-        name: 'openrouter',
-        apiKey: this.openRouterKey,
-        apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-        model: 'openai/gpt-4o'
-      });
-    }
-    if (this.openAiKey) {
-      directLLMProviders.push({
-        name: 'openai',
-        apiKey: this.openAiKey,
-        apiUrl: 'https://api.openai.com/v1/chat/completions',
-        model: 'gpt-4o'
-      });
-    }
-
-    for (const provider of directLLMProviders) {
-      try {
-        console.log(`🚀 Trying ${provider.name} for speaking...`);
-        const result = await this.evaluateWritingWithLLM(prompt, transcript, questionType, provider.apiKey, provider.apiUrl, provider.model);
-        console.log(`✅ ${provider.name} SUCCESS`);
-        return { ...result, transcript, source: provider.name };
-      } catch (e) {
-        console.error(`❌ ${provider.name} failed:`, e.message);
-      }
-    }
-
-    // 3. Try n8n Python scoring
+    // PRIMARY: Use the Python scoring server for all evaluations
     try {
-      console.log('🔄 Trying n8n Python scoring...');
+      console.log('🚀 Trying Python scoring server for speaking...');
       const n8nResult = await this.evaluateWithPythonServer(prompt, transcript, 'speaking', questionType);
       if (n8nResult && n8nResult.success) {
+        console.log('✅ Python server speaking evaluation SUCCESS');
         return { ...n8nResult.result, transcript: transcript, source: 'n8n-python' };
       }
+      // If success is false, the error is logged in evaluateWithPythonServer, and we fall through.
+      throw new Error(n8nResult.error || 'Python server returned success: false');
     } catch (n8nError) {
-      console.error('❌ n8n failure:', n8nError.message);
+      console.error('❌ Python server failure, falling back to legacy backend:', n8nError.message);
     }
 
-    // Logic moved to Gemini provider at head of chain
-
-    // Fallback to backend
+    // SECONDARY: Fallback to legacy backend if Python server fails
     try {
       const backendUrl = 'http://localhost:5000/api/scoring/evaluate-speaking';
       const requestBody = {
@@ -330,16 +191,18 @@ Return JSON format:
 
       const evaluationResult = await apiResponse.json();
 
+      console.log('✅ Legacy backend speaking evaluation SUCCESS');
       return {
         ...evaluationResult,
         transcript: transcript
       };
     } catch (error) {
-      console.error('Error evaluating speaking via backend:', error);
-      // Fallback to local logic if backend fails
+      console.error('❌ All speaking evaluation methods failed:', error);
+      // FINAL FALLBACK: Return local placeholder
       return {
         ...this.getFallbackSpeakingEvaluation(),
-        transcript: transcript
+        transcript: transcript,
+        source: 'fallback-final'
       };
     }
   }
@@ -619,74 +482,22 @@ Return JSON format:
       openAi: !!this.openAiKey
     });
 
-    // 1. Try Gemini FIRST if API key is available
-    if (this.geminiApiKey) {
-      try {
-        console.log('🚀 Trying Gemini for writing evaluation...');
-        const result = await this.evaluateWritingWithGemini(prompt, response, questionType);
-        console.log('✅ Gemini evaluation SUCCESS');
-        return { ...result, source: 'gemini' };
-      } catch (geminiError) {
-        console.error('❌ Gemini writing evaluation failed:', geminiError.message);
-        // Fall through
-      }
-    }
-
-    // 2. Try DIRECT LLM (OpenRouter or OpenAI)
-    const directLLMProviders = [];
-    if (this.openRouterKey) {
-      directLLMProviders.push({
-        name: 'openrouter',
-        apiKey: this.openRouterKey,
-        apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-        model: 'openai/gpt-4o'
-      });
-    }
-    if (this.openAiKey) {
-      directLLMProviders.push({
-        name: 'openai',
-        apiKey: this.openAiKey,
-        apiUrl: 'https://api.openai.com/v1/chat/completions',
-        model: 'gpt-4o'
-      });
-    }
-
-    for (const provider of directLLMProviders) {
-      try {
-        console.log(`🚀 Trying ${provider.name} for writing evaluation...`);
-        const result = await this.evaluateWritingWithLLM(
-          prompt,
-          response,
-          questionType,
-          provider.apiKey,
-          provider.apiUrl,
-          provider.model
-        );
-        console.log(`✅ ${provider.name} evaluation SUCCESS`);
-        return { ...result, source: provider.name };
-      } catch (llmError) {
-        console.error(`❌ ${provider.name} failed:`, llmError.message);
-        // Continue to next provider in loop
-      }
-    }
-
-    // 2. Try n8n Python Scoring (if local/configured)
+    // PRIMARY: Use the Python scoring server
     try {
-      console.log('🔄 Trying n8n Python scoring...');
+      console.log('🚀 Trying Python scoring server for writing...');
       const n8nResult = await this.evaluateWithPythonServer(prompt, response, 'writing', questionType);
       if (n8nResult && n8nResult.success) {
-        console.log('✅ n8n Python scoring SUCCESS');
+        console.log('✅ Python server writing evaluation SUCCESS');
         return { ...n8nResult.result, source: 'n8n-python' };
       }
+      throw new Error(n8nResult.error || 'Python server returned success: false');
     } catch (n8nError) {
-      console.error('❌ n8n Python scoring failed:', n8nError.message);
+      console.error('❌ Python server writing evaluation failed, falling back:', n8nError.message);
     }
 
-    // Logic moved to Gemini provider at head of chain
-
-    // 4. Try Legacy Backend Fallback
+    // SECONDARY: Try Legacy Backend Fallback
     try {
-      console.log('🔄 Trying legacy backend fallback...');
+      console.log('🔄 Trying legacy backend fallback for writing...');
       const backendUrl = 'http://localhost:5000/api/scoring/evaluate-writing';
       const apiResponse = await fetch(backendUrl, {
         method: 'POST',
@@ -696,9 +507,10 @@ Return JSON format:
 
       if (apiResponse.ok) {
         const result = await apiResponse.json();
-        console.log('✅ Backend fallback SUCCESS');
+        console.log('✅ Legacy backend writing evaluation SUCCESS');
         return { ...result, source: 'backend' };
       }
+      throw new Error(`Legacy backend failed with status ${apiResponse.status}`);
     } catch (error) {
       console.error('❌ Backend fallback failed:', error.message);
     }

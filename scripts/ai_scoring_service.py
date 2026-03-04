@@ -240,26 +240,16 @@ Provide feedback on:
 
 Return JSON format with a "feedback" field and a "suggestions" array."""
         
-        result = await self._call_ai_model(evaluation_prompt, self.system_prompts["reading"])
         ai_feedback = await self._call_ai_for_qualitative_feedback(evaluation_prompt, self.system_prompts["reading"])
         
-        # If result is just a text feedback (parsed_json_from_text fallback), 
-        # ensure it has the expected structure
-        if "feedback" not in result:
-             result["feedback"] = str(result)
-             result["suggestions"] = []
-
         return ScoreResult(
             score=accuracy_percentage,
-            feedback=result.get("feedback", f"Student answered {correct_count} out of {total_count} questions correctly."),
             feedback=ai_feedback.get("feedback", f"Student answered {correct_count} out of {total_count} questions correctly."),
             details={
                 "correct_count": correct_count,
                 "total_count": total_count,
                 "accuracy_percentage": accuracy_percentage,
                 "detailed_results": results_detailed,
-                "suggestions": result.get("suggestions", []),
-                "source": result.get("source", "ai")
                 "suggestions": ai_feedback.get("suggestions", []),
                 "source": ai_feedback.get("source", "ai")
             }
@@ -299,25 +289,16 @@ Performance breakdown:
 Provide feedback on listening skills, note-taking, and accuracy. 
 Return JSON format with a "feedback" field and a "suggestions" array."""
         
-        result = await self._call_ai_model(evaluation_prompt, self.system_prompts["listening"])
         ai_feedback = await self._call_ai_for_qualitative_feedback(evaluation_prompt, self.system_prompts["listening"])
         
-        # Ensure result has expected structure
-        if "feedback" not in result:
-             result["feedback"] = str(result)
-             result["suggestions"] = []
-
         return ScoreResult(
             score=accuracy_percentage,
-            feedback=result.get("feedback", f"Student answered {correct_count} out of {total_count} questions correctly."),
             feedback=ai_feedback.get("feedback", f"Student answered {correct_count} out of {total_count} questions correctly."),
             details={
                 "correct_count": correct_count,
                 "total_count": total_count,
                 "accuracy_percentage": accuracy_percentage,
                 "detailed_results": results_detailed,
-                "suggestions": result.get("suggestions", []),
-                "source": result.get("source", "ai")
                 "suggestions": ai_feedback.get("suggestions", []),
                 "source": ai_feedback.get("source", "ai")
             }
