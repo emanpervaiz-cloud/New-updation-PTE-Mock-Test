@@ -459,6 +459,23 @@ Please provide a JSON response including:
       return { earned, total: correctWords.length };
     }
 
+    // 5. Reorder Paragraph (Adjacent Pairs)
+    if (q.type === 'reorder_paragraph' && Array.isArray(correct) && Array.isArray(student)) {
+      let earned = 0;
+      for (let i = 0; i < student.length - 1; i++) {
+        const studentPair = `${student[i]}-${student[i + 1]}`;
+        // Check if this pair exists in correct order
+        for (let j = 0; j < correct.length - 1; j++) {
+          const correctPair = `${correct[j]}-${correct[j + 1]}`;
+          if (studentPair === correctPair) {
+            earned++;
+            break;
+          }
+        }
+      }
+      return { earned, total: correct.length - 1 };
+    }
+
     // Default: Strict comparison (1 point)
     const isCorrect = this.compareAnswers(correct, student);
     return { earned: isCorrect ? 1 : 0, total: 1 };
