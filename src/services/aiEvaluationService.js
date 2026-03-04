@@ -256,12 +256,19 @@ class AIEvaluationService {
 
   async evaluateObjectiveWithAI(section, objective) {
     const systemPrompt = `Analyze these PTE ${section} results. Provide feedback and suggestions in JSON format.`;
-    const userPrompt = `Score: ${objective.correct_count}/${objective.total_count}\nAccuracy: ${objective.accuracy_percentage}%\nDetails: ${JSON.stringify(objective.detailed_results)}`;
+    const userPrompt = `Points Earned: ${objective.correct_points}/${objective.total_points}\nAccuracy: ${objective.accuracy_percentage}%\nDetails: ${JSON.stringify(objective.detailed_results)}`;
 
     // Try OpenRouter -> Gemini
     if (this.openRouterKey) {
       try {
-        const resp = await this.callChatLLM(systemPrompt, userPrompt, this.openRouterKey, this.openRouterUrl, 'openai/gpt-4o');
+        const enhancedSystemPrompt = `${systemPrompt}\n\nIMPORTANT: The student has achieved ${objective.correct_points}/${objective.total_points} total points (${objective.accuracy_percentage}% Accuracy). 
+Please provide a JSON response including:
+1. "total_score": A score out of 50 based on accuracy.
+2. "scaled_score": A score out of 10 based on accuracy.
+3. "band_descriptor": A brief descriptor (e.g., Expert, Competent).
+4. "feedback": Qualitative feedback on performance.
+5. "cefr_level": Estimated CEFR level.`;
+        const resp = await this.callChatLLM(enhancedSystemPrompt, userPrompt, this.openRouterKey, this.openRouterUrl, 'openai/gpt-4o');
         const parsed = JSON.parse(resp.match(/\{[\s\S]*\}/)?.[0] || '{}');
         return { ...parsed, source: 'openrouter' };
       } catch (e) { }
@@ -377,24 +384,111 @@ class AIEvaluationService {
   }
 
   calculateObjectiveOnlyScore(questions) {
-    let correct = 0;
+    let totalPoints = 0;
+    let earnedPoints = 0;
+
     const items = questions.map(q => {
-      const isCorrect = this.compareAnswers(q.correct_answer || q.correct, q.response || q.responses);
-      if (isCorrect) correct++;
-      return { type: q.type, is_correct: isCorrect };
+      const points = this.calculateQuestionPoints(q);
+      earnedPoints += points.earned;
+      totalPoints += points.total;
+      return {
+        type: q.type,
+        earned: points.earned,
+        total: points.total,
+        is_fully_correct: points.earned === points.total
+      };
     });
+
     return {
-      correct_count: correct,
-      total_count: questions.length,
-      accuracy_percentage: questions.length ? (correct / questions.length * 100).toFixed(1) : 0,
+      correct_points: earnedPoints,
+      total_points: totalPoints,
+      accuracy_percentage: totalPoints ? (earnedPoints / totalPoints * 100).toFixed(1) : 0,
       detailed_results: items
     };
   }
 
+  calculateQuestionPoints(q) {
+    const student = q.response || q.responses;
+    const correct = q.correct_answer || q.correct;
+
+    if (!student || !correct) return { earned: 0, total: 1 };
+
+    // 1. Multi-blank types (Reading FIB, Listening FIB, etc.)
+    if ((q.type?.includes('fill_blanks')) && typeof correct === 'object' && !Array.isArray(correct)) {
+      const blanks = Object.keys(correct);
+      let earned = 0;
+      blanks.forEach(b => {
+        if (this.compareAnswers(correct[b], student[b])) earned++;
+      });
+      return { earned, total: blanks.length };
+    }
+
+    // 2. Multiple Choice (Multiple Answers)
+    if (q.type === 'multiple_choice' && Array.isArray(correct)) {
+      const studentArr = Array.isArray(student) ? student : [student];
+      let earned = 0;
+      // Correct selections: +1
+      studentArr.forEach(ans => {
+        if (correct.includes(ans)) earned++;
+        else earned--; // Incorrect selection: -1
+      });
+      // Correct choices NOT selected: Penalty? No, just +1 for each correct one found.
+      // Standard PTE: +1 for correct, -1 for incorrect, min 0.
+      return { earned: Math.max(0, earned), total: correct.length };
+    }
+
+    // 3. Highlight Incorrect Words
+    if (q.type === 'highlight_incorrect_words' && Array.isArray(correct)) {
+      const studentArr = Array.isArray(student) ? student : [];
+      let earned = 0;
+      studentArr.forEach(ans => {
+        if (correct.includes(ans)) earned++;
+        else earned--;
+      });
+      return { earned: Math.max(0, earned), total: correct.length };
+    }
+
+    // 4. Write From Dictation
+    if (q.type === 'write_from_dictation' && typeof correct === 'string') {
+      const correctWords = correct.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").split(/\s+/);
+      const studentWords = (typeof student === 'string' ? student : "").toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").split(/\s+/);
+      let earned = 0;
+      correctWords.forEach(w => {
+        if (studentWords.includes(w)) earned++;
+      });
+      return { earned, total: correctWords.length };
+    }
+
+    // Default: Strict comparison (1 point)
+    const isCorrect = this.compareAnswers(correct, student);
+    return { earned: isCorrect ? 1 : 0, total: 1 };
+  }
+
   compareAnswers(correct, student) {
-    if (!correct || !student) return false;
-    if (typeof correct === 'string' && typeof student === 'string') return correct.trim().toLowerCase() === student.trim().toLowerCase();
-    if (Array.isArray(correct) && Array.isArray(student)) return JSON.stringify(correct.sort()) === JSON.stringify(student.sort());
+    if (correct === undefined || correct === null) return false;
+    if (student === undefined || student === null) return false;
+
+    // String Comparison
+    if (typeof correct === 'string' && typeof student === 'string') {
+      return correct.trim().toLowerCase() === student.trim().toLowerCase();
+    }
+
+    // Array Comparison (Order independent)
+    if (Array.isArray(correct) && Array.isArray(student)) {
+      if (correct.length !== student.length) return false;
+      const cSorted = [...correct].sort();
+      const sSorted = [...student].sort();
+      return JSON.stringify(cSorted) === JSON.stringify(sSorted);
+    }
+
+    // Object Comparison (e.g., FIB blanks)
+    if (typeof correct === 'object' && typeof student === 'object') {
+      const cKeys = Object.keys(correct);
+      const sKeys = Object.keys(student);
+      if (cKeys.length !== sKeys.length) return false;
+      return cKeys.every(k => this.compareAnswers(correct[k], student[k]));
+    }
+
     return correct === student;
   }
 
