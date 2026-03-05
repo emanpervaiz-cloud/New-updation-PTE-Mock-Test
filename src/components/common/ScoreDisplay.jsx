@@ -366,7 +366,24 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
             {/* Dimension Scores */}
             <div style={{ padding: '0 28px 20px' }}>
                 {dimensions.map(({ key, label, icon, color }) => {
-                    const dim = evaluation[key];
+                    // Normalize data: check for nested object first, then flat key
+                    let dim = evaluation[key];
+
+                    // Fallback for flat keys if nested object is missing
+                    if (!dim) {
+                        const flatKeyMap = {
+                            'fluency_coherence': 'fluencyScore',
+                            'pronunciation_intonation': 'pronunciationScore',
+                            'grammar_range_accuracy': 'grammarScore',
+                            'vocabulary_lexical_resource': 'vocabularyScore',
+                            'task_achievement': 'taskScore'
+                        };
+                        const flatKey = flatKeyMap[key];
+                        if (evaluation[flatKey] !== undefined) {
+                            dim = { score: evaluation[flatKey], feedback: evaluation.feedback || '' };
+                        }
+                    }
+
                     if (!dim) return null;
                     const score = typeof dim.score === 'number' ? dim.score : 0;
                     const feedback = dim.feedback || '';
@@ -446,7 +463,7 @@ const ScoreDisplay = ({ evaluation, loading, error, onGetScore, hasResponse, que
             <style>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
-        </div>
+        </div >
     );
 };
 

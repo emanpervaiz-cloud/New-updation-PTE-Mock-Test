@@ -11,39 +11,55 @@ EVALUATION CRITERIA — Score each 0-10:
 4. Vocabulary & Lexical Resource (0–10): Precise academic word choice, no repetition.
 5. Task Achievement & Relevance (0–10): Fully addresses the prompt.
 
-CRITICAL: If the student just reads the prompt or copies the text without original input, or if the transcription is clearly nonsense/non-English, award an absolute 0 for ALL individual criteria. Reference specific evidence.`;
+CRITICAL: If the student just reads the prompt or copies the text without original input, or if the transcription is clearly nonsense/non-English or "[No speech]", award an absolute 0 for ALL individual criteria. Reference specific evidence.
 
-const WRITING_EXAMINER_SYSTEM_PROMPT = `You are an expert English writing evaluator for PTE Academic. 
+REQUIRED OUTPUT FORMAT (JSON):
+{
+  "fluency_coherence": { "score": number, "feedback": "string" },
+  "pronunciation_intonation": { "score": number, "feedback": "string" },
+  "grammar_range_accuracy": { "score": number, "feedback": "string" },
+  "vocabulary_lexical_resource": { "score": number, "feedback": "string" },
+  "task_achievement": { "score": number, "feedback": "string" },
+  "total_score": number,
+  "scaled_score": number,
+  "band_descriptor": "string (e.g. Expert/Strong/Competent/Developing/Beginner)",
+  "cefr_level": "string",
+  "top_strength": "string",
+  "priority_improvement": "string",
+  "feedback": "Overall summary"
+}`;
 
-CRITICAL - PLAGIARISM DETECTION:
-Only award a score of 0 for plagiarism if the STUDENT RESPONSE is a direct verbatim copy (or near-direct copy) of large portions of the passage/prompt.
+const WRITING_EXAMINER_SYSTEM_PROMPT = `You are an expert English writing evaluator for PTE Academic.
+
+  CRITICAL - PLAGIARISM DETECTION:
+Only award a score of 0 for plagiarism if the STUDENT RESPONSE is a direct verbatim copy(or near - direct copy) of large portions of the passage / prompt.
 DO NOT flag as plagiarism if the response is simply short, uses common connectors, or contains some keywords from the prompt in an original context.
 In actual plagiarism cases, the "feedback" field MUST start exactly with: "Paragraph copied — score awarded: 0." 
 
-EVALUATION CRITERIA (0-10):
+EVALUATION CRITERIA(0 - 10):
 1. FLUENCY & COHERENCE: Logical flow and paragraph structure.
 2. SPELLING & PUNCTUATION: Accurate spelling and standard punctuation.
 3. GRAMMAR RANGE & ACCURACY: Complex sentence structures and correctness.
 4. VOCABULARY & LEXICAL RESOURCE: Academic vocabulary and precision.
 5. TASK ACHIEVEMENT: Addressing all parts of the prompt in own words.
 
-CALCULATION:
-The "overallScore" MUST be the average of all 5 criteria (score/10). 
-If the input is NONSENSE, RANDOM CHARACTERS, or NON-ENGLISH, you MUST award 0 for EVERY single criterion without exception. Do not provide generic positive feedback for non-words.
+  CALCULATION:
+The "overallScore" MUST be the average of all 5 criteria(score / 10). 
+If the input is NONSENSE, RANDOM CHARACTERS, or NON - ENGLISH, you MUST award 0 for EVERY single criterion without exception.Do not provide generic positive feedback for non - words.
 
 REQUIRED OUTPUT FORMAT:
-{
-  "fluencyScore": number,
-  "spellingScore": number,
-  "grammarScore": number,
-  "vocabularyScore": number,
-  "taskScore": number,
-  "overallScore": number,
-  "feedback": "Detailed feedback. If plagiarized, must start with: Paragraph copied — score awarded: 0.",
-  "grammarErrors": ["Error -> Correction"],
-  "spellingErrors": ["misspelled -> correct"],
-  "vocabularySuggestions": ["word -> alternative"]
-}`;
+  {
+    "fluencyScore": number,
+      "spellingScore": number,
+        "grammarScore": number,
+          "vocabularyScore": number,
+            "taskScore": number,
+              "overallScore": number,
+                "feedback": "Detailed feedback. If plagiarized, must start with: Paragraph copied — score awarded: 0.",
+                  "grammarErrors": ["Error -> Correction"],
+                    "spellingErrors": ["misspelled -> correct"],
+                      "vocabularySuggestions": ["word -> alternative"]
+  } `;
 
 class AIEvaluationService {
   constructor(apiKey = null, apiUrl = null, provider = null) {
@@ -292,6 +308,11 @@ Please provide a JSON response including:
    * Transcription Logic
    */
   async transcribeAudio(blob) {
+    if (!blob || blob.size < 100) {
+      console.warn('Audio blob too small for transcription:', blob?.size);
+      return "[No speech]";
+    }
+
     // n8n -> Gemini -> OpenAI Whisper
     if (this.webhookUrl) {
       try {
@@ -364,16 +385,30 @@ Please provide a JSON response including:
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
+
         // Force consistency: If overall is 0, all components must be 0
-        if (parsed.overallScore === 0) {
+        const isZeroScore = parsed.overallScore === 0 || parsed.total_score === 0 || parsed.scaled_score === 0;
+
+        if (isZeroScore) {
+          const zeroDim = { score: 0, feedback: "No valid content detected to evaluate." };
           return {
             ...parsed,
+            overallScore: 0,
+            total_score: 0,
+            scaled_score: 0,
             fluencyScore: 0,
             grammarScore: 0,
             spellingScore: 0,
             vocabularyScore: 0,
             taskScore: 0,
-            pronunciationScore: 0
+            pronunciationScore: 0,
+            // Nested Speaking schema
+            fluency_coherence: zeroDim,
+            pronunciation_intonation: zeroDim,
+            grammar_range_accuracy: zeroDim,
+            vocabulary_lexical_resource: zeroDim,
+            task_achievement: zeroDim,
+            band_descriptor: "Beginner"
           };
         }
         return parsed;

@@ -88,10 +88,16 @@ const RepeatSentence = ({ question, onNext }) => {
         return;
       }
 
+      if (audioBlob && audioBlob.size < 1000) { // Less than 1KB is likely silence/empty
+        setEvalError('No audio detected. Please record your response again.');
+        setEvalLoading(false);
+        return;
+      }
+
       const evaluator = new AIEvaluationService(apiKey, apiUrl, provider);
       const result = await evaluator.evaluateSpeaking(
         `SENTENCE TO REPEAT: "${question.transcript || question.prompt}"\n\nTASK: Repeat the sentence exactly as you heard it. Accuracy in words, fluency, and pronunciation is critical.`,
-        audioBlob || `[Audio response recorded - Duration: ${recordingTime}s]`,
+        audioBlob || `[No speech]`,
         'repeat_sentence'
       );
       setEvaluation(result);
