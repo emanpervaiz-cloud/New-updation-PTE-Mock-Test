@@ -11,7 +11,7 @@ EVALUATION CRITERIA — Score each 0-10:
 4. Vocabulary & Lexical Resource (0–10): Precise academic word choice, no repetition.
 5. Task Achievement & Relevance (0–10): Fully addresses the prompt.
 
-CRITICAL: If the student just reads the prompt or copies the text without original input, or if the transcription is clearly nonsense, penalize heavily. Reference specific evidence.`;
+CRITICAL: If the student just reads the prompt or copies the text without original input, or if the transcription is clearly nonsense/non-English, award an absolute 0 for ALL individual criteria. Reference specific evidence.`;
 
 const WRITING_EXAMINER_SYSTEM_PROMPT = `You are an expert English writing evaluator for PTE Academic. 
 
@@ -28,7 +28,8 @@ EVALUATION CRITERIA (0-10):
 5. TASK ACHIEVEMENT: Addressing all parts of the prompt in own words.
 
 CALCULATION:
-The "overallScore" MUST be the average of all 5 criteria (score/10).
+The "overallScore" MUST be the average of all 5 criteria (score/10). 
+If the input is NONSENSE, RANDOM CHARACTERS, or NON-ENGLISH, you MUST award 0 for EVERY single criterion without exception. Do not provide generic positive feedback for non-words.
 
 REQUIRED OUTPUT FORMAT:
 {
@@ -361,11 +362,26 @@ Please provide a JSON response including:
   parseLLMResponse(content) {
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) return JSON.parse(jsonMatch[0]);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        // Force consistency: If overall is 0, all components must be 0
+        if (parsed.overallScore === 0) {
+          return {
+            ...parsed,
+            fluencyScore: 0,
+            grammarScore: 0,
+            spellingScore: 0,
+            vocabularyScore: 0,
+            taskScore: 0,
+            pronunciationScore: 0
+          };
+        }
+        return parsed;
+      }
     } catch (e) { console.warn('Regex JSON parse failed, using rough parser'); }
 
-    // Rough parser for non-JSON or partial JSON
-    const scores = { fluencyScore: 5, grammarScore: 5, spellingScore: 5, vocabularyScore: 5, taskScore: 5, overallScore: 50, feedback: content };
+    // Rough parser for non-JSON or partial JSON - Default to 0 instead of 5
+    const scores = { fluencyScore: 0, grammarScore: 0, spellingScore: 0, vocabularyScore: 0, taskScore: 0, overallScore: 0, feedback: content };
     const matches = content.match(/(\w+)Score":\s*(\d+)/g);
     if (matches) {
       matches.forEach(m => {
@@ -527,7 +543,7 @@ Please provide a JSON response including:
   }
 
   getFallbackWritingEvaluation() {
-    return { grammarScore: 5, spellingScore: 5, vocabularyScore: 5, taskScore: 5, overallScore: 50, feedback: "AI evaluation unavailable. Displaying generic assessment." };
+    return { grammarScore: 0, spellingScore: 0, vocabularyScore: 0, taskScore: 0, overallScore: 0, feedback: "AI evaluation unavailable. Response could not be safely scored." };
   }
 }
 

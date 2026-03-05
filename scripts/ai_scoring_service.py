@@ -82,6 +82,7 @@ EVALUATION CRITERIA — Score each dimension 0-10 with specific examples:
    - Check word count appropriateness
    - Evaluate argument development and support
    - Score: 8+ for fully developed response, 6-7 for adequate, below 6 for incomplete
+   - NONSENSE/NON-ENGLISH: An absolute 0 MUST be awarded for ALL categories if the response is random characters or non-English.
 
 REQUIRED OUTPUT FORMAT:
 {
@@ -327,12 +328,12 @@ Return JSON format with a "feedback" field and a "suggestions" array."""
         
         print("All AI providers failed. Returning fallback evaluation.")
         return {
-            "fluencyScore": 5,
-            "pronunciationScore": 5,
-            "grammarScore": 5,
-            "vocabularyScore": 5,
-            "taskScore": 5,
-            "overallScore": 50,
+            "fluencyScore": 0,
+            "pronunciationScore": 0,
+            "grammarScore": 0,
+            "vocabularyScore": 0,
+            "taskScore": 0,
+            "overallScore": 0,
             "feedback": "AI evaluation currently unavailable. Please check your API keys and internet connection.",
             "grammarErrors": [],
             "fluencyIssues": [],
