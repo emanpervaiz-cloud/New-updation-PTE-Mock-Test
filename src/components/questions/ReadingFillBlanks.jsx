@@ -14,10 +14,6 @@ const ReadingFillBlanks = ({ question, onNext }) => {
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState(null);
 
-  // Mobile Native UI State
-  const [activeBlank, setActiveBlank] = useState(null);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-
   useEffect(() => {
     if (question) {
       setAnswers({});
@@ -121,36 +117,20 @@ const ReadingFillBlanks = ({ question, onNext }) => {
         const currentAnswer = answers[blankNumber] || '';
 
         return (
-          <button
+          <select
             key={`blank-${blankNumber}`}
-            onClick={() => {
-              if (!isSubmitted) {
-                setActiveBlank(blankNumber);
-                setIsSheetOpen(true);
-              }
-            }}
-            className={`blank-trigger ${currentAnswer ? 'filled' : ''} ${activeBlank === blankNumber ? 'active' : ''}`}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minWidth: '100px',
-              height: '32px',
-              padding: '0 12px',
-              margin: '0 4px',
-              border: `2px solid ${activeBlank === blankNumber ? 'var(--primary-color)' : '#e2e8f0'}`,
-              borderRadius: '6px',
-              backgroundColor: currentAnswer ? 'rgba(13, 59, 102, 0.05)' : '#fff',
-              fontSize: '16px',
-              fontWeight: '600',
-              color: currentAnswer ? 'var(--primary-color)' : '#94a3b8',
-              cursor: isSubmitted ? 'default' : 'pointer',
-              verticalAlign: 'middle',
-              transition: 'all 0.2s ease'
-            }}
+            value={currentAnswer}
+            onChange={(e) => handleOptionSelect(blankNumber, e.target.value)}
+            className="blank-select"
           >
-            {currentAnswer || `Blank ${blankNumber}`}
-          </button>
+            <option value="">Select option</option>
+            {availableOptions.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+            {currentAnswer && !availableOptions.includes(currentAnswer) && (
+              <option value={currentAnswer}>{currentAnswer}</option>
+            )}
+          </select>
         );
       } else {
         return <span key={index}>{part}</span>;
@@ -245,87 +225,10 @@ const ReadingFillBlanks = ({ question, onNext }) => {
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
-          style={{ height: '56px', fontSize: '18px' }}
         >
           {isSubmitted ? 'Next Question' : 'Submit Answers'}
         </button>
       </div>
-
-      {/* Mobile Choice Sheet */}
-      {isSheetOpen && (
-        <>
-          <div
-            style={{
-              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000
-            }}
-            onClick={() => setIsSheetOpen(false)}
-          />
-          <div style={{
-            position: 'fixed', bottom: 0, left: 0, right: 0,
-            backgroundColor: '#fff',
-            borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
-            padding: '24px', paddingBottom: 'calc(24px + var(--safe-area-bottom))',
-            zIndex: 2001,
-            animation: 'slideUp 0.3s ease-out',
-            boxShadow: '0 -10px 25px rgba(0,0,0,0.1)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, fontSize: '18px' }}>Select word for Blank {activeBlank}</h3>
-              <button onClick={() => setIsSheetOpen(false)} style={{ background: 'none', fontSize: '24px', color: '#94a3b8' }}>×</button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              {/* Combine available options + current answer if exists */}
-              {[...new Set([...availableOptions, ...(answers[activeBlank] ? [answers[activeBlank]] : [])])].map((option) => (
-                <button
-                  key={option}
-                  onClick={() => {
-                    handleOptionSelect(activeBlank, option);
-                    setIsSheetOpen(false);
-                  }}
-                  style={{
-                    padding: '16px',
-                    borderRadius: '12px',
-                    border: `2px solid ${answers[activeBlank] === option ? 'var(--primary-color)' : '#f1f5f9'}`,
-                    backgroundColor: answers[activeBlank] === option ? 'rgba(13, 59, 102, 0.05)' : '#f8fafc',
-                    color: answers[activeBlank] === option ? 'var(--primary-color)' : '#1e293b',
-                    fontWeight: '600',
-                    fontSize: '16px',
-                    textAlign: 'center'
-                  }}
-                >
-                  {option}
-                </button>
-              ))}
-              <button
-                onClick={() => {
-                  handleOptionSelect(activeBlank, '');
-                  setIsSheetOpen(false);
-                }}
-                style={{
-                  gridColumn: 'span 2',
-                  padding: '16px',
-                  marginTop: '4px',
-                  borderRadius: '12px',
-                  border: '1px dashed #cbd5e1',
-                  backgroundColor: 'transparent',
-                  color: '#ef4444',
-                  fontWeight: '600'
-                }}
-              >
-                Clear Selection
-              </button>
-            </div>
-          </div>
-          <style>{`
-            @keyframes slideUp {
-              from { transform: translateY(100%); }
-              to { transform: translateY(0); }
-            }
-          `}</style>
-        </>
-      )}
     </div>
   );
 };

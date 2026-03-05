@@ -86,37 +86,19 @@ const SummarizeWrittenText = ({ question, onNext }) => {
         </div>
       </div>
 
-      <div className="answer-section" style={{ marginTop: '16px' }}>
-        <h3 style={{ fontSize: '18px', marginBottom: '12px' }}>Write your summary here:</h3>
+      <div className="answer-section">
+        <h3>Write your summary here:</h3>
         <textarea
           className="response-textarea"
           value={summary}
           onChange={handleChange}
           placeholder="Write your summary in 5-75 words..."
-          rows={window.innerWidth < 480 ? 6 : 4}
-          style={{
-            width: '100%',
-            padding: '16px',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
-            fontSize: '16px',
-            lineHeight: '1.5',
-            resize: 'none',
-            backgroundColor: '#f8fafc'
-          }}
+          rows={4}
         />
-        <div className="word-count" style={{
-          marginTop: '8px',
-          fontSize: '14px',
-          fontWeight: '600',
-          color: (wordCount < 5 || wordCount > 75) ? 'var(--danger-color)' : 'var(--success-color)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '4px'
-        }}>
+        <div className="word-count">
           {wordCount}/75 words
-          {wordCount < 5 && wordCount > 0 && <span> (Min 5 words required)</span>}
-          {wordCount > 75 && <span> (Max 75 exceeded)</span>}
+          {wordCount < 5 && wordCount > 0 && <span className="warning"> Minimum 5 words required</span>}
+          {wordCount > 75 && <span className="error"> Maximum 75 words exceeded</span>}
         </div>
       </div>
 
@@ -135,12 +117,11 @@ const SummarizeWrittenText = ({ question, onNext }) => {
         questionType="writing"
       />
 
-      <div className="action-buttons" style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
+      <div className="action-buttons" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
         <button
           className="btn btn-primary"
           onClick={handleSubmit}
           disabled={wordCount < 5 || wordCount > 75}
-          style={{ height: '56px', fontSize: '18px', width: '100%' }}
         >
           Submit & Continue →
         </button>

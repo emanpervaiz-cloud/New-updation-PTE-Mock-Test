@@ -5,8 +5,6 @@ import { AuthService } from '../../services/authService';
 import AuthModal from './AuthModal';
 import ModuleCard from '../dashboard/ModuleCard';
 import SidebarOverview from '../dashboard/SidebarOverview';
-import Button from '../ui/Button';
-import StatCard from '../ui/StatCard';
 
 const NAV_ITEMS = [
   { icon: '📊', label: 'Dashboard', path: '/', active: true },
@@ -97,23 +95,21 @@ const Dashboard = () => {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-color)', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       {/* Sidebar */}
-      <aside
-        className="desktop-nav"
-        style={{
-          width: sidebarOpen ? 240 : 72,
-          background: 'var(--bg-color)',
-          borderRight: '1px solid var(--accent-color)',
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'width 0.25s ease',
-          flexShrink: 0,
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
-          zIndex: 100,
-          boxShadow: 'var(--shadow-sm)',
-          overflow: 'hidden',
-        }}>
+      <aside style={{
+        width: sidebarOpen ? 240 : 72,
+        background: 'var(--bg-color)',
+        borderRight: '1px solid var(--accent-color)',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'width 0.25s ease',
+        flexShrink: 0,
+        position: 'sticky',
+        top: 0,
+        height: '100vh',
+        zIndex: 100,
+        boxShadow: 'var(--shadow-sm)',
+        overflow: 'hidden',
+      }}>
         {/* Logo */}
         <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid var(--accent-color)' }}>
           <div style={{
@@ -177,119 +173,114 @@ const Dashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, background: 'var(--color-background)' }}>
-        {/* Top Bar - Hidden on mobile */}
-        <header
-          className="desktop-nav"
-          style={{
-            background: '#fff', borderBottom: '1px solid var(--color-border)',
-            padding: '0 24px', height: 64, display: 'flex', alignItems: 'center',
-            justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 90,
-            boxShadow: 'var(--shadow-soft)',
-          }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: 6,
-              background: 'var(--color-primary)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontWeight: 800, fontSize: 14,
-            }}>P</div>
-            <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--color-primary)' }}>PTE Mock Test</span>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {/* Top Bar */}
+        <header style={{
+          background: 'var(--bg-color)', borderBottom: '1px solid var(--accent-color)',
+          padding: '0 32px', height: 64, display: 'flex', alignItems: 'center',
+          gap: 16, position: 'sticky', top: 0, zIndex: 90,
+          boxShadow: 'var(--shadow-sm)',
+        }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <span style={{ background: 'rgba(13, 59, 102, 0.08)', color: 'var(--primary-color)', borderRadius: '6px', padding: '4px 12px', fontSize: 13, fontWeight: 700 }}>PTE Academic</span>
+            <button
+              onClick={() => navigate('/landing')}
+              style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: 14, cursor: 'pointer', padding: '6px 12px', borderRadius: 6, fontWeight: 500 }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-color)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}
+            >Practice Library ▾</button>
           </div>
-          <div style={{
-            width: 32, height: 32, borderRadius: '50%', background: 'var(--color-primary-light)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 700, color: 'var(--color-primary)', fontSize: 14,
-            cursor: 'pointer'
-          }} onClick={() => navigate('/profile')}>
-            {user?.name?.charAt(0).toUpperCase() || 'S'}
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16 }}>
+            {user ? (
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{user.name}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>Student</div>
+                </div>
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%', background: '#e2e8f0',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700, color: '#475569'
+                }}>
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0',
+                    background: '#fff', color: '#ef4444', fontWeight: 600, cursor: 'pointer',
+                    fontSize: 13, transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-color)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-color)'}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                style={{
+                  padding: '8px 20px', borderRadius: '8px',
+                  background: 'var(--primary-color)',
+                  color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer'
+                }}
+              >
+                Sign in
+              </button>
+            )}
           </div>
         </header>
 
         {/* Page body */}
-        <div style={{
-          flex: 1,
-          padding: 'var(--mobile-margin)',
-          paddingBottom: 'calc(80px + var(--safe-area-bottom))',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 24,
-          overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch'
-        }}>
+        <div style={{ flex: 1, padding: '32px', display: 'flex', gap: 24, overflowY: 'auto' }}>
 
-          {/* Welcome Header */}
-          <div style={{ marginTop: 8 }}>
-            <h1 style={{ margin: '0 0 4px', fontSize: 'var(--font-size-xxl)', fontWeight: 800, color: 'var(--color-primary)' }}>
-              Welcome back, {user ? user.name.split(' ')[0] : 'Student'} 👋
-            </h1>
-            <p style={{ margin: 0, fontSize: 'var(--font-size-sm)', color: 'var(--color-text-sub)', fontWeight: 500 }}>
-              Track your progress and achieve your target score of {targetScore}.
-            </p>
-          </div>
+          {/* Main Module Grid Column */}
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
-          {/* Score Overview - Using StatCards Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '12px'
-          }}>
-            <StatCard label="Tests Taken" value={history.length} icon="📝" color="#6366f1" />
-            <StatCard label="Avg Score" value={avgScore} icon="📊" color="#10b981" />
-            <StatCard label="Last Score" value={lastScore || '--'} icon="⏱" color="#f59e0b" />
-            <StatCard label="Target" value={targetScore} icon="🎯" color="#8b5cf6" />
-          </div>
-
-          {/* Practice Modules Section */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h2 style={{ margin: 0, fontSize: 'var(--font-size-lg)', fontWeight: 800, color: 'var(--color-primary)' }}>Practice Modules</h2>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px'
-            }}>
-              {modules.map(mod => (
-                <ModuleCard
-                  key={mod.module_id}
-                  module={mod}
-                  onStartPractice={() => handleStartPractice(mod.route)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Hero CTA for Mock Test */}
-          <div style={{
-            background: 'linear-gradient(135deg, var(--color-primary), #1e293b)',
-            borderRadius: 'var(--mobile-radius)',
-            padding: '24px',
-            color: '#ffffff',
-            boxShadow: '0 10px 30px rgba(13, 59, 102, 0.3)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 800 }}>Ready for a Full Flight?</h3>
-              <p style={{ margin: '0 0 20px 0', fontSize: '14px', opacity: 0.9, lineHeight: 1.5 }}>
-                Experience the complete PTE exam environment with AI-powered scoring and detailed feedback.
+            {/* Greeting Section */}
+            <div>
+              <h1 style={{ margin: '0 0 8px', fontSize: '28px', fontWeight: 800, color: 'var(--primary-color)' }}>
+                Welcome back, {user ? user.name : 'Student'} 👋
+              </h1>
+              <p style={{ margin: 0, fontSize: '15px', color: 'var(--text-secondary)' }}>
+                Track your progress, practice modules, and achieve your target score of {targetScore}.
               </p>
-              <Button
-                onClick={handleStartMockTest}
-                variant="secondary"
-                fullWidth
-                style={{ height: '48px', fontSize: '15px' }}
-              >
-                Start Official Mock Test
-              </Button>
             </div>
-            <div style={{
-              position: 'absolute', right: '-20px', bottom: '-20px', fontSize: '120px',
-              opacity: 0.1, transform: 'rotate(-15deg)', pointerEvents: 'none'
-            }}>🎓</div>
+
+            {/* Modules Grid */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: 'var(--primary-color)' }}>Practice Modules</h2>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '20px'
+              }}>
+                {modules.map(mod => (
+                  <ModuleCard
+                    key={mod.module_id}
+                    module={mod}
+                    onStartPractice={() => handleStartPractice(mod.route)}
+                  />
+                ))}
+              </div>
+            </div>
+
           </div>
+
+          {/* Right Sidebar Overview */}
+          <SidebarOverview
+            history={history}
+            targetScore={targetScore}
+            avgScore={avgScore}
+            lastScore={lastScore}
+            onStartTest={handleStartTest}
+            onStartMockTest={handleStartMockTest}
+            onShowTargetModal={() => { setTempTarget(targetScore); setShowTargetModal(true); }}
+          />
 
         </div>
       </div>
@@ -452,13 +443,6 @@ const Dashboard = () => {
         </div>
       )}
       {authOpen && <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />}
-      <style>{`
-        @media (max-width: 768px) {
-          .desktop-nav {
-            display: none !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };

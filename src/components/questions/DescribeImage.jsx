@@ -152,7 +152,7 @@ const DescribeImage = ({ question, onNext }) => {
         <div style={{ padding: 24, textAlign: 'center' }}>
           <div style={{
             maxWidth: '100%',
-            minHeight: window.innerWidth < 480 ? 200 : 300,
+            minHeight: 300,
             background: '#fafafa',
             borderRadius: 12,
             display: 'flex',
@@ -166,7 +166,7 @@ const DescribeImage = ({ question, onNext }) => {
               <img
                 src={question.imageUrl}
                 alt="Test image to describe"
-                style={{ maxWidth: '100%', maxHeight: window.innerWidth < 480 ? '250px' : '400px', objectFit: 'contain' }}
+                style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }}
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = 'https://via.placeholder.com/600x400?text=Premium+Chart+Placeholder';
@@ -189,15 +189,10 @@ const DescribeImage = ({ question, onNext }) => {
       )}
 
       <div style={{
-        background: '#fff', borderRadius: 16, padding: '24px', border: '1px solid #eef2f6',
-        display: 'flex', flexDirection: window.innerWidth < 480 ? 'column' : 'row',
-        alignItems: 'center', justifyContent: 'space-between', gap: 20
+        background: '#fff', borderRadius: 16, padding: '24px 32px', border: '1px solid #eef2f6',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20
       }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: window.innerWidth < 480 ? 'column' : 'row',
-          alignItems: 'center', gap: 20, textAlign: window.innerWidth < 480 ? 'center' : 'left'
-        }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <button
             onClick={() => {
               if (prepTime > 0 && !isRecording && !hasRecorded) {
@@ -212,14 +207,13 @@ const DescribeImage = ({ question, onNext }) => {
             }}
             disabled={recordingTime >= 40 || micError}
             style={{
-              width: 80, height: 80, borderRadius: '50%',
+              width: 64, height: 64, borderRadius: '50%',
               background: isRecording ? '#dc2626' : (hasRecorded ? 'var(--success-color)' : 'var(--primary-color)'),
               color: '#fff', border: 'none', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32,
-              boxShadow: isRecording ? '0 0 0 10px rgba(220, 38, 38, 0.15)' : '0 4px 20px rgba(13, 59, 102, 0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+              boxShadow: isRecording ? '0 0 0 6px rgba(220, 38, 38, 0.15)' : '0 4px 12px rgba(13, 59, 102, 0.2)',
               transition: 'all 0.3s ease',
-              animation: isRecording ? 'pulse 1.5s infinite' : 'none',
-              WebkitTapHighlightColor: 'transparent'
+              animation: isRecording ? 'pulse 1.5s infinite' : 'none'
             }}
           >
             {isRecording ? '⏹' : (hasRecorded ? '✓' : '🎤')}
@@ -260,20 +254,20 @@ const DescribeImage = ({ question, onNext }) => {
         questionType="speaking"
       />
 
-      <div style={{ display: 'flex', justifyContent: 'stretch', marginTop: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
         <button
           onClick={handleNext}
           style={{
-            padding: '16px 32px', borderRadius: 12,
+            padding: '12px 32px', borderRadius: 12,
             background: isRecording ? '#fff' : 'linear-gradient(135deg, #673ab7, #5e35b1)',
             color: isRecording ? '#673ab7' : '#fff',
             border: isRecording ? '1.5px solid #673ab7' : 'none',
-            fontWeight: 700, fontSize: 16, cursor: 'pointer',
+            fontWeight: 700, fontSize: 15, cursor: 'pointer',
             transition: 'all 0.2s ease',
-            width: '100%',
-            height: '56px',
             boxShadow: isRecording ? 'none' : '0 4px 12px rgba(103, 58, 183, 0.2)'
           }}
+          onMouseEnter={e => { if (!isRecording) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
         >
           {isRecording ? 'Stop & Next' : 'Continue'} →
         </button>

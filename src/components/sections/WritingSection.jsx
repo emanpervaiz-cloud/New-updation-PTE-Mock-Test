@@ -12,7 +12,6 @@ const WritingSection = ({ onSectionComplete, onSectionBack, isMockTest = false, 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showTimeoutModal, setShowTimeoutModal] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [isFocusMode, setIsFocusMode] = useState(false);
   const navigate = useNavigate();
 
   // Mock writing questions data
@@ -83,23 +82,31 @@ const WritingSection = ({ onSectionComplete, onSectionBack, isMockTest = false, 
       {/* Premium Header */}
       <header style={{
         background: '#fff', borderBottom: '1px solid var(--accent-color)',
-        padding: '0 var(--mobile-margin, 24px)', height: 64, display: 'flex', alignItems: 'center',
+        padding: '0 24px', height: 64, display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100,
         boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
-            width: 28, height: 28, borderRadius: 6,
+            width: 32, height: 32, borderRadius: 8,
             background: 'var(--primary-color)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontWeight: 800, fontSize: 14,
-          }}>W</div>
-          <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--primary-color)', whiteSpace: 'nowrap' }}>
-            {window.innerWidth < 480 ? 'Writing' : 'Writing Module'}
-          </span>
+            color: '#fff', fontWeight: 800, fontSize: 16,
+          }}>A</div>
+          <span style={{ fontWeight: 700, fontSize: 16, color: 'var(--primary-color)' }}>Writing Module</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          {!isMockTest && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>
+              <span style={{ color: 'var(--secondary-color)' }}>●</span> Practice Mode
+            </div>
+          )}
+          {isMockTest && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--danger-color)', fontSize: 13, fontWeight: 700 }}>
+              <span style={{ color: 'var(--danger-color)' }}>●</span> MOCK TEST LIVE
+            </div>
+          )}
           <Timer initialTime={600} onComplete={handleTimeout} />
         </div>
       </header>
@@ -129,58 +136,39 @@ const WritingSection = ({ onSectionComplete, onSectionBack, isMockTest = false, 
             </div>
           </div>
 
-          <div className="mobile-only" style={{ marginBottom: 16 }}>
-            <button
-              onClick={() => setIsFocusMode(!isFocusMode)}
-              style={{
-                width: '100%', padding: '12px', borderRadius: 12,
-                background: isFocusMode ? 'var(--primary-color)' : '#fff',
-                color: isFocusMode ? '#fff' : 'var(--primary-color)',
-                border: '1px solid var(--primary-color)',
-                fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
-              }}
-            >
-              {isFocusMode ? '📖 Show Passage' : '✍️ Focus on Writing'}
-            </button>
-          </div>
-
-          {!isFocusMode && (
-            <ProgressBar
-              current={currentQuestion + 1}
-              total={writingQuestions.length}
-            />
-          )}
+          <ProgressBar
+            current={currentQuestion + 1}
+            total={writingQuestions.length}
+          />
 
           {/* Question Card */}
-          <div className={`writing-card ${isFocusMode ? 'focus-mode' : ''}`} style={{
+          <div style={{
             background: '#fff',
             borderRadius: 24,
-            padding: window.innerWidth < 480 ? '20px' : '32px',
+            padding: 32,
             boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
             border: '1px solid var(--accent-color)',
-            minHeight: isFocusMode ? 'auto' : 400,
+            minHeight: 400,
             display: 'flex',
             flexDirection: 'column',
             marginBottom: 24
           }}>
-            {!isFocusMode && (
-              <div style={{ marginBottom: 24 }}>
-                <div style={{
-                  fontSize: 14, fontWeight: 700, color: 'var(--primary-color)',
-                  marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8
-                }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-color)' }} />
-                  Instructions
-                </div>
-                <p style={{
-                  margin: 0, fontSize: 16, color: 'var(--text-main)', lineHeight: 1.6,
-                  background: 'var(--accent-color)', padding: '16px 20px', borderRadius: 12,
-                  borderLeft: '4px solid var(--primary-color)'
-                }}>
-                  {currentQuestionData.instruction}
-                </p>
+            <div style={{ marginBottom: 24 }}>
+              <div style={{
+                fontSize: 14, fontWeight: 700, color: 'var(--primary-color)',
+                marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-color)' }} />
+                Instructions
               </div>
-            )}
+              <p style={{
+                margin: 0, fontSize: 16, color: 'var(--text-main)', lineHeight: 1.6,
+                background: 'var(--accent-color)', padding: '16px 20px', borderRadius: 12,
+                borderLeft: '4px solid var(--primary-color)'
+              }}>
+                {currentQuestionData.instruction}
+              </p>
+            </div>
 
             {showResults ? (
               <ModuleResults moduleType="writing" isInline={true} />

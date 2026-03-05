@@ -1,31 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../../services/authService';
-import Button from '../ui/Button';
-import InputField from '../ui/InputField';
+import { ghlService } from '../../services/ghlService';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [errors, setErrors] = useState({});
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const navigate = useNavigate();
 
-    // Live Validation
+    // Validation
     useEffect(() => {
-        const newErrors = {};
-        if (name && name.length < 2) newErrors.name = 'Name is too short';
-        if (email && !/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Invalid email address';
-        if (password && password.length < 8) newErrors.password = 'Minimum 8 characters';
-        setErrors(newErrors);
-    }, [name, email, password]);
+        if (email && !/\S+@\S+\.\S/.test(email)) {
+            setEmailError('Please enter a valid email address');
+        } else {
+            setEmailError('');
+        }
 
-    const isFormValid = name && email && password && Object.keys(errors).length === 0 && !loading;
+        if (password && password.length < 8) {
+            setPasswordError('Password must be at least 8 characters');
+        } else {
+            setPasswordError('');
+        }
+    }, [email, password]);
+
+    const isFormValid = name && email && password && !emailError && !passwordError && !loading;
 
     const handleRegister = async (e) => {
-        if (e) e.preventDefault();
+        e.preventDefault();
         if (!isFormValid) return;
 
         setError('');
@@ -34,12 +41,16 @@ const Register = () => {
         try {
             const result = await AuthService.register(name, email, password);
             if (result.success) {
+                // Sync to GHL (Background task, non-blocking for user)
+                ghlService.syncUserRegistration({ name, email })
+                    .catch(err => console.error('GHL Background Sync Error:', err));
+
                 navigate('/');
             } else {
-                setError(result.message || 'Registration failed. Try again.');
+                setError(result.message || 'Registration failed. Please try again.');
             }
         } catch (err) {
-            setError('An error occurred. Please check your connection.');
+            setError('An error occurred during registration. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -48,100 +59,244 @@ const Register = () => {
     return (
         <div style={{
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             minHeight: '100vh',
-            background: 'var(--color-background)',
-            padding: 'var(--spacing-lg)'
+            background: 'var(--bg-color)',
+            fontFamily: "'Inter', sans-serif",
+            padding: '20px'
         }}>
             <div style={{
                 background: '#ffffff',
-                padding: 'var(--spacing-xl)',
-                borderRadius: 'var(--mobile-radius)',
-                boxShadow: 'var(--shadow-medium)',
+                padding: '48px 40px',
+                borderRadius: '24px',
+                boxShadow: '0 12px 48px rgba(0, 0, 0, 0.06)',
                 width: '100%',
-                maxWidth: '400px',
+                maxWidth: '440px',
                 textAlign: 'center',
-                border: '1px solid var(--color-border)'
+                border: '1px solid #f0f2f5'
             }}>
+                {/* Logo */}
                 <div style={{
-                    width: '64px', height: '64px', borderRadius: '18px', margin: '0 auto 24px',
-                    background: 'var(--color-secondary)',
+                    width: 64, height: 64, borderRadius: 18, margin: '0 auto 24px',
+                    background: 'var(--primary-color)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 8px 16px rgba(103, 58, 183, 0.2)'
+                    boxShadow: '0 8px 16px rgba(13, 59, 102, 0.2)'
                 }}>
-                    <span style={{ fontSize: '32px' }}>✨</span>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 7h-9" />
+                        <path d="M14 17H5" />
+                        <circle cx="17" cy="17" r="3" />
+                        <circle cx="7" cy="7" r="3" />
+                    </svg>
                 </div>
 
-                <h2 style={{ margin: '0 0 8px', color: 'var(--color-text-main)', fontSize: '24px', fontWeight: 800 }}>
+                <h2 style={{ margin: '0 0 10px', color: '#1e293b', fontSize: '28px', fontWeight: 800, letterSpacing: '-0.5px' }}>
                     Create Account
                 </h2>
-                <p style={{ margin: '0 0 32px', color: 'var(--color-text-sub)', fontSize: '15px' }}>
-                    Join thousands of PTE candidates.
+                <p style={{ margin: '0 0 36px', color: '#64748b', fontSize: '15px', fontWeight: 400 }}>
+                    Join to start your PTE exam preparation
                 </p>
 
                 {error && (
                     <div style={{
-                        background: '#fef2f2', color: 'var(--color-danger)',
-                        padding: '12px', borderRadius: '12px', marginBottom: '20px',
-                        fontSize: '14px', fontWeight: 600, border: '1px solid #fee2e2'
+                        background: '#fff1f2', color: '#e11d48', padding: '14px',
+                        borderRadius: '12px', marginBottom: '24px', fontSize: '14px',
+                        fontWeight: 500, border: '1px solid #ffe4e6', textAlign: 'left',
+                        display: 'flex', alignItems: 'center', gap: '8px'
                     }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleRegister} style={{ textAlign: 'left' }}>
-                    <InputField
-                        label="Full Name"
-                        placeholder="Alex Smith"
-                        value={name}
-                        onChange={(val) => setName(val)}
-                        error={errors.name}
-                        icon="👤"
-                    />
-
-                    <InputField
-                        label="Email Address"
-                        type="email"
-                        placeholder="name@example.com"
-                        value={email}
-                        onChange={(val) => setEmail(val)}
-                        error={errors.email}
-                        icon="✉️"
-                    />
-
-                    <InputField
-                        label="Password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(val) => setPassword(val)}
-                        error={errors.password}
-                        icon="🔒"
-                    />
-
-                    <div style={{ marginTop: '24px' }}>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            disabled={!isFormValid}
-                        >
-                            {loading ? 'Creating Account...' : 'Create Account'}
-                        </Button>
+                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* Name Field */}
+                    <div style={{ textAlign: 'left' }}>
+                        <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#334155', marginBottom: '8px' }}>
+                            Full Name
+                        </label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Alex Smith"
+                            style={{
+                                width: '100%',
+                                padding: '14px 16px',
+                                borderRadius: '12px',
+                                border: '1.5px solid #e2e8f0',
+                                fontSize: '15px',
+                                outline: 'none',
+                                boxSizing: 'border-box',
+                                transition: 'all 0.2s',
+                                background: '#fcfdfe'
+                            }}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = 'var(--primary-color)';
+                                e.target.style.boxShadow = '0 0 0 4px rgba(13, 59, 102, 0.1)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = '#e2e8f0';
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        />
                     </div>
+
+                    {/* Email Field */}
+                    <div style={{ textAlign: 'left' }}>
+                        <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#334155', marginBottom: '8px' }}>
+                            Email Address
+                        </label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="name@example.com"
+                            style={{
+                                width: '100%',
+                                padding: '14px 16px',
+                                borderRadius: '12px',
+                                border: emailError ? '1.5px solid #fb7185' : '1.5px solid #e2e8f0',
+                                fontSize: '15px',
+                                outline: 'none',
+                                boxSizing: 'border-box',
+                                transition: 'all 0.2s',
+                                background: '#fcfdfe'
+                            }}
+                            onFocus={(e) => {
+                                if (!emailError) e.target.style.borderColor = 'var(--primary-color)';
+                                e.target.style.boxShadow = '0 0 0 4px rgba(13, 59, 102, 0.1)';
+                            }}
+                            onBlur={(e) => {
+                                if (!emailError) e.target.style.borderColor = '#e2e8f0';
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        />
+                        {emailError && (
+                            <span style={{ color: '#e11d48', fontSize: '12px', marginTop: '6px', display: 'block' }}>
+                                {emailError}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Password Field */}
+                    <div style={{ textAlign: 'left' }}>
+                        <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#334155', marginBottom: '8px' }}>
+                            Password
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                                style={{
+                                    width: '100%',
+                                    padding: '14px 16px',
+                                    borderRadius: '12px',
+                                    border: passwordError ? '1.5px solid #fb7185' : '1.5px solid #e2e8f0',
+                                    fontSize: '15px',
+                                    outline: 'none',
+                                    boxSizing: 'border-box',
+                                    transition: 'all 0.2s',
+                                    background: '#fcfdfe'
+                                }}
+                                onFocus={(e) => {
+                                    e.target.style.borderColor = 'var(--primary-color)';
+                                    e.target.style.boxShadow = '0 0 0 4px rgba(13, 59, 102, 0.1)';
+                                }}
+                                onBlur={(e) => {
+                                    e.target.style.borderColor = '#e2e8f0';
+                                    e.target.style.boxShadow = 'none';
+                                }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '12px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    padding: '4px',
+                                    cursor: 'pointer',
+                                    color: '#94a3b8'
+                                }}
+                            >
+                                {showPassword ? (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                        <line x1="1" y1="1" x2="23" y2="23" />
+                                    </svg>
+                                ) : (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
+                        {passwordError && (
+                            <span style={{ color: '#e11d48', fontSize: '12px', marginTop: '6px', display: 'block' }}>
+                                {passwordError}
+                            </span>
+                        )}
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={!isFormValid}
+                        style={{
+                            background: isFormValid ? 'var(--secondary-color)' : 'var(--accent-color)',
+                            color: isFormValid ? 'var(--primary-color)' : '#94a3b8',
+                            border: 'none',
+                            padding: '16px',
+                            borderRadius: '12px',
+                            fontSize: '16px',
+                            fontWeight: 700,
+                            cursor: isFormValid ? 'pointer' : 'not-allowed',
+                            marginTop: '8px',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '10px',
+                            boxShadow: isFormValid ? '0 4px 12px rgba(250, 169, 22, 0.25)' : 'none'
+                        }}
+                        onMouseEnter={e => isFormValid && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                        onMouseLeave={e => isFormValid && (e.currentTarget.style.transform = 'translateY(0)')}
+                    >
+                        {loading ? (
+                            <>
+                                <div style={{
+                                    width: '18px', height: '18px', border: '2.5px solid rgba(255,255,255,0.3)',
+                                    borderTopColor: '#fff', borderRadius: '50%',
+                                    animation: 'spin 0.8s linear infinite'
+                                }} />
+                                <span>Creating Account...</span>
+                                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                            </>
+                        ) : (
+                            <span>Create Account</span>
+                        )}
+                    </button>
                 </form>
 
-                <p style={{ marginTop: '28px', fontSize: '14px', color: 'var(--color-text-sub)' }}>
+                <p style={{ marginTop: '32px', fontSize: '14px', color: '#64748b', fontWeight: 500 }}>
                     Already have an account? <span
-                        style={{ color: 'var(--color-primary)', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ color: 'var(--primary-color)', fontWeight: 700, cursor: 'pointer', textDecoration: 'none' }}
                         onClick={() => navigate('/login')}
                     >
-                        Sign In
+                        Sign in instead
                     </span>
                 </p>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

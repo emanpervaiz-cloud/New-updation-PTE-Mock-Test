@@ -4,9 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import scoringEngine from '../../services/scoringEngine';
 import { AuthService } from '../../services/authService';
 import { ghlService } from '../../services/ghlService';
-import ProgressBar from '../ui/ProgressBar';
-import StatCard from '../ui/StatCard';
-import Button from '../ui/Button';
 
 const ResultsPage = () => {
   const { state, setScores, completeExam, resetExam } = useExam();
@@ -22,18 +19,27 @@ const ResultsPage = () => {
         setLoading(true);
         setError(null);
         console.log('=== ResultsPage: Starting score calculation ===');
+        console.log('Answers count:', Object.keys(state.answers || {}).length);
+
         const answers = state.answers || {};
 
         // Load AI evaluations from localStorage
         let aiEvaluations = {};
         try {
           const stored = localStorage.getItem('pte_ai_evaluations');
+          console.log('Raw stored evaluations:', stored);
           aiEvaluations = JSON.parse(stored || '{}');
+          console.log('Loaded AI evaluations:', Object.keys(aiEvaluations));
+          console.log('AI Evaluation contents:', aiEvaluations);
         } catch (e) {
           console.error('Failed to load AI evaluations:', e);
         }
 
+        // Calculate scores using scoring engine with AI evaluations
         const scores = scoringEngine.calculateAllScores(answers, aiEvaluations);
+        console.log('Calculated scores:', scores);
+
+        // Extract individual section scores
         const speakingScore = scores.speaking?.scaledScore || 10;
         const writingScore = scores.writing?.scaledScore || 10;
         const readingScore = scores.reading?.scaledScore || 10;
@@ -49,6 +55,12 @@ const ResultsPage = () => {
           return 'A1';
         };
 
+        // Count completed questions for feedback
+        const speakingCount = Object.values(answers).filter(a => a.section === 'speaking').length;
+        const writingCount = Object.values(answers).filter(a => a.section === 'writing').length;
+        const readingCount = Object.values(answers).filter(a => a.section === 'reading').length;
+        const listeningCount = Object.values(answers).filter(a => a.section === 'listening').length;
+
         const calculatedScores = {
           overall: {
             overallScore: overallScore,
@@ -58,22 +70,22 @@ const ResultsPage = () => {
           speaking: {
             scaledScore: speakingScore,
             cefrLevel: scores.speaking?.cefrLevel || getCefrLevel(speakingScore),
-            feedback: scores.speaking?.feedback || `Completed ${Object.values(answers).filter(a => a.section === 'speaking').length} speaking tasks`
+            feedback: scores.speaking?.feedback || `Completed ${speakingCount} speaking tasks`
           },
           writing: {
             scaledScore: writingScore,
             cefrLevel: scores.writing?.cefrLevel || getCefrLevel(writingScore),
-            feedback: scores.writing?.feedback || `Completed ${Object.values(answers).filter(a => a.section === 'writing').length} writing tasks`
+            feedback: scores.writing?.feedback || `Completed ${writingCount} writing tasks`
           },
           reading: {
             scaledScore: readingScore,
             cefrLevel: scores.reading?.cefrLevel || getCefrLevel(readingScore),
-            feedback: scores.reading?.feedback || `Completed ${Object.values(answers).filter(a => a.section === 'reading').length} reading tasks`
+            feedback: scores.reading?.feedback || `Completed ${readingCount} reading tasks`
           },
           listening: {
             scaledScore: listeningScore,
             cefrLevel: scores.listening?.cefrLevel || getCefrLevel(listeningScore),
-            feedback: scores.listening?.feedback || `Completed ${Object.values(answers).filter(a => a.section === 'listening').length} listening tasks`
+            feedback: scores.listening?.feedback || `Completed ${listeningCount} listening tasks`
           }
         };
 
@@ -83,7 +95,6 @@ const ResultsPage = () => {
 
         // Save result history
         const result = {
-          id: Date.now(),
           date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           overall: overallScore,
           speaking: speakingScore,
@@ -125,155 +136,197 @@ const ResultsPage = () => {
   }, [state.answers]);
 
   const handleRetakeExam = () => {
+    // Clear AI evaluations for new exam
     try {
       localStorage.removeItem('pte_ai_evaluations');
-    } catch (e) { }
+      console.log('Cleared AI evaluations for new exam');
+    } catch (e) {
+      console.error('Failed to clear AI evaluations:', e);
+    }
+
     resetExam();
     navigate('/');
   };
 
   const getScoreColor = (score) => {
-    if (score >= 70) return '#10b981'; // Green
-    if (score >= 50) return 'var(--color-secondary)';
-    if (score >= 30) return '#f59e0b'; // Amber
-    return '#ef4444'; // Red
+    if (score >= 70) return 'var(--success-color)';
+    if (score >= 50) return 'var(--secondary-color)';
+    if (score >= 30) return '#fb8c00';
+    return '#dc2626';
+  };
+
+  const getScoreBarWidth = (score) => {
+    return `${((score - 10) / 80) * 100}%`;
   };
 
   if (loading) {
     return (
-      <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
-        <div className="spinner" style={{ margin: '40px auto' }}></div>
-        <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Calculating Scores...</h2>
+      <div className="exam-container exam-theme">
+        <main className="main-content">
+          <div className="container" style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h2>Calculating your scores...</h2>
+            <p>Please wait while we process your responses.</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="exam-container exam-theme">
+        <main className="main-content">
+          <div className="container" style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h2>Error Loading Results</h2>
+            <p style={{ color: 'red' }}>{error}</p>
+            <button className="btn btn-primary" onClick={() => navigate('/')}>Go to Home</button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!scores) {
+    return (
+      <div className="exam-container exam-theme">
+        <main className="main-content">
+          <div className="container" style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h2>No Results Available</h2>
+            <p>Please complete the exam first.</p>
+            <button className="btn btn-primary" onClick={() => navigate('/')}>Go to Home</button>
+          </div>
+        </main>
       </div>
     );
   }
 
   const overallScore = scores.overall?.overallScore || 10;
   const cefrLevel = scores.overall?.cefrLevel || 'A1';
+  const classification = scores.overall?.classification || '';
 
   return (
-    <div style={{ padding: 'var(--spacing-lg)', background: 'var(--color-background)', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 'var(--spacing-xl)', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Test Results</h1>
-        <div style={{ fontSize: '14px', color: 'var(--color-text-sub)' }}>
-          {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+    <div className="exam-container exam-theme">
+      <header className="exam-header">
+        <div className="container">
+          <h1 className="exam-title">PTE Academic — Test Results</h1>
         </div>
-      </div>
+      </header>
 
-      {/* Main Overall Score Display */}
-      <div style={{
-        background: '#fff',
-        borderRadius: 'var(--mobile-radius)', // Actually using generic radius since --mobile-radius is context dependent
-        padding: '32px',
-        textAlign: 'center',
-        marginBottom: '24px',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
-        border: '1px solid var(--color-border)'
-      }}>
-        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-sub)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Overall Score
-        </div>
-        <div style={{
-          fontSize: '84px',
-          fontWeight: 900,
-          color: getScoreColor(overallScore),
-          lineHeight: 1,
-          margin: '16px 0'
-        }}>
-          {overallScore}
-        </div>
-        <div style={{
-          display: 'inline-block',
-          padding: '6px 16px',
-          borderRadius: '20px',
-          background: 'var(--color-primary)',
-          color: '#fff',
-          fontWeight: 800,
-          fontSize: '14px'
-        }}>
-          CEFR {cefrLevel}
-        </div>
-      </div>
+      <main className="main-content">
+        <div className="container">
+          {/* Overall Score Card */}
+          <div className="card" style={{ textAlign: 'center', marginBottom: '24px', padding: '32px' }}>
+            <h2 style={{ marginBottom: '8px' }}>Overall Score</h2>
+            <div style={{
+              fontSize: '72px',
+              fontWeight: '800',
+              color: getScoreColor(overallScore),
+              lineHeight: '1.1',
+              margin: '12px 0'
+            }}>
+              {overallScore}
+              <span style={{ fontSize: '24px', color: '#666' }}>/90</span>
+            </div>
+            <div style={{
+              display: 'inline-block',
+              padding: '6px 20px',
+              borderRadius: '20px',
+              background: 'var(--primary-color)',
+              color: '#fff',
+              fontWeight: '600',
+              fontSize: '16px',
+              marginBottom: '12px'
+            }}>
+              CEFR Level: {cefrLevel}
+            </div>
+            <p style={{ color: '#555', marginTop: '12px', fontSize: '15px' }}>{classification}</p>
+          </div>
 
-      {/* Summary Stats Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '12px',
-        marginBottom: '24px'
-      }}>
-        <StatCard
-          label="Total Items"
-          value={Object.keys(state.answers).length}
-          icon="📋"
-          color="#3b82f6"
-        />
-        <StatCard
-          label="Last Score"
-          value={overallScore}
-          icon="📈"
-          color="#10b981"
-        />
-      </div>
+          {/* Section Scores */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+            {[
+              { key: 'speaking', label: 'Speaking', icon: '🎤' },
+              { key: 'writing', label: 'Writing', icon: '✍️' },
+              { key: 'reading', label: 'Reading', icon: '📖' },
+              { key: 'listening', label: 'Listening', icon: '🎧' }
+            ].map(({ key, label, icon }) => {
+              const sectionScore = scores[key]?.scaledScore || 10;
+              const sectionCefr = scores[key]?.cefrLevel || 'A1';
+              const sectionFeedback = scores[key]?.feedback || '';
 
-      {/* Section Score Breakdown */}
-      <div style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px', color: 'var(--color-text)' }}>Score Breakdown</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {[
-            { key: 'speaking', label: 'Speaking', icon: '🎤' },
-            { key: 'writing', label: 'Writing', icon: '✍️' },
-            { key: 'reading', label: 'Reading', icon: '📖' },
-            { key: 'listening', label: 'Listening', icon: '🎧' }
-          ].map(({ key, label, icon }) => {
-            const val = scores[key]?.scaledScore || 10;
-            return (
-              <div key={key} style={{
-                background: '#fff',
-                padding: '16px',
-                borderRadius: '16px',
-                border: '1px solid var(--color-border)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '18px' }}>{icon}</span>
-                    <span style={{ fontWeight: 700, fontSize: '15px' }}>{label}</span>
+              return (
+                <div key={key} className="card" style={{ padding: '20px' }}>
+                  <h3 style={{ marginBottom: '12px' }}>{icon} {label}</h3>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '36px', fontWeight: '700', color: getScoreColor(sectionScore) }}>
+                      {sectionScore}
+                    </span>
+                    <span style={{ color: '#999' }}>/90</span>
+                    <span style={{
+                      marginLeft: 'auto',
+                      padding: '2px 10px',
+                      borderRadius: '12px',
+                      background: 'var(--accent-color)',
+                      fontSize: '13px',
+                      fontWeight: '600'
+                    }}>
+                      {sectionCefr}
+                    </span>
                   </div>
-                  <div style={{ fontSize: '15px', fontWeight: 800, color: getScoreColor(val) }}>
-                    {val}<span style={{ color: 'var(--color-text-sub)', fontSize: '12px', fontWeight: 500 }}>/90</span>
+                  {/* Score bar */}
+                  <div style={{ height: '8px', background: '#e0e0e0', borderRadius: '4px', marginBottom: '12px' }}>
+                    <div style={{
+                      height: '100%',
+                      width: getScoreBarWidth(sectionScore),
+                      background: getScoreColor(sectionScore),
+                      borderRadius: '4px',
+                      transition: 'width 1s ease'
+                    }} />
                   </div>
+                  <p style={{ fontSize: '14px', color: '#555', lineHeight: '1.5' }}>{sectionFeedback}</p>
                 </div>
-                <ProgressBar
-                  current={val - 10}
-                  total={80}
-                  color={getScoreColor(val)}
-                  label={scores[key]?.cefrLevel}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
+              );
+            })}
+          </div>
 
-      {/* Action Buttons */}
-      <div style={{
-        position: 'sticky',
-        bottom: 'calc(var(--spacing-lg) + var(--safe-area-bottom))',
-        background: 'rgba(240, 244, 248, 0.9)',
-        backdropFilter: 'blur(8px)',
-        padding: '16px 0',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px'
-      }}>
-        <Button onClick={handleRetakeExam} fullWidth>
-          Start New Practice
-        </Button>
-        <Button variant="secondary" onClick={() => navigate('/history')} fullWidth>
-          View Test History
-        </Button>
-      </div>
+          {/* Answers Summary */}
+          <div className="card" style={{ padding: '20px', marginBottom: '24px' }}>
+            <h3>Exam Summary</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginTop: '12px' }}>
+              <div>
+                <div style={{ fontSize: '13px', color: '#888' }}>Total Questions</div>
+                <div style={{ fontSize: '24px', fontWeight: '700' }}>{Object.keys(state.answers).length}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '13px', color: '#888' }}>Speaking</div>
+                <div style={{ fontSize: '24px', fontWeight: '700' }}>{Object.values(state.answers).filter(a => a.section === 'speaking').length}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '13px', color: '#888' }}>Writing</div>
+                <div style={{ fontSize: '24px', fontWeight: '700' }}>{Object.values(state.answers).filter(a => a.section === 'writing').length}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '13px', color: '#888' }}>Reading</div>
+                <div style={{ fontSize: '24px', fontWeight: '700' }}>{Object.values(state.answers).filter(a => a.section === 'reading').length}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '13px', color: '#888' }}>Listening</div>
+                <div style={{ fontSize: '24px', fontWeight: '700' }}>{Object.values(state.answers).filter(a => a.section === 'listening').length}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="btn btn-primary" onClick={handleRetakeExam}>
+              Retake Exam
+            </button>
+            <button className="btn btn-secondary" onClick={() => window.print()}>
+              Print Results
+            </button>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
