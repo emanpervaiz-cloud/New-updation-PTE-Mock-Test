@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useExam } from '../../context/ExamContext';
 import AudioPlayer from '../common/AudioPlayer';
 
